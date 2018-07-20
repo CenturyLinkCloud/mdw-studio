@@ -1,8 +1,8 @@
 package com.centurylink.mdw.studio.config
 
-import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.studio.edit.*
-import com.centurylink.mdw.studio.ext.JsonObject
+import com.centurylink.mdw.studio.edit.UpdateListeners
+import com.centurylink.mdw.studio.edit.UpdateListenersDelegate
+import com.centurylink.mdw.studio.edit.WorkflowObj
 import com.centurylink.mdw.studio.ext.contains
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonElement
@@ -12,7 +12,6 @@ import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import java.lang.System.err
 import javax.swing.BorderFactory
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -27,7 +26,6 @@ class TabPanel(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val w
     private val contentPane: ContentPane
     private var tabComponent: Component? = null
     var tabSelectListener: TabSelectListener? = null
-    var helpLink: HelpLink? = null
 
     init {
         background = JBColor.background()
@@ -67,7 +65,6 @@ class TabPanel(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val w
                     notifyUpdateListeners(obj)
                 }
                 contentPane.add(tabComponent)
-                helpLink = configTab.configurator?.helpLink
             }
         }
         else if (tabJson.isJsonPrimitive) {
@@ -79,7 +76,6 @@ class TabPanel(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val w
                 tabComponent = TextTab(workflowObj.toString(prop))
             }
             contentPane.add(tabComponent)
-            helpLink = HelpLink("help/implementor.html", "Activity Help")
         }
         contentPane.invalidate()
         contentPane.repaint()
@@ -191,25 +187,6 @@ class TabPane(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val wo
     }
 }
 
-
-fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj: WorkflowObj): Template? {
-    val tabTemplate = tabJson.get("_template")
-    val templ = tabTemplate.asString
-    if (templ == "<implementor>") {
-        val implClass = workflowObj.get("implementor")
-        val implementor = projectSetup.implementors[implClass]
-        implementor?.let {
-            return Template(JsonObject(implementor.json.toString()))
-        }
-    }
-    else {
-        val content = Templates.get("configurator/" + templ)
-        content?.let {
-            return Template(JsonObject(content))
-        }
-    }
-    return null
-}
 
 interface TabSelectListener {
     fun onTabSelect(tabName: String, tabJson: JsonElement)

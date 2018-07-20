@@ -2,13 +2,10 @@ package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.studio.draw.Drawable
-import com.centurylink.mdw.studio.edit.HelpLink
-import com.centurylink.mdw.studio.edit.SelectListener
-import com.centurylink.mdw.studio.edit.UpdateListeners
-import com.centurylink.mdw.studio.edit.UpdateListenersDelegate
+import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.ext.JsonObject
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.ide.ui.UISettings
@@ -27,8 +24,7 @@ import javax.swing.border.EmptyBorder
 
 
 class ConfigPanel(val projectSetup: ProjectSetup) :
-        JPanel(BorderLayout()), HideShowListener, SelectListener, TabSelectListener,
-        UpdateListeners by UpdateListenersDelegate() {
+        JPanel(BorderLayout()), HideShowListener, SelectListener, UpdateListeners by UpdateListenersDelegate() {
 
     private val titleBar = TitleBar("")
     private var tabPanel: TabPanel? = null
@@ -55,9 +51,8 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
             val selectObj = selectObjs[0]
             titleBar.itemLabel.text = selectObj.workflowObj.name.lines().joinToString(" ")
             val configTabsJson = allTabsJson.get(selectObj.workflowObj.type.toString()).asJsonObject
+            titleBar.helpLink = findHelpLink(selectObj.workflowObj, configTabsJson)
             tabPanel = TabPanel(projectSetup, configTabsJson, selectObj.workflowObj)
-            tabPanel?.tabSelectListener = this
-            titleBar.helpLink = tabPanel?.helpLink
             tabPanel?.addUpdateListener { obj ->
                 notifyUpdateListeners(obj)
             }
@@ -72,8 +67,19 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         repaint()
     }
 
-    override fun onTabSelect(tabName: String, tabJson: JsonElement) {
-        titleBar.helpLink = tabPanel?.helpLink
+    private fun findHelpLink(workflowObj: WorkflowObj, configTabsJson: JsonObject) : HelpLink? {
+        for (tab in configTabsJson.keySet()) {
+            val template = getTabTemplate(projectSetup, configTabsJson.get(tab).asJsonObject, workflowObj)
+            template?.let {
+                val helpLinkWidget = it.pagelet.widgets.find {
+                    it.isHelpLink && (it.section == tab || (it.section == null && (tab == "Design" || tab == "General")))
+                }
+                if (helpLinkWidget != null) {
+                    return HelpLink(helpLinkWidget.url ?: "", helpLinkWidget.name)
+                }
+            }
+        }
+        return null
     }
 
     companion object {
@@ -93,6 +99,27 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
 
 interface HideShowListener {
     fun onHideShow(show: Boolean)
+}
+
+data class HelpLink(val url: String, val tooltip: String?)
+
+fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj: WorkflowObj): Template? {
+    val tabTemplate = tabJson.get("_template")
+    val templ = tabTemplate.asString
+    if (templ == "<implementor>") {
+        val implClass = workflowObj.get("implementor")
+        val implementor = projectSetup.implementors[implClass]
+        implementor?.let {
+            return Template(JsonObject(implementor.json.toString()))
+        }
+    }
+    else {
+        val content = Templates.get("configurator/" + templ)
+        content?.let {
+            return Template(JsonObject(content))
+        }
+    }
+    return null
 }
 
 class TitleBar(processName: String) : JPanel(BorderLayout()) {

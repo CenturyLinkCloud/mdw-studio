@@ -9,12 +9,7 @@ class Configurator(private val tab: String, private val template: Template, val 
     private val isMainTab: Boolean
         get() = tab == "Design" || tab == "General"
 
-    var helpLink: HelpLink? = null
-
     init {
-        // help link
-        helpLink = extractHelpLink()
-
         filterWidgets()
 
         for (widget in template.pagelet.widgets) {
@@ -51,6 +46,10 @@ class Configurator(private val tab: String, private val template: Template, val 
     }
 
     private fun filterWidgets() {
+        template.pagelet.widgets.find {
+            it.isHelpLink && (it.section == tab || (it.section == null && isMainTab))
+        }?.let { template.pagelet.widgets.remove(it) }
+
         if (template.category != "object" && template.category != "attributes") {
             var widgets = mutableListOf<Pagelet.Widget>()
             for (widget in template.pagelet.widgets) {
@@ -65,16 +64,4 @@ class Configurator(private val tab: String, private val template: Template, val 
         }
     }
 
-    private fun extractHelpLink(): HelpLink? {
-        val helpLinkWidget = template.pagelet.widgets.find {
-            it.isHelpLink && (it.section == tab || (it.section == null && isMainTab))
-        }
-        if (helpLinkWidget == null) {
-            return null
-        }
-        else {
-            template.pagelet.widgets.remove(helpLinkWidget)
-            return HelpLink(helpLinkWidget.url ?: "", helpLinkWidget.name)
-        }
-    }
 }

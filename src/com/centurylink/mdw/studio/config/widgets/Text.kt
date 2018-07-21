@@ -16,7 +16,7 @@ import javax.swing.text.JTextComponent
  * Expects a normal string widget value
  */
 @Suppress("unused")
-class Text(widget: Widget) : SwingWidget(widget) {
+open class Text(widget: Widget) : SwingWidget(widget) {
 
     init {
         background = UIManager.getColor("EditorPane.background")

@@ -40,6 +40,8 @@ val Pagelet.Widget.valueString: String?
             }
         }
     }
+val Pagelet.Widget.containsExpression: Boolean
+    get() = valueString != null && valueString!!.indexOf("\${") >= 0
 val Pagelet.Widget.isTableType: Boolean
     get() = type == "table" || type == "mapping"
 val Pagelet.Widget.width: Int

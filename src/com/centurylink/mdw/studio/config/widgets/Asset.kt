@@ -1,13 +1,10 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
-import com.centurylink.mdw.studio.edit.isReadonly
-import com.centurylink.mdw.studio.edit.source
-import com.centurylink.mdw.studio.edit.valueString
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.fileChooser.FileChooser
-import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.Comparing
@@ -21,9 +18,12 @@ import java.io.IOException
 import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.JLabel
+import javax.swing.JOptionPane
 
 @Suppress("unused")
 class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
+
+    private val linkLabel: JLabel
 
     init {
         isOpaque = false
@@ -33,9 +33,10 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         val workflowObj = applier.workflowObj
         val projectSetup = workflowObj.project as ProjectSetup
 
-        val linkLabel = JLabel(getAssetLink())
+        val link = getAssetLink()
+        linkLabel = JLabel(link)
         linkLabel.toolTipText = widget.valueString
-        linkLabel.cursor = Cursor(Cursor.HAND_CURSOR)
+        linkLabel.cursor = getAssetCursor()
         linkLabel.border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
         linkLabel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent?) {
@@ -49,29 +50,54 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         add(linkLabel)
 
         if (!widget.isReadonly) {
-            val button = object : JButton("Select...") {
+            // select button
+            val selectButton = object : JButton("Select...") {
                 override fun getPreferredSize(): Dimension {
                     val size = super.getPreferredSize()
                     return Dimension(size.width, size.height - 2)
                 }
             }
-            button.isOpaque = false
-            button.addActionListener {
+            selectButton.isOpaque = false
+            selectButton.addActionListener {
                 val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+                descriptor.withRoots(projectSetup.assetDir)
                 widget.source?.let { source ->
                     descriptor.withFileFilter {
                         fileExtMatch(it, source.split(","))
                     }
                 }
                 FileChooser.chooseFile(descriptor, projectSetup.project, assetFile) {
-                    widget.value = projectSetup.getAssetPath(it)
-                    linkLabel.text = getAssetLink()
-                    linkLabel.toolTipText = widget.valueString
-                    applyUpdate()
+                    doUpdate(projectSetup.getAssetPath(it))
                 }
             }
-            add(button)
+            add(selectButton)
+
+            // set button
+            val setButton = object : JButton("Set...") {
+                override fun getPreferredSize(): Dimension {
+                    val size = super.getPreferredSize()
+                    return Dimension(size.width, size.height - 2)
+                }
+            }
+            setButton.isOpaque = false
+            setButton.addActionListener {
+                val value = JOptionPane.showInputDialog(this@Asset, widget.label, "Enter Value",
+                        JOptionPane.PLAIN_MESSAGE, null, null,  widget.valueString)
+                if (value != null) {
+                    // not canceled
+                    doUpdate(value.toString())
+                }
+            }
+            add(setButton)
         }
+    }
+
+    private fun doUpdate(value: String?) {
+        widget.value = value
+        linkLabel.text = getAssetLink()
+        linkLabel.toolTipText = widget.valueString
+        linkLabel.cursor = getAssetCursor()
+        applyUpdate()
     }
 
     private fun getAssetLink(): String {
@@ -80,7 +106,21 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         if (lastSlash > 0) {
             assetName = assetName.substring(lastSlash + 1, assetName.length)
         }
-        return "<html><a href='.'>${assetName}</a></html>"
+        return if (widget.containsExpression) {
+            assetName // contains expression
+        } else {
+            "<html><a href='.'>${assetName}</a></html>"
+        }
+    }
+
+    private fun getAssetCursor(): Cursor {
+        return if (widget.containsExpression) {
+            Cursor(Cursor.DEFAULT_CURSOR)
+        }
+        else {
+            Cursor(Cursor.HAND_CURSOR)
+        }
+
     }
 
     private fun fileExtMatch(file: VirtualFile, exts: List<String>): Boolean {

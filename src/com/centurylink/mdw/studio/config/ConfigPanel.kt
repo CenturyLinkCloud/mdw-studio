@@ -69,13 +69,16 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
 
     private fun findHelpLink(workflowObj: WorkflowObj, configTabsJson: JsonObject) : HelpLink? {
         for (tab in configTabsJson.keySet()) {
-            val template = getTabTemplate(projectSetup, configTabsJson.get(tab).asJsonObject, workflowObj)
-            template?.let {
-                val helpLinkWidget = it.pagelet.widgets.find {
-                    it.isHelpLink && (it.section == tab || (it.section == null && (tab == "Design" || tab == "General")))
-                }
-                if (helpLinkWidget != null) {
-                    return HelpLink(helpLinkWidget.url ?: "", helpLinkWidget.name)
+            val configTabJson = configTabsJson.get(tab)
+            if (configTabJson.isJsonObject) {
+                val template = getTabTemplate(projectSetup, configTabJson.asJsonObject, workflowObj)
+                template?.let {
+                    val helpLinkWidget = it.pagelet.widgets.find {
+                        it.isHelpLink && (it.section == tab || (it.section == null && (tab == "Design" || tab == "General")))
+                    }
+                    if (helpLinkWidget != null) {
+                        return HelpLink(helpLinkWidget.url ?: "", helpLinkWidget.name)
+                    }
                 }
             }
         }

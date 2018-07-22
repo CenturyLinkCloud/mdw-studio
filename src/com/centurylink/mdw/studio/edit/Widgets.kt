@@ -47,6 +47,8 @@ val Pagelet.Widget.containsExpression: Boolean
     get() = valueString != null && valueString!!.indexOf("\${") >= 0
 val Pagelet.Widget.isTableType: Boolean
     get() = type == "table" || type == "mapping"
+val Pagelet.Widget.isEditor: Boolean
+    get() = type == "editor"
 val Pagelet.Widget.width: Int
     get() = attributes["vw"]?.toInt() ?: 500
 val Pagelet.Widget.rows: Int?

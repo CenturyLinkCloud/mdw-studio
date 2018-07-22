@@ -8,6 +8,7 @@ import com.centurylink.mdw.studio.ext.JsonObject
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.FileTypes
+import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.testFramework.LightVirtualFileBase
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -17,7 +18,7 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val value: String?) :
+class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val value: String?, private val ext: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
     val contents: String
@@ -69,8 +70,12 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
     }
 
     fun getExt(): String {
-        if (workflowObj.getAttribute("Java") != null ||
-                workflowObj.obj.get("implementor") == "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity") {
+        if (ext != null) {
+            return ext // documentation, etc
+        }
+
+        if (workflowObj.getAttribute("Java") != null || (workflowObj.obj.has("implementor") &&
+                workflowObj.obj.get("implementor") == "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity")) {
             return "java"
         }
         for (langAttr in attrEditsJson.get("languageAttributes").asJsonArray) {
@@ -79,14 +84,21 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
                 return attrEditsJson.get("languages").asJsonObject.get(lang).asString
             }
         }
-        if (workflowObj.obj.get("implementor") == "com.centurylink.mdw.kotlin.ScriptActivity") {
+        if (workflowObj.obj.has("implementor") &&
+                workflowObj.obj.get("implementor") == "com.centurylink.mdw.kotlin.ScriptActivity") {
             return "kts"
         }
         return "txt"
     }
 
     override fun getFileType(): FileType {
-        return FileTypeManager.getInstance().getFileTypeByExtension(getExt())
+        val fileType = FileTypeManager.getInstance().getFileTypeByExtension(getExt())
+        if (fileType is UnknownFileType) {
+            return FileTypes.PLAIN_TEXT
+        }
+        else {
+            return fileType
+        }
     }
 
     override fun contentsToByteArray(): ByteArray {

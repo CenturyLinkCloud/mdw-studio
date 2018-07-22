@@ -39,10 +39,6 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
 
-        val dialogBuilder = DialogBuilder(this)
-        dialogBuilder.setTitle(applier.workflowObj.titlePath)
-        dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
-
         val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString)
         if (virtualFile.contents != widget.valueString) {
             // might have been set from template
@@ -63,6 +59,10 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         })
         val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         editor.component.preferredSize = Dimension(800, 600)
+
+        val dialogBuilder = DialogBuilder(this)
+        dialogBuilder.setTitle(applier.workflowObj.titlePath)
+        dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
 
         dialogBuilder.setCenterPanel(editor.component)
         dialogBuilder.setDimensionServiceKey("mdw.AttributeSourceDialog")

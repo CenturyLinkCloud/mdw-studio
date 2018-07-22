@@ -85,11 +85,9 @@ class ConfigTab(tabName: String, template: Template, workflowObj: WorkflowObj) :
                         }
                     }
                     catch (ex: Exception) {
-                        // ex.printStackTrace()
-                        println("ERROR: " + ex)
+                        ex.printStackTrace()
                     }
                     gridPanel.add(swingWidget, widgetConstraints)
-
                 }
 
                 // add gridPanel at the end to avoid adding when exception

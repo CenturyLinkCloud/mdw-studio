@@ -14,6 +14,7 @@ open class WidgetAdapter(applier: WidgetApplier) : com.centurylink.mdw.model.ass
     }
 
     /**
+     * Convert widget.value to something whose toString() will populate the workflowObj.
      * Default implementation performs no conversion on widget.value string.
      */
     override fun willUpdate(widget: Widget) {

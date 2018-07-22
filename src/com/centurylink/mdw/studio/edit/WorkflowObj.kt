@@ -93,7 +93,7 @@ open class WorkflowObj(val project: Any?, val process: Process, val type: Workfl
      */
     fun setAttribute(name: String, value: String?) {
         var attrs = if (obj.has("attributes")) obj.getJSONObject("attributes") else null
-        if (value == null) {
+        if (value.isNullOrBlank()) {
             attrs?.remove(name)
         }
         else {
@@ -128,6 +128,9 @@ open class WorkflowObj(val project: Any?, val process: Process, val type: Workfl
                 process.setSubprocess(id, subprocess)
             }
             WorkflowType.textNote -> {
+                if (!obj.has("content")) {
+                    obj.put("content", "")
+                }
                 val textNote = TextNote(obj)
                 process.setTextNote(id, textNote)
             }

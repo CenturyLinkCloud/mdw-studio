@@ -16,7 +16,7 @@ class ProcessAttributeApplier : AttributeApplier() {
     override fun update() {
         when (widget.name) {
             "_isService" -> {
-                workflowObj.setAttribute("PROCESS_VISIBILITY", if (widget.value == true) "SERVICE" else "PUBLIC")
+                workflowObj.setAttribute("PROCESS_VISIBILITY", if (widget.value == "true") "SERVICE" else "PUBLIC")
             }
         }
     }

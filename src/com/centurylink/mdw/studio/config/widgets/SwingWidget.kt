@@ -16,9 +16,12 @@ open class SwingWidget(val widget: Widget, layout: LayoutManager = defaultLayout
 
     fun applyUpdate() {
         if (widget.adapter is WidgetApplier) {
+            widget.adapter.willUpdate(widget)
             val applier = widget.adapter as WidgetApplier
             applier.update()
             notifyUpdateListeners(applier.workflowObj)
+            // reflect updates prior to any subsequent value changes
+            widget.adapter.didInit(widget)
         }
     }
 

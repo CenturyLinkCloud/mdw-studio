@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.edit.apply
 
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.WorkflowObj
+import com.centurylink.mdw.studio.edit.valueString
 
 open class ObjectApplier : AbstractWidgetApplier() {
 
@@ -11,6 +12,11 @@ open class ObjectApplier : AbstractWidgetApplier() {
     }
 
     override fun update() {
-        workflowObj.set(widget.name, widget.value)
+        if (widget.valueString.isNullOrBlank()) {
+            workflowObj.remove(widget.name)
+        }
+        else {
+            workflowObj.set(widget.name, widget.value)
+        }
     }
 }

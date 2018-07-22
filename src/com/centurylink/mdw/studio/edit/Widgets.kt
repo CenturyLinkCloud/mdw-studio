@@ -27,6 +27,9 @@ val Pagelet.Widget.default: String?
 var Pagelet.Widget.url: String?
     get() = attributes["url"]
     set(value) { attributes["url"] = value }
+var Pagelet.Widget.units: String?
+    get() = attributes[name + "_UNITS"]
+    set(value) { attributes[name + "_UNITS"] = value }
 val Pagelet.Widget.isMultiline: Boolean
     get() = "true" == attributes["multiline"]
 val Pagelet.Widget.valueString: String?

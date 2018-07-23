@@ -1,17 +1,16 @@
 package com.centurylink.mdw.studio.config.widgets
 
+import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.UpdateListeners
 import com.centurylink.mdw.studio.edit.UpdateListenersDelegate
-import com.centurylink.mdw.studio.edit.apply.AbstractWidgetApplier
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import java.awt.FlowLayout
 import java.awt.LayoutManager
 import javax.swing.JPanel
-import kotlin.reflect.full.isSubclassOf
 
-open class SwingWidget(val widget: Widget, layout: LayoutManager = defaultLayout) :
+open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOUT) :
         JPanel(layout), UpdateListeners by UpdateListenersDelegate() {
 
     fun applyUpdate() {
@@ -26,6 +25,13 @@ open class SwingWidget(val widget: Widget, layout: LayoutManager = defaultLayout
     }
 
     companion object {
-        val defaultLayout = FlowLayout(FlowLayout.LEFT, 5, if (ProjectSetup.isWindows) 2 else 0)
+        val DEFAULT_LAYOUT = FlowLayout(FlowLayout.LEFT, 5, if (ProjectSetup.isWindows) 2 else 0)
+
+        fun create(widget: Pagelet.Widget): SwingWidget {
+            val swingWidgetClass = javaClass.`package`.name + "." +
+                    widget.type.substring(0, 1).toUpperCase() + widget.type.substring(1)
+            val widgetConstructor = Class.forName(swingWidgetClass).getConstructor(Pagelet.Widget::class.java)
+            return widgetConstructor.newInstance(widget) as SwingWidget
+        }
     }
 }

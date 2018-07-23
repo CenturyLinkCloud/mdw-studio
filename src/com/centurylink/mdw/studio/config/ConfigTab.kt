@@ -170,10 +170,7 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
     }
 
     private fun createSwingWidget(widget: Pagelet.Widget): SwingWidget {
-        val swingWidgetClass = javaClass.`package`.name + ".widgets." +
-                widget.type.substring(0, 1).toUpperCase() + widget.type.substring(1)
-        val widgetConstructor = Class.forName(swingWidgetClass).getConstructor(Pagelet.Widget::class.java)
-        val swingWidget = widgetConstructor.newInstance(widget) as SwingWidget
+        val swingWidget = SwingWidget.create(widget)
         swingWidget.addUpdateListener { obj ->
             notifyUpdateListeners(obj)
         }

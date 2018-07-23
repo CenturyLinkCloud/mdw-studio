@@ -57,8 +57,8 @@ class Picklist(widget: Pagelet.Widget) : SwingWidget(widget) {
         btnPanel.isOpaque = false
 
         val addButton = JButton()
-        addButton.icon = addButtonIcon
-        addButton.preferredSize = buttonDimension
+        addButton.icon = ADD_BTN_ICON
+        addButton.preferredSize = BUTTON_DIMENSION
         addButton.isOpaque = false
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
@@ -73,8 +73,8 @@ class Picklist(widget: Pagelet.Widget) : SwingWidget(widget) {
         }
 
         val remButton = JButton()
-        remButton.icon = remButtonIcon
-        remButton.preferredSize = buttonDimension
+        remButton.icon = REM_BTN_ICON
+        remButton.preferredSize = BUTTON_DIMENSION
         remButton.isOpaque = false
         btnPanel.add(remButton, BorderLayout.SOUTH)
         remButton.addActionListener {
@@ -94,9 +94,9 @@ class Picklist(widget: Pagelet.Widget) : SwingWidget(widget) {
     }
 
     companion object {
-        val buttonDimension = Dimension(30, 30)
-        val addButtonIcon = Icons.readIcon("/icons/right.gif")
-        val remButtonIcon = Icons.readIcon("/icons/left.gif")
+        val BUTTON_DIMENSION = Dimension(30, 30)
+        val ADD_BTN_ICON = Icons.readIcon("/icons/right.gif")
+        val REM_BTN_ICON = Icons.readIcon("/icons/left.gif")
 
     }
 }

@@ -2,10 +2,8 @@ package com.centurylink.mdw.studio.edit
 
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.adapt.WidgetAdapter
-import com.centurylink.mdw.studio.edit.apply.AbstractWidgetApplier
-import com.centurylink.mdw.studio.edit.apply.AttributeApplier
-import com.centurylink.mdw.studio.edit.apply.ObjectApplier
-import com.centurylink.mdw.studio.edit.apply.WidgetApplier
+import com.centurylink.mdw.studio.edit.apply.*
+import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -60,6 +58,36 @@ val Pagelet.Widget.max: Int?
 val Pagelet.Widget.isHelpLink: Boolean
     get() = type == "link" && (url?.startsWith("help/") ?: false)
 
+fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapter {
+    this.isReadonly = workflowObj.isReadonly
+
+    // options source
+    // TODO parameterized
+    when (source) {
+        "Variables" -> {
+            options = workflowObj.process.variables.map { it.name }
+        }
+        "DocumentVariables" -> {
+            options = workflowObj.process.variables.filter {
+                ProjectSetup.documentTypes.keys.contains(it.type)
+            }.map { it.name }
+        }
+        "UserGroup" -> {
+            options = ProjectSetup.workgroups
+        }
+    }
+
+    val adapter = createAdapter(category)
+    this.adapter = adapter
+    adapter.init(this, workflowObj)
+    if (value == null && default != null) {
+        value = default
+        adapter.update() // reflect in workflowObj
+    }
+    adapter.didInit(this)
+    return adapter
+}
+
 fun Pagelet.Widget.createApplier(category: String): AbstractWidgetApplier {
     var applierClass = attributes["applier"]
     applierClass?.let {
@@ -72,6 +100,7 @@ fun Pagelet.Widget.createApplier(category: String): AbstractWidgetApplier {
 
     // fall back to template default
     when (category) {
+        "table" -> return TableApplier()
         "object" -> return ObjectApplier()
         else -> return AttributeApplier()
     }
@@ -85,7 +114,7 @@ fun Pagelet.Widget.createAdapter(category: String): WidgetAdapter {
             type.substring(0, 1).toUpperCase() + type.substring(1) + "Adapter"
     val applier = createApplier(category)
     return try {
-        Class.forName(adapterClass).getConstructor(WidgetApplier::class.java).newInstance(applier   ) as WidgetAdapter
+        Class.forName(adapterClass).getConstructor(WidgetApplier::class.java).newInstance(applier) as WidgetAdapter
     }
     catch(ex: ClassNotFoundException) {
         WidgetAdapter(applier)

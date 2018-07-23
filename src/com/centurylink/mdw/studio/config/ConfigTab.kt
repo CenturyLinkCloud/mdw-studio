@@ -8,28 +8,13 @@ import com.centurylink.mdw.studio.draw.RoundedBorder
 import com.centurylink.mdw.studio.edit.*
 import com.google.gson.GsonBuilder
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.table.JBTable
 import java.awt.*
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import javax.swing.*
-import javax.swing.table.DefaultTableModel
-
-/**
- * Returns non-null if pagelet has only one widget, and it is
- * of the specified type.
- */
-fun Pagelet.findSoloWidget(type: String): Pagelet.Widget? {
-    if (widgets.size != 1) {
-        return null
-    }
-    return widgets.find { it.type == type }
-}
 
 class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowObj) : JPanel(BorderLayout()),
         UpdateListeners by UpdateListenersDelegate() {
-
-    var configurator: Configurator? = null
 
     val containerPane = JPanel()
     var scrollPane: JBScrollPane? = null
@@ -41,8 +26,9 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
         println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
 
         try {
-            configurator = Configurator(tabName, template, workflowObj)
-            addWidgets()
+            val widgets = template.filterWidgets(tabName)
+            widgets.forEach { it.init(template.category, workflowObj) }
+            addWidgets(widgets)
         }
         catch (ex: Exception) {
             ex.printStackTrace()
@@ -54,6 +40,7 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             textArea.isOpaque = false
             textArea.lineWrap = false
             textArea.font = Font("monospaced", Font.PLAIN, 12)
+            containerPane.removeAll()
             containerPane.add(textArea)
             if (scrollPane == null) {
                 addScrollPane()
@@ -74,8 +61,8 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
         }
     }
 
-    private fun addWidgets() {
-        template.pagelet.findSoloWidget("editor")?.let {
+    private fun addWidgets(widgets: List<Pagelet.Widget>) {
+        findSoloWidget(widgets,"editor")?.let {
             containerPane.layout = BorderLayout()
             containerPane.border = RoundedBorder()
             val editor = Editor(it)
@@ -86,12 +73,12 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             add(containerPane)
             return
         }
-        template.pagelet.findSoloWidget("table")?.let {
+        findSoloWidget(widgets,"table")?.let {
             // TODO: variables, process input bindings
             return
         }
 
-        if (!template.pagelet.widgets.isEmpty()) {
+        if (!widgets.isEmpty()) {
             addScrollPane()
 
             val containerConstraints = GridBagConstraints()
@@ -102,10 +89,10 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             containerConstraints.weightx = 1.0
             containerConstraints.weighty = 1.0
 
-            val tableWidgets = template.pagelet.widgets.filter { it.isTableType }
-            val regularWidgets = template.pagelet.widgets.filter { !it.isTableType }
+            val tableWidgets = widgets.filter { it.isTableType }
+            val regularWidgets = widgets.filter { !it.isTableType }
 
-            if (template.pagelet.widgets[0].isTableType) {
+            if (widgets[0].isTableType) {
                 // all tables come first
                 addTableWidgets(tableWidgets, containerConstraints)
                 containerConstraints.gridy = 1
@@ -176,6 +163,18 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
         }
         return swingWidget
     }
+
+    /**
+     * Returns non-null if pagelet has only one widget, and it is
+     * of the specified type.
+     */
+    fun findSoloWidget(widgets: List<Pagelet.Widget>, type: String): Pagelet.Widget? {
+        if (widgets.size != 1) {
+            return null
+        }
+        return widgets.find { it.type == type }
+    }
+
 
     private fun getBackgroundColor(): Color {
         return UIManager.getColor("EditorPane.background")

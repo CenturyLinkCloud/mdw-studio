@@ -23,12 +23,28 @@ open class WidgetAdapter(applier: WidgetApplier) : com.centurylink.mdw.model.ass
     /**
      * handles compatibility for old process defs
      */
-    fun toArray(value: String): JSONArray? {
+    fun toArray(value: String): JSONArray {
         return if (value.startsWith('[')) {
-            JSONArray(value.toString())
+            JSONArray(value)
         }
         else {
             safeSplit(value, "#")
+        }
+    }
+
+    fun toTable(value: String): JSONArray {
+        if (value.startsWith('[')) {
+            return JSONArray(value)
+        }
+        else {
+            val table = JSONArray()
+            val rows = safeSplit(value, ";")
+            for (i in 0 until rows.length()) {
+                val row = rows.getString(i)
+                val cols = safeSplit(row, ",")
+                table.put(cols)
+            }
+            return table
         }
     }
 

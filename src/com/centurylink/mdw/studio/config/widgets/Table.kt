@@ -1,21 +1,20 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.edit.apply.WidgetApplier
+import com.centurylink.mdw.studio.edit.init
 import com.centurylink.mdw.studio.edit.isReadonly
 import com.centurylink.mdw.studio.edit.label
 import com.intellij.ui.JBColor
 import com.intellij.ui.table.JBTable
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
-import java.awt.Dimension
 import javax.swing.BorderFactory
+import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
-import javax.swing.BoxLayout
-
-
 
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
@@ -29,7 +28,11 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
         val columnLabels = mutableListOf<String>()
         for (columnWidget in widget.widgets) {
+            columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
             val swingWidget = createSwingWidget(columnWidget)
+            swingWidget.addUpdateListener { obj ->
+                println("UPDATES")
+            }
             columnLabels.add(" " + columnWidget.label)
         }
 

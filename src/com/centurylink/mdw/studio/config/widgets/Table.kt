@@ -5,11 +5,13 @@ import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.edit.init
 import com.centurylink.mdw.studio.edit.isReadonly
 import com.centurylink.mdw.studio.edit.label
+import com.centurylink.mdw.studio.edit.width
 import com.intellij.ui.JBColor
 import com.intellij.ui.table.JBTable
 import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
+import java.awt.Dimension
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
@@ -17,7 +19,8 @@ import javax.swing.table.TableCellEditor
 
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
-    val columnWidgets = mutableListOf<Pagelet.Widget>()
+    private val table: JBTable
+    private val columnWidgets = mutableListOf<Pagelet.Widget>()
 
     init {
         isOpaque = false
@@ -55,7 +58,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         }
 
 
-        val table = object : JBTable(tableModel) {
+        table = object : JBTable(tableModel) {
             override fun isCellEditable(row: Int, column: Int): Boolean {
                 return if (widget.isReadonly) false else super.isCellEditable(row, column)
             }
@@ -64,12 +67,14 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
         headerCellRenderer.horizontalAlignment = DefaultTableCellRenderer.LEADING
 
-
+        // cell editors (TODO: assets, numbers)
         for (i in columnWidgets.indices) {
             val columnWidget = columnWidgets[i]
             val column = table.columnModel.getColumn(i)
             column.cellEditor = getCellEditor(columnWidget)
         }
+
+        table.setRowHeight(24)
 
         tablePanel.add(header, BorderLayout.NORTH)
         tablePanel.add(table, BorderLayout.CENTER)
@@ -79,6 +84,10 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         }
     }
 
+    private fun adjustRowHeights() {
+
+    }
+
     private fun getButtonPanel(): JPanel {
         val btnPanel = JPanel()
         btnPanel.layout = BoxLayout(btnPanel, BoxLayout.Y_AXIS)
@@ -86,6 +95,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         btnPanel.border = BorderFactory.createEmptyBorder(15, 5, 0, 0)
 
         val addButton = JButton("Add")
+        addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 4)
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
             println("ADD")
@@ -93,6 +103,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
         val delButton = JButton("Delete")
         btnPanel.add(delButton, BorderLayout.SOUTH)
+        delButton.preferredSize = Dimension(delButton.preferredSize.width - 8, delButton.preferredSize.height - 4)
         delButton.addActionListener {
             println("DEL")
         }

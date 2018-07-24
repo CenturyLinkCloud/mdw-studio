@@ -27,6 +27,7 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
+        border = BorderFactory.createEmptyBorder(2, 0, 0, 0)
 
         var assetFile: VirtualFile? = null
         val applier = widget.adapter as WidgetApplier

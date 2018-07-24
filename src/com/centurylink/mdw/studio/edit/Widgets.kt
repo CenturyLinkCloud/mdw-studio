@@ -110,13 +110,25 @@ fun Pagelet.Widget.createApplier(category: String): AbstractWidgetApplier {
  * Exclusively by convention based on widget type
  */
 fun Pagelet.Widget.createAdapter(category: String): WidgetAdapter {
-    val adapterClass = Pagelet.Widget::createApplier::class.java.`package`.name + ".adapt." +
-            type.substring(0, 1).toUpperCase() + type.substring(1) + "Adapter"
+    var adapterClass = attributes["adapter"]
+    if (adapterClass == null) {
+        adapterClass = Pagelet.Widget::createAdapter::class.java.`package`.name + ".adapt." +
+                type.substring(0, 1).toUpperCase() + type.substring(1) + "Adapter"
+    }
+    else {
+        if (!adapterClass.contains('.')) {
+            // qualify with default package
+            adapterClass = Pagelet.Widget::createAdapter::class.java.`package`.name + ".adapt." + adapterClass
+        }
+    }
     val applier = createApplier(category)
     return try {
         Class.forName(adapterClass).getConstructor(WidgetApplier::class.java).newInstance(applier) as WidgetAdapter
     }
     catch(ex: ClassNotFoundException) {
+        // error if expressly specified but not found
+        attributes["adapter"]?.let { throw ex }
+        // otherwise use default
         WidgetAdapter(applier)
     }
 }

@@ -27,6 +27,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         add(tablePanel)
 
         val columnLabels = mutableListOf<String>()
+
         for (columnWidget in widget.widgets) {
             columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
             val swingWidget = createSwingWidget(columnWidget)
@@ -36,7 +37,13 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             columnLabels.add(" " + columnWidget.label)
         }
 
-        val tableModel = DefaultTableModel(columnLabels.toTypedArray(), 6)
+        val tableModel = DefaultTableModel(columnLabels.toTypedArray(), 0)
+        tableModel.addTableModelListener { e ->
+            val colName = tableModel.getColumnName(e.column)
+            println("CHANGE " + colName + "[" + e.firstRow + "] = " + tableModel.getValueAt(e.firstRow, e.column))
+        }
+
+
         val table = object : JBTable(tableModel) {
             override fun isCellEditable(row: Int, column: Int): Boolean {
                 return if (widget.isReadonly) false else super.isCellEditable(row, column)

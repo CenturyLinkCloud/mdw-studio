@@ -55,7 +55,7 @@ open class Text(widget: Widget) : SwingWidget(widget) {
         }
         else {
             textComponent = JTextField()
-            textComponent.preferredSize = Dimension(widget.width, textComponent.preferredSize.height)
+            textComponent.preferredSize = Dimension(widget.width, textComponent.preferredSize.height - 4)
             add(textComponent)
         }
 

@@ -8,6 +8,7 @@ import javax.swing.BorderFactory
 import javax.swing.ButtonGroup
 import javax.swing.JRadioButton
 import groovyjarjarantlr.FileLineFormatter.getFormatter
+import java.awt.Dimension
 import javax.swing.text.StyleConstants.getComponent
 import javax.swing.JFormattedTextField
 import javax.swing.JComponent
@@ -27,7 +28,13 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
         widget.value?.let {
             num = it as Int
         }
-        val spinner = JBIntSpinner(num, 0, 10000)
+        val spinner = object : JBIntSpinner(num, 0, 10000) {
+            override fun getPreferredSize(): Dimension {
+                val size = super.getPreferredSize()
+                return Dimension(size.width, size.height - 2)
+            }
+        }
+
         val field = spinner.editor.getComponent(0) as JFormattedTextField
         (field.formatter as DefaultFormatter).commitsOnValidEdit = true
         spinner.addChangeListener {

@@ -5,6 +5,7 @@ import com.centurylink.mdw.studio.edit.isReadonly
 import com.google.gson.JsonObject
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.DocumentAdapter
+import java.awt.Dimension
 import java.awt.FlowLayout
 import javax.swing.JComboBox
 import javax.swing.JPanel
@@ -14,7 +15,12 @@ import javax.swing.text.JTextComponent
 @Suppress("unused")
 class Dropdown(widget: Widget) : SwingWidget(widget) {
 
-    val combo = ComboBox(widget.options?.toTypedArray() ?: emptyArray<String>())
+    val combo = object : ComboBox<String>(widget.options?.toTypedArray() ?: emptyArray<String>()) {
+        override fun getPreferredSize(): Dimension {
+            val size = super.getPreferredSize()
+            return Dimension(size.width, size.height - 2)
+        }
+    }
 
     init {
         isOpaque = false

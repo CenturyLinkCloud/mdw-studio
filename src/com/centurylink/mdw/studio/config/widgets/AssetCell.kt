@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.isReadonly
+import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
@@ -14,8 +15,9 @@ import javax.swing.table.TableCellEditor
 
 class AssetCell(widget: Pagelet.Widget) : JPanel(FlowLayout(FlowLayout.LEFT, 5, 0)) {
 
+    val assetLink = AssetLink(widget)
+
     init {
-        val assetLink = AssetLink(widget)
         add(assetLink)
 
         if (!widget.isReadonly) {

@@ -77,7 +77,7 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 class AssetLink(val widget: Pagelet.Widget) : JLabel() {
 
     init {
-        var assetFile: VirtualFile? = null
+        var assetFile: VirtualFile?
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
         val projectSetup = workflowObj.project as ProjectSetup
@@ -146,7 +146,11 @@ class AssetSelectButton(widget: Pagelet.Widget, label: String, callback: AssetSe
         addActionListener {
             val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
             descriptor.withRoots(projectSetup.assetDir)
-            widget.source?.let { source ->
+            widget.source?.let {
+                var source = it
+                if (source.startsWith("[")) {
+                    source = source.substring(1, source.length - 1)
+                }
                 descriptor.withFileFilter {
                     fileExtMatch(it, source.split(","))
                 }

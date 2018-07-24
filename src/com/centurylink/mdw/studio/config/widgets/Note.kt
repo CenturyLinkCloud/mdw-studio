@@ -1,11 +1,9 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.edit.label
 import com.centurylink.mdw.studio.edit.valueString
 import javax.swing.BorderFactory
 import javax.swing.JLabel
-import javax.swing.border.Border
 
 /**
  * Note widgets only have a label.

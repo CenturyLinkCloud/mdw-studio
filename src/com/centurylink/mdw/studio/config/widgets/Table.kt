@@ -5,7 +5,6 @@ import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.edit.init
 import com.centurylink.mdw.studio.edit.isReadonly
 import com.centurylink.mdw.studio.edit.label
-import com.centurylink.mdw.studio.edit.width
 import com.intellij.ui.JBColor
 import com.intellij.ui.table.JBTable
 import org.json.JSONArray
@@ -18,6 +17,7 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
+@Suppress("unused")
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
     private val table: JBTable

@@ -27,7 +27,7 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
-        border = BorderFactory.createEmptyBorder(2, 2, 0, 0)
+        border = BorderFactory.createEmptyBorder(2, 0, 0, 0)
 
         if (!assetLink.text.isNullOrEmpty()) {
             add(assetLink)
@@ -87,8 +87,13 @@ class AssetLink(val widget: Pagelet.Widget) : JLabel() {
         cursor = getAssetCursor()
         border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
         addMouseListener(object : MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent?) {
+            override fun mouseReleased(e: MouseEvent) {
                 assetFile = projectSetup.getAssetFile(widget.valueString!!)
+                if (assetFile == null) {
+                    // compatibility processes might not have extension
+                    val procFile = projectSetup.getAssetFile(widget.valueString + ".proc")
+                    procFile?.let { assetFile = procFile }
+                }
                 assetFile ?: throw IOException("Asset not found: ${widget.valueString}")
                 assetFile?.let {
                     FileEditorManager.getInstance(projectSetup.project).openFile(it, true)

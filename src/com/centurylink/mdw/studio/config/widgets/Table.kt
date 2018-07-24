@@ -16,6 +16,7 @@ import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
+import javax.swing.table.TableCellRenderer
 
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
@@ -30,6 +31,14 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         tablePanel.border = BorderFactory.createMatteBorder(1, 1, 0, 0, JBColor.border())
         add(tablePanel)
 
+        val columnLabels = mutableListOf<String>()
+        for (i in widget.widgets.indices) {
+            val columnWidget = widget.widgets[i]
+            columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
+            columnLabels.add(" " + columnWidget.label)
+            columnWidgets.add(columnWidget)
+        }
+
         val rows = mutableListOf<Array<String>>()
         val rowsArrJson = widget.value as JSONArray
         for (i in 0 until rowsArrJson.length()) {
@@ -42,27 +51,18 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             rows.add(row.toTypedArray())
         }
 
-        val columnLabels = mutableListOf<String>()
-        for (i in widget.widgets.indices) {
-            val columnWidget = widget.widgets[i]
-            columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
-            val swingWidget = createSwingWidget(columnWidget)
-            columnLabels.add(" " + columnWidget.label)
-            columnWidgets.add(columnWidget)
-        }
-
         val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
         tableModel.addTableModelListener { e ->
             val colName = tableModel.getColumnName(e.column)
             println("CHANGE " + colName + "[" + e.firstRow + "] = " + tableModel.getValueAt(e.firstRow, e.column))
         }
 
-
         table = object : JBTable(tableModel) {
             override fun isCellEditable(row: Int, column: Int): Boolean {
                 return if (widget.isReadonly) false else super.isCellEditable(row, column)
             }
         }
+
         val header = table.tableHeader
         val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
         headerCellRenderer.horizontalAlignment = DefaultTableCellRenderer.LEADING
@@ -70,6 +70,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         for (i in columnWidgets.indices) {
             val columnWidget = columnWidgets[i]
             val column = table.columnModel.getColumn(i)
+            column.cellRenderer = getCellRenderer(columnWidget)
             column.cellEditor = getCellEditor(columnWidget)
         }
 
@@ -106,6 +107,13 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         addButton.maximumSize = delButton.maximumSize
 
         return btnPanel
+    }
+
+    private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
+        return when (widget.type) {
+            "asset" -> AssetCellRenderer(widget)
+            else -> DefaultTableCellRenderer()
+        }
     }
 
     /**

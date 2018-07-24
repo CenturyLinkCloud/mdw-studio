@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import java.awt.FlowLayout
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
+import javax.swing.BorderFactory
 import javax.swing.JCheckBox
 import javax.swing.JPanel
 
@@ -15,6 +16,7 @@ class Checkbox (widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
+        border = BorderFactory.createEmptyBorder(0, 1, 0, 0)
 
         checkbox.isOpaque = false
         checkbox.isSelected = widget.value as Boolean

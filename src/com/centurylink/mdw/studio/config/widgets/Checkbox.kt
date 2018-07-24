@@ -11,10 +11,11 @@ import javax.swing.JPanel
 @Suppress("unused")
 class Checkbox (widget: Pagelet.Widget) : SwingWidget(widget) {
 
+    val checkbox = JCheckBox()
+
     init {
         isOpaque = false
 
-        val checkbox = JCheckBox()
         checkbox.isOpaque = false
         checkbox.isSelected = widget.value as Boolean
 

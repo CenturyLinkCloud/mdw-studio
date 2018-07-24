@@ -14,10 +14,11 @@ import javax.swing.text.JTextComponent
 @Suppress("unused")
 class Dropdown(widget: Widget) : SwingWidget(widget) {
 
+    val combo = ComboBox(widget.options?.toTypedArray() ?: emptyArray<String>())
+
     init {
         isOpaque = false
 
-        val combo = ComboBox(widget.options?.toTypedArray() ?: emptyArray<String>())
         combo.isEditable = !widget.isReadonly
         combo.isEnabled = !widget.isReadonly
 

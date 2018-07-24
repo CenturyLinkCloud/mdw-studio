@@ -18,11 +18,11 @@ import javax.swing.text.JTextComponent
 @Suppress("unused")
 open class Text(widget: Widget) : SwingWidget(widget) {
 
+    val textComponent: JTextComponent
+
     init {
         background = UIManager.getColor("EditorPane.background")
         border = BorderFactory.createEmptyBorder()
-
-        val textComponent: JTextComponent
 
         if (widget.isMultiline) {
             val rows = widget.rows ?: 8

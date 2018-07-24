@@ -10,14 +10,14 @@ import com.intellij.ui.table.JBTable
 import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
-import javax.swing.BorderFactory
-import javax.swing.BoxLayout
-import javax.swing.JButton
-import javax.swing.JPanel
+import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
+import javax.swing.table.TableCellEditor
 
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
+
+    val columnWidgets = mutableListOf<Pagelet.Widget>()
 
     init {
         isOpaque = false
@@ -27,7 +27,6 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         tablePanel.border = BorderFactory.createMatteBorder(1, 1, 0, 0, JBColor.border())
         add(tablePanel)
 
-        val columnLabels = mutableListOf<String>()
         val rows = mutableListOf<Array<String>>()
         val rowsArrJson = widget.value as JSONArray
         for (i in 0 until rowsArrJson.length()) {
@@ -40,13 +39,13 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             rows.add(row.toTypedArray())
         }
 
-        for (columnWidget in widget.widgets) {
+        val columnLabels = mutableListOf<String>()
+        for (i in widget.widgets.indices) {
+            val columnWidget = widget.widgets[i]
             columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
             val swingWidget = createSwingWidget(columnWidget)
-            swingWidget.addUpdateListener { obj ->
-                println("UPDATES")
-            }
             columnLabels.add(" " + columnWidget.label)
+            columnWidgets.add(columnWidget)
         }
 
         val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
@@ -64,6 +63,13 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         val header = table.tableHeader
         val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
         headerCellRenderer.horizontalAlignment = DefaultTableCellRenderer.LEADING
+
+
+        for (i in columnWidgets.indices) {
+            val columnWidget = columnWidgets[i]
+            val column = table.columnModel.getColumn(i)
+            column.cellEditor = getCellEditor(columnWidget)
+        }
 
         tablePanel.add(header, BorderLayout.NORTH)
         tablePanel.add(table, BorderLayout.CENTER)
@@ -94,6 +100,14 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         addButton.maximumSize = delButton.maximumSize
 
         return btnPanel
+    }
+
+    private fun getCellEditor(widget: Pagelet.Widget): TableCellEditor {
+        return when (widget.type) {
+            "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
+            "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
+            else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
+        }
     }
 
     private fun createSwingWidget(widget: Pagelet.Widget): SwingWidget {

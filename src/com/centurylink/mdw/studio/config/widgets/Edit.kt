@@ -16,6 +16,7 @@ import java.awt.Dimension
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.IOException
+import javax.swing.BorderFactory
 import javax.swing.JLabel
 
 @Suppress("unused")
@@ -23,6 +24,8 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
+        border = BorderFactory.createEmptyBorder(1, 3, 1, 0)
+
         val text = if (widget.isReadonly) "View" else "Edit"
         val linkLabel = JLabel("<html><a href='.'>$text</a></html>")
         linkLabel.toolTipText = "Open ${widget.attributes["languages"]}"

@@ -1,7 +1,5 @@
 package com.centurylink.mdw.studio.edit
 
-import com.google.gson.JsonElement
-
 typealias UpdateListener = (obj: WorkflowObj) -> Unit
 
 interface UpdateListeners {

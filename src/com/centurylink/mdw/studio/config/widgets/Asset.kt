@@ -23,61 +23,34 @@ import javax.swing.JOptionPane
 @Suppress("unused")
 class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
-    private val linkLabel: JLabel
+    private val assetLink = AssetLink(widget)
 
     init {
         isOpaque = false
-        border = BorderFactory.createEmptyBorder(2, 0, 0, 0)
+        border = BorderFactory.createEmptyBorder(2, 2, 0, 0)
 
-        var assetFile: VirtualFile? = null
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
-        val projectSetup = workflowObj.project as ProjectSetup
-
-        val link = getAssetLink()
-        linkLabel = JLabel(link)
-        linkLabel.toolTipText = widget.valueString
-        linkLabel.cursor = getAssetCursor()
-        linkLabel.border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
-        linkLabel.addMouseListener(object : MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent?) {
-                assetFile = projectSetup.getAssetFile(widget.valueString!!)
-                assetFile ?: throw IOException("Asset not found: ${widget.valueString}")
-                assetFile?.let {
-                    FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
-                }
-            }
-        })
-        add(linkLabel)
+        if (!assetLink.text.isNullOrEmpty()) {
+            add(assetLink)
+        }
 
         if (!widget.isReadonly) {
-            // select button
-            val selectButton = object : JButton("Select...") {
-                override fun getPreferredSize(): Dimension {
-                    val size = super.getPreferredSize()
-                    return Dimension(size.width, size.height - 2)
+            val assetSelectButton = AssetSelectButton(widget, "Select...") { assetPath ->
+                assetLink.doUpdate(assetPath)
+                remove(assetLink)
+                if (!assetLink.text.isNullOrEmpty()) {
+                    add(assetLink, 0)
                 }
+                applyUpdate()
+                revalidate()
+                repaint()
             }
-            selectButton.isOpaque = false
-            selectButton.addActionListener {
-                val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                descriptor.withRoots(projectSetup.assetDir)
-                widget.source?.let { source ->
-                    descriptor.withFileFilter {
-                        fileExtMatch(it, source.split(","))
-                    }
-                }
-                FileChooser.chooseFile(descriptor, projectSetup.project, assetFile) {
-                    doUpdate(projectSetup.getAssetPath(it))
-                }
-            }
-            add(selectButton)
+            add(assetSelectButton)
 
-            // set button
+            // set explicitly (expressions, etc)
             val setButton = object : JButton("Set...") {
                 override fun getPreferredSize(): Dimension {
                     val size = super.getPreferredSize()
-                    return Dimension(size.width, size.height - 2)
+                    return Dimension(size.width, size.height - 4)
                 }
             }
             setButton.isOpaque = false
@@ -86,28 +59,51 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
                         JOptionPane.PLAIN_MESSAGE, null, null,  widget.valueString)
                 if (value != null) {
                     // not canceled
-                    doUpdate(value.toString())
+                    assetLink.doUpdate(value.toString())
+                    remove(assetLink)
+                    if (!assetLink.text.isNullOrEmpty()) {
+                        add(assetLink, 0)
+                    }
+                    applyUpdate()
+                    revalidate()
+                    repaint()
                 }
             }
             add(setButton)
         }
     }
+}
 
-    private fun doUpdate(value: String?) {
-        widget.value = value
-        linkLabel.text = getAssetLink()
-        linkLabel.toolTipText = widget.valueString
-        linkLabel.cursor = getAssetCursor()
-        applyUpdate()
+class AssetLink(val widget: Pagelet.Widget) : JLabel() {
+
+    init {
+        var assetFile: VirtualFile? = null
+        val applier = widget.adapter as WidgetApplier
+        val workflowObj = applier.workflowObj
+        val projectSetup = workflowObj.project as ProjectSetup
+
+        text = getAssetLabel()
+        toolTipText = widget.valueString
+        cursor = getAssetCursor()
+        border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
+        addMouseListener(object : MouseAdapter() {
+            override fun mouseReleased(e: MouseEvent?) {
+                assetFile = projectSetup.getAssetFile(widget.valueString!!)
+                assetFile ?: throw IOException("Asset not found: ${widget.valueString}")
+                assetFile?.let {
+                    FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                }
+            }
+        })
     }
 
-    private fun getAssetLink(): String {
+    private fun getAssetLabel(): String {
         var assetName = widget.valueString ?: ""
         val lastSlash = assetName.lastIndexOf('/')
         if (lastSlash > 0) {
             assetName = assetName.substring(lastSlash + 1, assetName.length)
         }
-        return if (widget.containsExpression) {
+        return if (widget.valueString.isNullOrEmpty() || widget.containsExpression) {
             assetName // contains expression
         } else {
             "<html><a href='.'>${assetName}</a></html>"
@@ -121,7 +117,39 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         else {
             Cursor(Cursor.HAND_CURSOR)
         }
+    }
 
+    fun doUpdate(assetPath: String?) {
+        widget.value = assetPath
+        text = getAssetLabel()
+        toolTipText = widget.valueString
+        cursor = getAssetCursor()
+    }
+}
+
+typealias AssetSelectCallback = (assetPath: String?) -> Unit
+
+class AssetSelectButton(widget: Pagelet.Widget, label: String, callback: AssetSelectCallback? = null) : JButton(label) {
+
+    init {
+        var assetFile: VirtualFile? = null
+        val applier = widget.adapter as WidgetApplier
+        val workflowObj = applier.workflowObj
+        val projectSetup = workflowObj.project as ProjectSetup
+
+        isOpaque = false
+        addActionListener {
+            val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+            descriptor.withRoots(projectSetup.assetDir)
+            widget.source?.let { source ->
+                descriptor.withFileFilter {
+                    fileExtMatch(it, source.split(","))
+                }
+            }
+            FileChooser.chooseFile(descriptor, projectSetup.project, assetFile) { file ->
+                callback?.let { callback(projectSetup.getAssetPath(file)) }
+            }
+        }
     }
 
     private fun fileExtMatch(file: VirtualFile, exts: List<String>): Boolean {
@@ -131,5 +159,10 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
             }
         }
         return false
+    }
+
+    override fun getPreferredSize(): Dimension {
+        val size = super.getPreferredSize()
+        return Dimension(size.width, size.height - 4)
     }
 }

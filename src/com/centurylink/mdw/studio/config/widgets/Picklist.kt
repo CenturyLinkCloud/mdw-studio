@@ -24,7 +24,7 @@ class Picklist(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
-        border = BorderFactory.createEmptyBorder(3, 0, 0, 0)
+        border = BorderFactory.createEmptyBorder(3, 3, 0, 0)
 
         widget.value?.let {
             selected.addAll((it as JSONArray).toStrings())

@@ -67,7 +67,6 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
         headerCellRenderer.horizontalAlignment = DefaultTableCellRenderer.LEADING
 
-        // cell editors (TODO: assets, numbers)
         for (i in columnWidgets.indices) {
             val columnWidget = columnWidgets[i]
             val column = table.columnModel.getColumn(i)
@@ -82,10 +81,6 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         if (!widget.isReadonly) {
             add(getButtonPanel(), BorderLayout.EAST)
         }
-    }
-
-    private fun adjustRowHeights() {
-
     }
 
     private fun getButtonPanel(): JPanel {
@@ -113,10 +108,15 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         return btnPanel
     }
 
+    /**
+     * Only certain widget types are specifically supported.
+     * TODO: Asset, Number
+     */
     private fun getCellEditor(widget: Pagelet.Widget): TableCellEditor {
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
+            "asset" -> AssetCellEditor(widget)
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }
     }

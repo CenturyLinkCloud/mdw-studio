@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.edit.isReadonly
 import com.centurylink.mdw.studio.edit.label
 import com.intellij.ui.JBColor
 import com.intellij.ui.table.JBTable
+import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
 import javax.swing.BorderFactory
@@ -27,6 +28,17 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         add(tablePanel)
 
         val columnLabels = mutableListOf<String>()
+        val rows = mutableListOf<Array<String>>()
+        val rowsArrJson = widget.value as JSONArray
+        for (i in 0 until rowsArrJson.length()) {
+            val row = mutableListOf<String>()
+            val rowArrJson = rowsArrJson.getJSONArray(i)
+            for (j in 0 until rowArrJson.length()) {
+                val colVal = rowArrJson.getString(j)
+                row.add(colVal)
+            }
+            rows.add(row.toTypedArray())
+        }
 
         for (columnWidget in widget.widgets) {
             columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
@@ -37,7 +49,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             columnLabels.add(" " + columnWidget.label)
         }
 
-        val tableModel = DefaultTableModel(columnLabels.toTypedArray(), 0)
+        val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
         tableModel.addTableModelListener { e ->
             val colName = tableModel.getColumnName(e.column)
             println("CHANGE " + colName + "[" + e.firstRow + "] = " + tableModel.getValueAt(e.firstRow, e.column))

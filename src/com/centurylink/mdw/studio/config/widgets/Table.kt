@@ -21,6 +21,7 @@ import javax.swing.table.TableCellRenderer
 class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
     private val table: JBTable
+    private val tableModel: DefaultTableModel
     private val columnWidgets = mutableListOf<Pagelet.Widget>()
     private val rows = mutableListOf<Array<String>>()
 
@@ -52,11 +53,14 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             rows.add(row.toTypedArray())
         }
 
-        val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
+        tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
         tableModel.addTableModelListener { e ->
+            if (e.column >= 0) {
+                // otherwise is add/delete operation
+                val value = tableModel.getValueAt(e.firstRow, e.column)
+                rows[e.firstRow][e.column] = value?.toString() ?: ""
+            }
             // update widget value from rows
-            val value = tableModel.getValueAt(e.firstRow, e.column)
-            rows[e.firstRow][e.column] = value?.toString() ?: ""
             val rowsArrJson = JSONArray()
             for (row in rows) {
                 val rowArrJson = JSONArray()
@@ -106,14 +110,23 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 4)
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
-            println("ADD")
+            val rowList = mutableListOf<String>()
+            for (i in 0 until tableModel.columnCount) {
+                rowList.add("")
+            }
+            val row = rowList.toTypedArray()
+            rows.add(row)
+            tableModel.addRow(row)
         }
 
         val delButton = JButton("Delete")
         btnPanel.add(delButton, BorderLayout.SOUTH)
         delButton.preferredSize = Dimension(delButton.preferredSize.width - 8, delButton.preferredSize.height - 4)
         delButton.addActionListener {
-            println("DEL")
+            if (table.selectedRow >= 0) {
+                rows.removeAt(table.selectedRow)
+                tableModel.removeRow(table.selectedRow)
+            }
         }
 
         addButton.maximumSize = delButton.maximumSize

@@ -17,4 +17,16 @@ class PicklistAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
             widget.value = (it as JSONArray).toString()
         }
     }
+
+    /**
+     * handles compatibility for old process def attributes
+     */
+    private fun toArray(value: String): JSONArray {
+        return if (value.startsWith('[')) {
+            JSONArray(value)
+        }
+        else {
+            safeSplit(value, "#")
+        }
+    }
 }

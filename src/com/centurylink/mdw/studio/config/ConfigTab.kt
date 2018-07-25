@@ -75,7 +75,7 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             return
         }
         findSoloWidget(widgets,"table")?.let {
-            val table = Table(it)
+            val table = Table(it, true)
             table.border = RoundedBorder()
             table.addUpdateListener { obj ->
                 notifyUpdateListeners(obj)

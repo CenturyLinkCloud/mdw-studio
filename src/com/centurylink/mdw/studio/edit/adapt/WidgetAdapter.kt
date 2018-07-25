@@ -8,7 +8,7 @@ open class WidgetAdapter(applier: WidgetApplier) : com.centurylink.mdw.model.ass
         WidgetApplier by applier {
 
     /**
-     * Default implementation performs no conversion on widget.value string.
+     * Default implementation performs no conversion to widget.value string.
      */
     override fun didInit(widget: Widget) {
     }
@@ -21,37 +21,9 @@ open class WidgetAdapter(applier: WidgetApplier) : com.centurylink.mdw.model.ass
     }
 
     /**
-     * handles compatibility for old process defs
-     */
-    fun toArray(value: String): JSONArray {
-        return if (value.startsWith('[')) {
-            JSONArray(value)
-        }
-        else {
-            safeSplit(value, "#")
-        }
-    }
-
-    fun toTable(value: String): JSONArray {
-        if (value.startsWith('[')) {
-            return JSONArray(value)
-        }
-        else {
-            val table = JSONArray()
-            val rows = safeSplit(value, ";")
-            for (i in 0 until rows.length()) {
-                val row = rows.getString(i)
-                val cols = safeSplit(row, ",")
-                table.put(cols)
-            }
-            return table
-        }
-    }
-
-    /**
      * split a string based on a delimiter except when preceded by \
      */
-    private fun safeSplit(value: String, delim: String): JSONArray {
+    fun safeSplit(value: String, delim: String): JSONArray {
         val res = JSONArray()
         val segs = value.split(delim)
         var accum = ""

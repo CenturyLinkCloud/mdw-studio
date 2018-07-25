@@ -1,23 +1,80 @@
 package com.centurylink.mdw.studio.edit.adapt
 
-import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * Converts workflowObj object values to table form for Configurator display.
  * The process Variables tab is one usage.
  */
-class ObjectTableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
-    override fun didInit(widget: Pagelet.Widget) {
-        widget.value = JSONArray()
-        val row = JSONArray()
-        for (columnWidget in widget.widgets) {
-            row.put("")
+class ObjectTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
+
+    /**
+     * Widget value is a JSONObject coming in (unlike every other adapter).
+     * Convert value to a JSONArray of JSONArrays of strings.
+     *
+     */
+    override fun didInit(widget: Widget) {
+        if (widget.value == null) {
+            widget.value = JSONArray()
+            val row = createEmptyRow(widget)
+            (widget.value as JSONArray).put(row)
         }
-        (widget.value as JSONArray).put(row)
+        else {
+            widget.value = toTable(widget, widget.value as JSONObject)
+        }
     }
 
-    override fun willUpdate(widget: Pagelet.Widget) {
+    /**
+     * Convert from JSONArray of JSONArrays to JSONObject
+     */
+    override fun willUpdate(widget: Widget) {
+        widget.value?.let {
+            widget.value = withoutEmptyRows(it as JSONArray)
+            widget.value?.let {
+                widget.value = toObject(widget, it as JSONArray)
+            }
+        }
+    }
+
+    private fun toTable(tableWidget: Widget, jsonObject: JSONObject): JSONArray {
+        val jsonArray = JSONArray()
+        for (name in jsonObject.keySet()) {
+            val row = JSONArray()
+            val obj = jsonObject.getJSONObject(name)
+            for (columnWidget in tableWidget.widgets) {
+                if (columnWidget.name == "_key") {
+                    row.put(name)
+                }
+                else {
+                    row.put(obj.optString(columnWidget.name))
+                }
+            }
+            jsonArray.put(row)
+        }
+
+        return jsonArray
+    }
+
+    private fun toObject(tableWidget: Widget, rows: JSONArray): JSONObject {
+        val jsonObject = JSONObject()
+        for (i in 0 until rows.length()) {
+            val row = rows.getJSONArray(i)
+            val rowObj = JSONObject()
+            for (j in tableWidget.widgets.indices) {
+                val columnWidget = tableWidget.widgets[j]
+                if (columnWidget.name == "_key") {
+                    jsonObject.put(row.getString(j), rowObj)
+                }
+                else {
+                    if (row.getString(j).isNotEmpty()) {
+                        rowObj.put(columnWidget.name, row.getString(j))
+                    }
+                }
+            }
+        }
+        return jsonObject
     }
 }

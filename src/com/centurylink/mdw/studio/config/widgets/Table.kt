@@ -6,6 +6,7 @@ import com.centurylink.mdw.studio.edit.init
 import com.centurylink.mdw.studio.edit.isReadonly
 import com.centurylink.mdw.studio.edit.label
 import com.intellij.ui.JBColor
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
@@ -18,7 +19,9 @@ import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
 @Suppress("unused")
-class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
+class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(widget, BorderLayout()) {
+
+    constructor(widget: Pagelet.Widget) : this(widget, false)
 
     private val table: JBTable
     private val tableModel: DefaultTableModel
@@ -92,8 +95,14 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
         table.setRowHeight(24)
 
-        tablePanel.add(header, BorderLayout.NORTH)
-        tablePanel.add(table, BorderLayout.CENTER)
+        if (scrolling) {
+            val scrollPane = JBScrollPane(table)
+            tablePanel.add(scrollPane)
+        }
+        else {
+            tablePanel.add(header, BorderLayout.NORTH)
+            tablePanel.add(table, BorderLayout.CENTER)
+        }
 
         if (!widget.isReadonly) {
             add(getButtonPanel(), BorderLayout.EAST)

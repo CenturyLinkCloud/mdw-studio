@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.config.widgets.Editor
 import com.centurylink.mdw.studio.config.widgets.Label
 import com.centurylink.mdw.studio.config.widgets.SwingWidget
+import com.centurylink.mdw.studio.config.widgets.Table
 import com.centurylink.mdw.studio.draw.RoundedBorder
 import com.centurylink.mdw.studio.edit.*
 import com.google.gson.GsonBuilder
@@ -74,7 +75,12 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             return
         }
         findSoloWidget(widgets,"table")?.let {
-            // TODO: variables, process input bindings
+            val table = Table(it)
+            table.border = RoundedBorder()
+            table.addUpdateListener { obj ->
+                notifyUpdateListeners(obj)
+            }
+            add(table)
             return
         }
 

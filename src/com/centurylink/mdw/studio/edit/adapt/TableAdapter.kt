@@ -5,8 +5,11 @@ import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import org.json.JSONArray
 
 class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
+
+    /**
+     * Initialize with a single empty row if null or empty.
+     */
     override fun didInit(widget: Widget) {
-        // initialize with single empty row
         if (widget.value == null) {
             widget.value = JSONArray()
             val row = JSONArray()
@@ -20,11 +23,29 @@ class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
         }
     }
 
+    /**
+     * Clean out any empty rows (value is null if left with none).
+     */
     override fun willUpdate(widget: Widget) {
-        // TODO: clean out empty rows (value is null if left with none)
-
         widget.value?.let {
-            widget.value = (it as JSONArray).toString()
+            val rows = (it as JSONArray)
+            val nonEmptyRows = JSONArray()
+            for (i in 0 until rows.length()) {
+                val row = rows.getJSONArray(i)
+                if (!isEmpty(row)) {
+                    nonEmptyRows.put(row)
+                }
+            }
+            widget.value = if (nonEmptyRows.length() == 0) null else nonEmptyRows.toString()
         }
+    }
+
+    private fun isEmpty(row: JSONArray): Boolean {
+        for (i in 0 until row.length()) {
+            if (row.getString(i).isNotEmpty()) {
+                return false
+            }
+        }
+        return true
     }
 }

@@ -22,6 +22,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
     private val table: JBTable
     private val columnWidgets = mutableListOf<Pagelet.Widget>()
+    private val rows = mutableListOf<Array<String>>()
 
     init {
         isOpaque = false
@@ -39,7 +40,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
             columnWidgets.add(columnWidget)
         }
 
-        val rows = mutableListOf<Array<String>>()
+        // initialize rows from widget value
         val rowsArrJson = widget.value as JSONArray
         for (i in 0 until rowsArrJson.length()) {
             val row = mutableListOf<String>()
@@ -53,8 +54,19 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
         val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
         tableModel.addTableModelListener { e ->
-            val colName = tableModel.getColumnName(e.column)
-            println("CHANGE " + colName + "[" + e.firstRow + "] = " + tableModel.getValueAt(e.firstRow, e.column))
+            // update widget value from rows
+            val value = tableModel.getValueAt(e.firstRow, e.column)
+            rows[e.firstRow][e.column] = value?.toString() ?: ""
+            val rowsArrJson = JSONArray()
+            for (row in rows) {
+                val rowArrJson = JSONArray()
+                for (colVal in row) {
+                    rowArrJson.put(colVal.trim())
+                }
+                rowsArrJson.put(rowArrJson)
+            }
+            widget.value = rowsArrJson
+            applyUpdate()
         }
 
         table = object : JBTable(tableModel) {
@@ -111,6 +123,7 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
     private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
         return when (widget.type) {
+            "checkbox" -> CheckboxCellRenderer()
             "asset" -> AssetCellRenderer(widget)
             else -> DefaultTableCellRenderer()
         }
@@ -118,13 +131,13 @@ class Table(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
 
     /**
      * Only certain widget types are specifically supported.
-     * TODO: Asset, Number
      */
     private fun getCellEditor(widget: Pagelet.Widget): TableCellEditor {
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
             "asset" -> AssetCellEditor(widget)
+            "number" -> NumberCellEditor(widget)
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }
     }

@@ -11,7 +11,9 @@ import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
 import com.intellij.ide.GeneralSettings
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -48,28 +50,35 @@ class ProcessEditorProvider : FileEditorProvider, DumbAware {
 
 class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, HideShowListener {
 
-    private val procDoc = FileDocumentManager.getInstance().getDocument(procFile)!!
+    private var procDoc = FileDocumentManager.getInstance().getDocument(procFile)!!
     private val editPanel: JPanel
     private val canvasScrollPane: JBScrollPane
     private val splitter: JBSplitter
     private val configPanel: ConfigPanel
     private val panelBar: PanelBar
     private val canvas: ProcessCanvas
-    private val projectSetup: ProjectSetup
-    private val process: Process = Process(JSONObject(procDoc.text))
-    private val asset: Asset?
+    private val projectSetup = project.getComponent(ProjectSetup::class.java)
+    private var _process: Process
+    private var process: Process
+        get() = _process
+        set(value) {
+            _process = value
+            _process.name = procFile.nameWithoutExtension
+            asset = projectSetup.getAsset(procFile)!! // asset must be found
+            _process.id = asset.id
+            _process.version = asset.version
+            _process.packageName = asset.packageName
+        }
+    private lateinit var asset: Asset
     private var modified: Boolean = false
     // listeners installed by FileEditorManagerImpl
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
     private val generalSettings = GeneralSettings.getInstance()
 
     init {
-        process.name = procFile.nameWithoutExtension
-        projectSetup = project.getComponent(ProjectSetup::class.java)
-        asset = projectSetup.getAsset(procFile)!! // asset must be found
-        process.id = asset.id
-        process.version = asset.version
-        process.packageName = asset.packageName
+        // initialize backing property and then invoke setter
+        _process = Process(org.json.JSONObject(procDoc.text))
+        process = _process
         canvas = ProcessCanvas(projectSetup, process)
         canvasScrollPane = JBScrollPane(canvas)
 
@@ -121,8 +130,24 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             canvas.repaint()
         }
 
+//        procDoc.addDocumentListener(object: DocumentListener {
+//            override fun documentChanged(e: DocumentEvent) {
+//                println("DOC CHANGED")
+//            }
+//        })
+
+
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
         connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {
+            override fun fileContentReloaded(file: VirtualFile, document: Document) {
+                if (file.equals(procFile)) {
+                    procDoc = document
+                    process = Process(JSONObject(procDoc.text))
+                    canvas.process = process
+                    canvas.revalidate()
+                    canvas.repaint()
+                }
+            }
             override fun beforeAllDocumentsSaving() {
                 // react to Save All and build events
                 saveToFile()
@@ -137,10 +162,13 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     private fun saveToFile() {
-        WriteAction.run<Throwable> {
-            procDoc.setText(process.json.toString(2))
-            updateModifiedProperty(false)
-        }
+        // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
+        ApplicationManager.getApplication().invokeLater( {
+            WriteAction.run<Throwable> {
+                procDoc.setText(process.json.toString(2))
+                updateModifiedProperty(false)
+            }
+        }, ModalityState.NON_MODAL)
     }
 
     fun updateModifiedProperty(newValue: Boolean) {

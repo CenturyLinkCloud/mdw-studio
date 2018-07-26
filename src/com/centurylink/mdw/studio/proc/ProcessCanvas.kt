@@ -20,7 +20,7 @@ import java.awt.datatransfer.Transferable
 import java.awt.event.*
 import javax.swing.*
 
-class ProcessCanvas(val setup: ProjectSetup, val process: Process, val readonly: Boolean = false) :
+class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly: Boolean = false) :
         JPanel(BorderLayout()), UpdateListeners by UpdateListenersDelegate() {
 
     private var zoom = 100

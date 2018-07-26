@@ -57,6 +57,8 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                 diagram?.let {
                     it.display.w = size.width - Diagram.BOUNDARY_DIM
                     it.display.h = size.height - Diagram.BOUNDARY_DIM
+                    revalidate()
+                    repaint()
                 }
             }
         })

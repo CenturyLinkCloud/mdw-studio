@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.config.widgets
 
 import com.intellij.ui.JBIntSpinner
 import java.awt.Component
+import java.util.*
 import javax.swing.AbstractCellEditor
 import javax.swing.JTable
 import javax.swing.UIManager
@@ -34,7 +35,7 @@ class NumberCellEditor() : AbstractCellEditor(), TableCellEditor {
     val numberCell = NumberCell(0)
 
     override fun getTableCellEditorComponent(table: JTable, value: Any?, isSelected: Boolean, row: Int, column: Int): Component {
-        val number = if (value?.toString().isNullOrBlank()) 0 else value.toString().toInt()
+        numberCell.number = if (value?.toString().isNullOrBlank()) 0 else value.toString().toInt()
         numberCell.init(table, isSelected, true)
         return numberCell
     }

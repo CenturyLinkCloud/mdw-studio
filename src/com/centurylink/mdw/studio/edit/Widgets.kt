@@ -57,6 +57,11 @@ val Pagelet.Widget.isHelpLink: Boolean
     get() = type == "link" && (url?.startsWith("help/") ?: false)
 
 fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapter {
+
+    if (attributes == null) {
+        // needed for at least templ placeholders
+        attributes = mutableMapOf<String,String>()
+    }
     this.isReadonly = workflowObj.isReadonly
 
     // options source

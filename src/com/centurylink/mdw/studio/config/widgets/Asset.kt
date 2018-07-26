@@ -1,8 +1,11 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
+import com.centurylink.mdw.studio.edit.isReadonly
+import com.centurylink.mdw.studio.edit.label
+import com.centurylink.mdw.studio.edit.source
+import com.centurylink.mdw.studio.edit.valueString
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -23,7 +26,8 @@ import javax.swing.JOptionPane
 @Suppress("unused")
 class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
-    private val assetLink = AssetLink(widget)
+    private val projectSetup = (widget.adapter as WidgetApplier).workflowObj.project as ProjectSetup
+    private val assetLink = AssetLink(widget.valueString, projectSetup)
 
     init {
         isOpaque = false
@@ -34,8 +38,9 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         }
 
         if (!widget.isReadonly) {
-            val assetSelectButton = AssetSelectButton(widget, "Select...") { assetPath ->
-                assetLink.doUpdate(assetPath)
+            val assetSelectButton = AssetSelectButton("Select...", widget.valueString, projectSetup, widget.source) { assetPath ->
+                widget.value = assetPath
+                assetLink.update(assetPath)
                 remove(assetLink)
                 if (!assetLink.text.isNullOrEmpty()) {
                     add(assetLink, 0)
@@ -59,7 +64,8 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
                         JOptionPane.PLAIN_MESSAGE, null, null,  widget.valueString)
                 if (value != null) {
                     // not canceled
-                    assetLink.doUpdate(value.toString())
+                    widget.value = value.toString()
+                    assetLink.update(widget.valueString)
                     remove(assetLink)
                     if (!assetLink.text.isNullOrEmpty()) {
                         add(assetLink, 0)
@@ -74,27 +80,24 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
     }
 }
 
-class AssetLink(val widget: Pagelet.Widget) : JLabel() {
+class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
 
     init {
         var assetFile: VirtualFile?
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
-        val projectSetup = workflowObj.project as ProjectSetup
 
         text = getAssetLabel()
-        toolTipText = widget.valueString
+        toolTipText = assetPath
         cursor = getAssetCursor()
         border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
         addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                assetFile = projectSetup.getAssetFile(widget.valueString!!)
+                assetFile = projectSetup.getAssetFile(assetPath!!)
                 if (assetFile == null) {
                     // compatibility processes might not have extension
-                    val procFile = projectSetup.getAssetFile(widget.valueString + ".proc")
+                    val procFile = projectSetup.getAssetFile(assetPath + ".proc")
                     procFile?.let { assetFile = procFile }
                 }
-                assetFile ?: throw IOException("Asset not found: ${widget.valueString}")
+                assetFile ?: throw IOException("Asset not found: ${assetPath}")
                 assetFile?.let {
                     FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
                 }
@@ -103,12 +106,12 @@ class AssetLink(val widget: Pagelet.Widget) : JLabel() {
     }
 
     private fun getAssetLabel(): String {
-        var assetName = widget.valueString ?: ""
+        var assetName = assetPath ?: ""
         val lastSlash = assetName.lastIndexOf('/')
         if (lastSlash > 0) {
             assetName = assetName.substring(lastSlash + 1, assetName.length)
         }
-        return if (widget.valueString.isNullOrEmpty() || widget.containsExpression) {
+        return if (assetPath.isNullOrEmpty() || containsExpression(assetPath)) {
             assetName // contains expression
         } else {
             "<html><a href='.'>${assetName}</a></html>"
@@ -116,7 +119,7 @@ class AssetLink(val widget: Pagelet.Widget) : JLabel() {
     }
 
     private fun getAssetCursor(): Cursor {
-        return if (widget.containsExpression) {
+        return if (containsExpression(assetPath)) {
             Cursor(Cursor.DEFAULT_CURSOR)
         }
         else {
@@ -124,39 +127,46 @@ class AssetLink(val widget: Pagelet.Widget) : JLabel() {
         }
     }
 
-    fun doUpdate(assetPath: String?) {
-        widget.value = assetPath
+    fun update(assetPath: String?) {
+        this.assetPath = assetPath
         text = getAssetLabel()
-        toolTipText = widget.valueString
+        toolTipText = assetPath
         cursor = getAssetCursor()
     }
 }
 
 typealias AssetSelectCallback = (assetPath: String?) -> Unit
 
-class AssetSelectButton(widget: Pagelet.Widget, label: String, callback: AssetSelectCallback? = null) : JButton(label) {
+fun containsExpression(string: String?): Boolean {
+    return string != null && string.indexOf("\${") >= 0
+}
+
+class AssetSelectButton(label: String, var assetPath: String?, projectSetup: ProjectSetup, source: String? = null,
+        callback: AssetSelectCallback? = null) : JButton(label) {
 
     init {
-        var assetFile: VirtualFile? = null
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
-        val projectSetup = workflowObj.project as ProjectSetup
-
         isOpaque = false
+
+        var assetFile: VirtualFile? = null
+
         addActionListener {
+            if (!assetPath.isNullOrEmpty()) {
+                assetFile = projectSetup.getAssetFile(assetPath!!)
+            }
             val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
             descriptor.withRoots(projectSetup.assetDir)
-            widget.source?.let {
-                var source = it
-                if (source.startsWith("[")) {
-                    source = source.substring(1, source.length - 1)
+            source?.let {
+                var src = it
+                if (src.startsWith("[")) {
+                    src = src.substring(1, src.length - 1)
                 }
                 descriptor.withFileFilter {
-                    fileExtMatch(it, source.split(","))
+                    fileExtMatch(it, src.split(","))
                 }
             }
             FileChooser.chooseFile(descriptor, projectSetup.project, assetFile) { file ->
-                callback?.let { callback(projectSetup.getAssetPath(file)) }
+                assetPath = projectSetup.getAssetPath(file)
+                callback?.let { callback(assetPath) }
             }
         }
     }

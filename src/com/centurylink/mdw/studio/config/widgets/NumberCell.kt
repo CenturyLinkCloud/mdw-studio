@@ -1,7 +1,5 @@
 package com.centurylink.mdw.studio.config.widgets
 
-import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.edit.valueString
 import com.intellij.ui.JBIntSpinner
 import java.awt.Component
 import javax.swing.AbstractCellEditor
@@ -10,41 +8,38 @@ import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
 import javax.swing.table.TableCellEditor
 
-class NumberCell(val value: Int, val min: Int = 0, val max: Int = 1000) {
+class NumberCell(value: Int, min: Int = 0, max: Int = 1000) : JBIntSpinner(value, min, max) {
 
-    private val noFocusBorder = EmptyBorder(1, 1, 1, 1)
-
-    fun getComponent(table: JTable, isSelected: Boolean, hasFocus: Boolean): Component {
-
-        val spinner = JBIntSpinner(value, min, max)
-
+    fun init(table: JTable, isSelected: Boolean, hasFocus: Boolean) {
         if (isSelected) {
-            spinner.foreground = table.selectionForeground
-            spinner.background = table.selectionBackground
+            foreground = table.selectionForeground
+            background = table.selectionBackground
         }
         else {
-            spinner.foreground = table.foreground
-            spinner.background = table.background
+            foreground = table.foreground
+            background = table.background
         }
 
         if (hasFocus) {
-            spinner.border = UIManager.getBorder("Table.focusCellHighlightBorder")
+            border = UIManager.getBorder("Table.focusCellHighlightBorder")
         }
         else {
-            spinner.border = noFocusBorder
+            border = EmptyBorder(1, 1, 1, 1)
         }
-        return spinner
     }
 }
 
-class NumberCellEditor(val widget: Pagelet.Widget) : AbstractCellEditor(), TableCellEditor {
+class NumberCellEditor() : AbstractCellEditor(), TableCellEditor {
+
+    val numberCell = NumberCell(0)
 
     override fun getTableCellEditorComponent(table: JTable, value: Any?, isSelected: Boolean, row: Int, column: Int): Component {
-        val number = if (widget.valueString.isNullOrBlank()) 0 else widget.valueString!!.toInt()
-        return NumberCell(number).getComponent(table, isSelected, true)
+        val number = if (value?.toString().isNullOrBlank()) 0 else value.toString().toInt()
+        numberCell.init(table, isSelected, true)
+        return numberCell
     }
 
     override fun getCellEditorValue(): Any? {
-        return widget.value
+        return numberCell.number
     }
 }

@@ -3,22 +3,19 @@ package com.centurylink.mdw.studio.config.widgets
 import java.awt.Component
 import java.lang.Boolean.parseBoolean
 import javax.swing.JCheckBox
-import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder
 import javax.swing.table.TableCellRenderer
 
-class CheckboxCellRenderer : JCheckBox(), TableCellRenderer {
-
-    private val noFocusBorder = EmptyBorder(1, 1, 1, 1)
+class CheckboxCell(value: Boolean) : JCheckBox() {
 
     init {
         isBorderPainted = true
+        isSelected = value
     }
 
-    override fun getTableCellRendererComponent(table: JTable, value: Any?,
-            isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
+    fun init(table: JTable, isSelected: Boolean, hasFocus: Boolean) {
         if (isSelected) {
             foreground = table.selectionForeground
             background = table.selectionBackground
@@ -28,14 +25,22 @@ class CheckboxCellRenderer : JCheckBox(), TableCellRenderer {
             background = table.background
         }
 
-        setSelected(parseBoolean(value?.toString()))
-
         if (hasFocus) {
             border = UIManager.getBorder("Table.focusCellHighlightBorder")
         }
         else {
-            border = noFocusBorder
+            border = EmptyBorder(1, 1, 1, 1)
         }
-        return this
+    }
+
+}
+
+class CheckboxCellRenderer : TableCellRenderer {
+
+    override fun getTableCellRendererComponent(table: JTable, value: Any?,
+            isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
+        val checkbox = CheckboxCell(parseBoolean(value?.toString()))
+        checkbox.init(table, isSelected, hasFocus)
+        return checkbox
     }
 }

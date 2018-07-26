@@ -1,10 +1,9 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
-import com.centurylink.mdw.studio.edit.init
-import com.centurylink.mdw.studio.edit.isReadonly
-import com.centurylink.mdw.studio.edit.label
+import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
@@ -27,6 +26,7 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
     private val tableModel: DefaultTableModel
     private val columnWidgets = mutableListOf<Pagelet.Widget>()
     private val rows = mutableListOf<Array<String>>()
+    private val projectSetup = (widget.adapter as WidgetApplier).workflowObj.project as ProjectSetup
 
     init {
         isOpaque = false
@@ -64,15 +64,15 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
                 rows[e.firstRow][e.column] = value?.toString() ?: ""
             }
             // update widget value from rows
-            val rowsArrJson = JSONArray()
+            val updatedRowsArrJson = JSONArray()
             for (row in rows) {
                 val rowArrJson = JSONArray()
                 for (colVal in row) {
                     rowArrJson.put(colVal.trim())
                 }
-                rowsArrJson.put(rowArrJson)
+                updatedRowsArrJson.put(rowArrJson)
             }
-            widget.value = rowsArrJson
+            widget.value = updatedRowsArrJson
             applyUpdate()
         }
 
@@ -146,7 +146,7 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
     private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
         return when (widget.type) {
             "checkbox" -> CheckboxCellRenderer()
-            "asset" -> AssetCellRenderer(widget)
+            "asset" -> AssetCellRenderer(this@Table.widget.isReadonly, projectSetup)
             else -> DefaultTableCellRenderer()
         }
     }
@@ -158,8 +158,8 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
-            "asset" -> AssetCellEditor(widget)
-            "number" -> NumberCellEditor(widget)
+            "asset" -> AssetCellEditor(this@Table.widget.isReadonly, projectSetup, widget.source)
+            "number" -> NumberCellEditor()
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }
     }

@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.edit.adapt
 
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
+import com.centurylink.mdw.studio.edit.default
 import org.json.JSONArray
 
 open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
@@ -29,7 +30,7 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     protected fun createEmptyRow(tableWidget: Widget): JSONArray {
         val row = JSONArray()
         for (columnWidget in tableWidget.widgets) {
-            row.put("")
+            row.put(columnWidget.default ?: "")
         }
         return row
     }

@@ -91,6 +91,9 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
             val column = table.columnModel.getColumn(i)
             column.cellRenderer = getCellRenderer(columnWidget)
             column.cellEditor = getCellEditor(columnWidget)
+            columnWidget.attributes["vw"]?.let {
+                table.columnModel.getColumn(i).maxWidth = it.toInt()
+            }
         }
 
         table.setRowHeight(24)
@@ -120,8 +123,8 @@ class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(wi
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
             val rowList = mutableListOf<String>()
-            for (i in 0 until tableModel.columnCount) {
-                rowList.add("")
+            for (columnWidget in columnWidgets) {
+                rowList.add(columnWidget.default ?: "")
             }
             val row = rowList.toTypedArray()
             rows.add(row)

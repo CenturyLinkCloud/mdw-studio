@@ -24,7 +24,7 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
         background = getBackgroundColor()
         containerPane.background = getBackgroundColor()
 
-        // println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
+        println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
 
         try {
             val widgets = template.filterWidgets(tabName)

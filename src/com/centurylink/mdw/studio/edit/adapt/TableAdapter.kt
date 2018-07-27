@@ -49,7 +49,7 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
         return if (nonEmptyRows.length() == 0) null else nonEmptyRows
     }
 
-    protected fun isEmpty(row: JSONArray): Boolean {
+    private fun isEmpty(row: JSONArray): Boolean {
         for (i in 0 until row.length()) {
             if (row.getString(i).isNotEmpty()) {
                 return false
@@ -61,7 +61,7 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     /**
      * handles compatibility for old process def attributes
      */
-    fun toTable(value: String): JSONArray {
+    private fun toTable(value: String): JSONArray {
         if (value.startsWith('[')) {
             return JSONArray(value)
         }

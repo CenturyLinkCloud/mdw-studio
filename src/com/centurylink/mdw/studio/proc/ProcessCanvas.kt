@@ -119,8 +119,8 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                         dragging = true
                     }
                     diagram?.let {
-                        var deltaX = e.x - dragX
-                        var deltaY = e.y - dragY
+                        val deltaX = e.x - dragX
+                        val deltaY = e.y - dragY
                         it.onMouseDrag(DiagramEvent(e.x, e.y, shift = shift, ctrl = ctrl, drag = true),
                                         DragEvent(downX, downY, deltaX, deltaY))
 
@@ -177,7 +177,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                     diagram?.let {
                         val selObj = it.selection.selectObj
                         if (selObj != it && !(selObj is Label)) {
-                            var msg = if (it.selection.isMulti()) "Delete selected items?" else "Delete ${selObj.workflowObj.type}?"
+                            val msg = if (it.selection.isMulti()) "Delete selected items?" else "Delete ${selObj.workflowObj.type}?"
                             if (JOptionPane.showConfirmDialog(this@ProcessCanvas, msg, "Confirm Delete",
                                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == 0) {
                                 it.onDelete()

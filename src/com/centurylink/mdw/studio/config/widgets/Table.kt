@@ -18,7 +18,7 @@ import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
 @Suppress("unused")
-class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(widget, BorderLayout()) {
+open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(widget, BorderLayout()) {
 
     constructor(widget: Pagelet.Widget) : this(widget, false)
 

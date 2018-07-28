@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.ide.ui.UISettings
+import com.intellij.openapi.ui.popup.IconButton
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import com.intellij.ui.paint.LinePainter2D
@@ -92,7 +93,7 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         const val TITLE = "Configurator"
         const val TITLE_WIDTH = 110
         val ICON = IconLoader.getIcon("/icons/config.gif")
-        val ICON_HIDE = AllIcons.General.HideDown
+        val ICON_HIDE = AllIcons.General.HideToolWindow
         val ICON_HELP = AllIcons.General.Help_small
         const val PAD = 7
         val HEIGHT_ACTIVE = TabsUtil.getTabsHeight(JBUI.CurrentTheme.ToolWindow.tabVerticalPadding()) - PAD
@@ -165,8 +166,7 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
                 return Dimension(40, super.getPreferredSize().height)
             }
         }
-        iconPanel.border = EmptyBorder(-7, 0, 0, 5)
-        iconPanel.isOpaque = false
+        iconPanel.border = EmptyBorder(-15, 0, -8, 5)
         helpLabel = JLabel(ConfigPanel.ICON_HELP)
         helpLabel.isEnabled = false
         iconPanel.add(helpLabel)
@@ -178,6 +178,12 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
                 hideShowListener.let {
                     hideShowListener!!.onHideShow(false)
                 }
+            }
+            override fun mouseEntered(e: MouseEvent?) {
+                hideLabel.isOpaque = true
+            }
+            override fun mouseExited(e: MouseEvent?) {
+                hideLabel.isOpaque = false
             }
         })
         iconPanel.add(hideLabel, BorderLayout.EAST)

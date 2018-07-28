@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.icons.AllIcons
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
@@ -11,6 +12,7 @@ import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.Graphics
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
@@ -18,45 +20,44 @@ import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
 @Suppress("unused")
-open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidget(widget, BorderLayout()) {
+open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
+        private val withButtons: Boolean = true) : SwingWidget(widget, BorderLayout()) {
 
-    constructor(widget: Pagelet.Widget) : this(widget, false)
+    constructor(widget: Pagelet.Widget) : this(widget, false, true)
 
-    private val table: JBTable
-    private val tableModel: DefaultTableModel
-    private val columnWidgets = mutableListOf<Pagelet.Widget>()
-    private val rows = mutableListOf<Array<String>>()
-    private val projectSetup = (widget.adapter as WidgetApplier).workflowObj.project as ProjectSetup
+    protected val workflowObj = (widget.adapter as WidgetApplier).workflowObj
+    protected val projectSetup = workflowObj.project as ProjectSetup
+
+    private val columnWidgets: List<Pagelet.Widget> by lazy {
+        initialColumnWidgets()
+    }
+
+    open val rows: MutableList<Array<String>> by lazy {
+        initialRows()
+    }
 
     init {
         isOpaque = false
         border = BorderFactory.createEmptyBorder(5, 0, 5, 0)
+    }
 
+    private var _initialized = false
+    private val initialized: Boolean
+        get() {
+            val was = _initialized
+            _initialized = true
+            return was
+        }
+
+    private fun createAndAddTable() {
         val tablePanel = JPanel(BorderLayout())
         tablePanel.border = BorderFactory.createMatteBorder(1, 1, 0, 0, JBColor.border())
         add(tablePanel)
 
         val columnLabels = mutableListOf<String>()
-        for (i in widget.widgets.indices) {
-            val columnWidget = widget.widgets[i]
-            columnWidget.init("table", (widget.adapter as WidgetApplier).workflowObj)
-            columnLabels.add(" " + columnWidget.label)
-            columnWidgets.add(columnWidget)
-        }
+        columnWidgets.forEach { columnLabels.add(" " + it.label)}
 
-        // initialize rows from widget value
-        val rowsArrJson = widget.value as JSONArray
-        for (i in 0 until rowsArrJson.length()) {
-            val row = mutableListOf<String>()
-            val rowArrJson = rowsArrJson.getJSONArray(i)
-            for (j in 0 until rowArrJson.length()) {
-                val colVal = rowArrJson.getString(j)
-                row.add(colVal)
-            }
-            rows.add(row.toTypedArray())
-        }
-
-        tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
+        val tableModel = DefaultTableModel(rows.toTypedArray(), columnLabels.toTypedArray())
         tableModel.addTableModelListener { e ->
             if (e.column >= 0) {
                 // otherwise is add/delete operation
@@ -64,19 +65,11 @@ open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidg
                 rows[e.firstRow][e.column] = value?.toString() ?: ""
             }
             // update widget value from rows
-            val updatedRowsArrJson = JSONArray()
-            for (row in rows) {
-                val rowArrJson = JSONArray()
-                for (colVal in row) {
-                    rowArrJson.put(colVal.trim())
-                }
-                updatedRowsArrJson.put(rowArrJson)
-            }
-            widget.value = updatedRowsArrJson
+            widget.value = widgetValueFromRows(rows)
             applyUpdate()
         }
 
-        table = object : JBTable(tableModel) {
+        val table = object : JBTable(tableModel) {
             override fun isCellEditable(row: Int, column: Int): Boolean {
                 return if (widget.isReadonly) false else super.isCellEditable(row, column)
             }
@@ -96,7 +89,7 @@ open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidg
             }
         }
 
-        table.setRowHeight(24)
+        table.rowHeight = 24
 
         if (scrolling) {
             val scrollPane = JBScrollPane(table)
@@ -107,19 +100,66 @@ open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidg
             tablePanel.add(table, BorderLayout.CENTER)
         }
 
-        if (!widget.isReadonly) {
-            add(getButtonPanel(), BorderLayout.EAST)
+        if (!widget.isReadonly && withButtons) {
+            add(createButtonPanel(table), BorderLayout.EAST)
         }
     }
 
-    private fun getButtonPanel(): JPanel {
+    override fun paintComponent(g: Graphics) {
+        if (!initialized) {
+            createAndAddTable()
+        }
+        super.paintComponent(g)
+    }
+
+    protected open fun initialColumnWidgets(): List<Pagelet.Widget> {
+        val colWidgs = mutableListOf<Pagelet.Widget>()
+        for (i in widget.widgets.indices) {
+            val colWidg = widget.widgets[i]
+            colWidg.init("table", workflowObj)
+            colWidgs.add(colWidg)
+        }
+        return colWidgs
+    }
+
+    protected open fun initialRows(): MutableList<Array<String>> {
+        val rows = mutableListOf<Array<String>>()
+        // initialize rows from widget value
+        val rowsArrJson = widget.value as JSONArray
+        for (i in 0 until rowsArrJson.length()) {
+            val row = mutableListOf<String>()
+            val rowArrJson = rowsArrJson.getJSONArray(i)
+            for (j in 0 until rowArrJson.length()) {
+                val colVal = rowArrJson.getString(j)
+                row.add(colVal)
+            }
+            rows.add(row.toTypedArray())
+        }
+        return rows
+    }
+
+    protected open fun widgetValueFromRows(rows: List<Array<String>>): Any {
+        // update widget value from rows
+        val updatedRowsArrJson = JSONArray()
+        for (row in rows) {
+            val rowArrJson = JSONArray()
+            for (colVal in row) {
+                rowArrJson.put(colVal.trim())
+            }
+            updatedRowsArrJson.put(rowArrJson)
+        }
+        return updatedRowsArrJson
+    }
+
+    protected open fun createButtonPanel(table: JTable): JPanel {
         val btnPanel = JPanel()
         btnPanel.layout = BoxLayout(btnPanel, BoxLayout.Y_AXIS)
         btnPanel.isOpaque = false
         btnPanel.border = BorderFactory.createEmptyBorder(15, 5, 0, 0)
 
-        val addButton = JButton("Add")
-        addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 4)
+        val addButton = JButton(AllIcons.General.Add)
+        addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 2)
+        addButton.toolTipText = "Add"
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
             val rowList = mutableListOf<String>()
@@ -128,16 +168,17 @@ open class Table(widget: Pagelet.Widget, scrolling: Boolean = false) : SwingWidg
             }
             val row = rowList.toTypedArray()
             rows.add(row)
-            tableModel.addRow(row)
+            (table.model as DefaultTableModel).addRow(row)
         }
 
-        val delButton = JButton("Delete")
+        val delButton = JButton(AllIcons.General.Remove)
+        delButton.preferredSize = Dimension(delButton.preferredSize.width - 8, delButton.preferredSize.height - 2)
+        delButton.toolTipText = "Delete"
         btnPanel.add(delButton, BorderLayout.SOUTH)
-        delButton.preferredSize = Dimension(delButton.preferredSize.width - 8, delButton.preferredSize.height - 4)
         delButton.addActionListener {
             if (table.selectedRow >= 0) {
                 rows.removeAt(table.selectedRow)
-                tableModel.removeRow(table.selectedRow)
+                (table.model as DefaultTableModel).removeRow(table.selectedRow)
             }
         }
 

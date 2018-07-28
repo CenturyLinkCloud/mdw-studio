@@ -14,5 +14,6 @@
     <orderEntry type="library" name="json-20180130" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="jcommander-1.72" level="project" />
     <orderEntry type="library" name="gson-2.8.5" level="project" />
+    <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
   </component>
 </module>

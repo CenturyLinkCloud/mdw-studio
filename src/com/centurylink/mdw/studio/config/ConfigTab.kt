@@ -159,7 +159,6 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             for (widget in tableWidgets) {
                 val swingWidget = createSwingWidget(widget)
                 containerPane.add(swingWidget, constraints)
-
             }
         }
     }

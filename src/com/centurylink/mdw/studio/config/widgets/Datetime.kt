@@ -2,16 +2,12 @@ package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.units
-import com.centurylink.mdw.studio.edit.valueString
 import com.intellij.ui.JBIntSpinner
+import java.awt.Dimension
 import javax.swing.BorderFactory
 import javax.swing.ButtonGroup
-import javax.swing.JRadioButton
-import groovyjarjarantlr.FileLineFormatter.getFormatter
-import java.awt.Dimension
-import javax.swing.text.StyleConstants.getComponent
 import javax.swing.JFormattedTextField
-import javax.swing.JComponent
+import javax.swing.JRadioButton
 import javax.swing.text.DefaultFormatter
 
 

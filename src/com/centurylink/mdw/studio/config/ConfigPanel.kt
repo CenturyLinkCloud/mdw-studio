@@ -8,40 +8,27 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
-import com.intellij.ide.ui.UISettings
-import com.intellij.openapi.ui.popup.IconButton
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
-import com.intellij.ui.paint.LinePainter2D
-import com.intellij.ui.tabs.TabsUtil
 import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
+import javax.swing.BorderFactory
+import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.border.EmptyBorder
 
-
 class ConfigPanel(val projectSetup: ProjectSetup) :
-        JPanel(BorderLayout()), HideShowListener, SelectListener, UpdateListeners by UpdateListenersDelegate() {
+        JPanel(BorderLayout()), SelectListener, UpdateListeners by UpdateListenersDelegate() {
 
-    private val titleBar = TitleBar("")
+    val titleBar = TitleBar("")
     private var tabPanel: TabPanel? = null
     var hideShowListener: HideShowListener? = null
 
     init {
-        add(titleBar, BorderLayout.NORTH)
-        titleBar.hideShowListener = this
-    }
-
-    override fun onHideShow(show: Boolean) {
-        titleBar.hideShowListener = null
-        if (hideShowListener != null) {
-            hideShowListener!!.onHideShow(show)
-        }
-        titleBar.hideShowListener = this
     }
 
     override fun onSelect(selectObjs: List<Drawable>) {
@@ -51,7 +38,7 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         if (selectObjs.size == 1) {
             val selectObj = selectObjs[0]
             titleBar.itemLabel.text = selectObj.workflowObj.name.lines().joinToString(" ")
-            val configTabsJson = allTabsJson.get(selectObj.workflowObj.type.toString()).asJsonObject
+            val configTabsJson = ALL_TABS_JSON.get(selectObj.workflowObj.type.toString()).asJsonObject
             titleBar.helpLink = findHelpLink(selectObj.workflowObj, configTabsJson)
             tabPanel = TabPanel(projectSetup, configTabsJson, selectObj.workflowObj)
             tabPanel?.addUpdateListener { obj ->
@@ -87,17 +74,11 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
     }
 
     companion object {
-
-        val allTabsJson = JsonObject(Templates.get("configurator/config-tabs.json"))
-
         const val TITLE = "Configurator"
-        const val TITLE_WIDTH = 110
         val ICON = IconLoader.getIcon("/icons/config.gif")
-        val ICON_HIDE = AllIcons.General.HideToolWindow
-        val ICON_HELP = AllIcons.General.Help_small
-        const val PAD = 7
-        val HEIGHT_ACTIVE = TabsUtil.getTabsHeight(JBUI.CurrentTheme.ToolWindow.tabVerticalPadding()) - PAD
-        val HEIGHT_INACTIVE = HEIGHT_ACTIVE + 3
+        val ICON_HIDE: Icon = AllIcons.General.HideToolWindow
+        val ICON_HELP: Icon = AllIcons.General.Help_small
+        val ALL_TABS_JSON = JsonObject(Templates.get("configurator/config-tabs.json"))
     }
 }
 
@@ -128,10 +109,10 @@ fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj:
 
 class TitleBar(processName: String) : JPanel(BorderLayout()) {
 
-    val title = Title(true)
+    val title = Title()
     val itemLabel: JLabel
-    val iconPanel: JPanel
-    var helpLabel: JLabel
+    private val iconPanel: JPanel
+    private var helpLabel: JLabel
     var hideLabel: JLabel
     var hideShowListener: HideShowListener? = null
     var helpListener: MouseListener? = null
@@ -154,134 +135,112 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
 
     init {
         background = JBUI.CurrentTheme.ToolWindow.headerBackground(true)
+        border = BorderFactory.createMatteBorder(1, 0, 1, 0, JBColor.border())
+
         add(title, BorderLayout.WEST)
+        title.addMouseListener(object : MouseAdapter() {
+            override fun mouseEntered(e: MouseEvent) {
+                title.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+            }
+        })
+
         itemLabel = JLabel(processName)
         itemLabel.horizontalAlignment = JLabel.CENTER
-        itemLabel.border = EmptyBorder(-1, 0, ConfigPanel.PAD, ConfigPanel.PAD * 4)
         add(itemLabel, BorderLayout.CENTER)
 
+        iconPanel = JPanel(FlowLayout(FlowLayout.RIGHT, 0, 1))
+        iconPanel.isOpaque = false
+        iconPanel.border = BorderFactory.createEmptyBorder(0, 0, 0, 3)
 
-        iconPanel = object: JPanel(BorderLayout()) {
-            override fun getPreferredSize(): Dimension {
-                return Dimension(40, super.getPreferredSize().height)
-            }
-        }
-        iconPanel.border = EmptyBorder(-15, 0, -8, 5)
+        val iconEmptyBorder = BorderFactory.createEmptyBorder(1, 1, 1, 1)
+        val iconHoverBorder = BorderFactory.createLineBorder(JBColor.border())
+        val iconCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+        val iconSize = Dimension(24, 22)
+
         helpLabel = JLabel(ConfigPanel.ICON_HELP)
         helpLabel.isEnabled = false
+        helpLabel.border = iconEmptyBorder
+        helpLabel.cursor = iconCursor
+        helpLabel.preferredSize = iconSize
+        helpLabel.addMouseListener(object : MouseAdapter() {
+            override fun mouseEntered(e: MouseEvent?) {
+                helpLabel.isOpaque = true
+                helpLabel.border = iconHoverBorder
+            }
+            override fun mouseExited(e: MouseEvent?) {
+                helpLabel.isOpaque = false
+                helpLabel.border = iconEmptyBorder
+            }
+        })
         iconPanel.add(helpLabel)
 
         hideLabel = JLabel(ConfigPanel.ICON_HIDE)
+        hideLabel.border = iconEmptyBorder
+        hideLabel.cursor = iconCursor
         hideLabel.toolTipText = "Hide"
+        hideLabel.preferredSize = iconSize
         hideLabel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                hideShowListener.let {
-                    hideShowListener!!.onHideShow(false)
+                hideShowListener?.let {
+                    hideLabel.isOpaque = false
+                    hideLabel.border = iconEmptyBorder
+                    it.onHideShow(false)
                 }
             }
             override fun mouseEntered(e: MouseEvent?) {
                 hideLabel.isOpaque = true
+                hideLabel.border = iconHoverBorder
             }
             override fun mouseExited(e: MouseEvent?) {
                 hideLabel.isOpaque = false
+                hideLabel.border = iconEmptyBorder
             }
         })
-        iconPanel.add(hideLabel, BorderLayout.EAST)
+        iconPanel.add(hideLabel)
 
         add(iconPanel, BorderLayout.EAST)
     }
-
-    override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-        val g2d = g as Graphics2D
-
-        val borderY = (ConfigPanel.HEIGHT_ACTIVE - 1).toDouble()
-        g2d.color = JBColor.border()
-        LinePainter2D.paint(g2d, 0.toDouble(), borderY, width.toDouble(), borderY)
-    }
-
-    override fun getPreferredSize(): Dimension {
-        val size = super.getPreferredSize()
-        return Dimension(size.width, ConfigPanel.HEIGHT_ACTIVE)
-    }
 }
 
-class PanelBar: JPanel() {
+class PanelBar: JPanel(BorderLayout()) {
 
-    val title = Title(false)
-    val showButton = JPanel()
     var hideShowListener: HideShowListener? = null
 
     init {
         background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
-        showButton.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
-        val flowLayout = FlowLayout(FlowLayout.LEFT, 0, 1)
-        layout = flowLayout
-        showButton.layout = FlowLayout(FlowLayout.LEFT, 0, 4)
-        showButton.add(title)
-        add(showButton)
-        showButton.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent?) {
-                hideShowListener.let {
-                    showButton.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
-                    hideShowListener!!.onHideShow(true)
-                }
-            }
+        border = BorderFactory.createMatteBorder(1, 0, 0, 0, JBColor.border())
+
+        val titlePanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+        titlePanel.border = BorderFactory.createEmptyBorder(0, 2, 1, 5)
+        titlePanel.add(Title())
+        titlePanel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                hideShowListener.let {
-                    showButton.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
-                    hideShowListener!!.onHideShow(true)
+                hideShowListener?.let {
+                    titlePanel.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
+                    it.onHideShow(true)
                 }
             }
             override fun mouseEntered(e: MouseEvent) {
-                showButton.background = JBUI.CurrentTheme.ToolWindow.tabHoveredBackground()
+                titlePanel.background = JBUI.CurrentTheme.ToolWindow.tabHoveredBackground()
             }
             override fun mouseExited(e: MouseEvent) {
-                showButton.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
+                titlePanel.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
             }
         })
-    }
-
-    override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-        val g2d = g as Graphics2D
-        g2d.color = JBColor.border()
-        LinePainter2D.paint(g2d, 0.toDouble(), 0.toDouble(), width.toDouble(), 0.toDouble())
-    }
-
-    override fun getPreferredSize(): Dimension {
-        val size = super.getPreferredSize()
-        return Dimension(size.width, ConfigPanel.HEIGHT_INACTIVE)
+        add(titlePanel, BorderLayout.WEST)
     }
 }
 
 /**
  * Icon and label text.
  */
-class Title(val active: Boolean) : JPanel() {
-
+class Title() : JPanel(FlowLayout(FlowLayout.LEFT, 5, 2)) {
     init {
         isOpaque = false
-    }
-
-    override fun paintComponent(g: Graphics) {
-        UISettings.setupAntialiasing(g)
-        super.paintComponent(g)
-        val g2d = g as Graphics2D
-
-        ConfigPanel.ICON.paintIcon(this, g2d, ConfigPanel.PAD, 0)
-        g2d.font = JBUI.CurrentTheme.ToolWindow.headerFont()
-        g2d.drawString(ConfigPanel.TITLE, ConfigPanel.PAD + 20, JBUI.CurrentTheme.ToolWindow.tabVerticalPadding() + ConfigPanel.PAD)
-
-        g2d.color = JBColor.border()
-        if (active) {
-            val borderY = (ConfigPanel.HEIGHT_ACTIVE - 1).toDouble()
-            LinePainter2D.paint(g2d, 0.toDouble(), borderY, width.toDouble(), borderY)
-        }
-    }
-
-    override fun getPreferredSize(): Dimension {
-        return Dimension(ConfigPanel.TITLE_WIDTH, if (active) ConfigPanel.HEIGHT_ACTIVE else (ConfigPanel.HEIGHT_INACTIVE))
+        val iconLabel = JLabel(ConfigPanel.ICON)
+        iconLabel.border = BorderFactory.createEmptyBorder(3, 0, 0, 0)
+        add(iconLabel)
+        add(JLabel(ConfigPanel.TITLE))
     }
 }
 

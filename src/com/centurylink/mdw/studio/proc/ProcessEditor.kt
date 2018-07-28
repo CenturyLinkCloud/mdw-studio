@@ -20,15 +20,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Divider
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.ui.JBColor
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.paint.LinePainter2D
+import com.intellij.ui.tabs.TabsUtil
 import com.intellij.util.ui.JBUI
 import org.json.JSONObject
 import java.awt.BorderLayout
-import java.awt.Graphics
-import java.awt.Graphics2D
+import java.awt.Cursor
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.JComponent
@@ -84,6 +82,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
 
         editPanel = JPanel(BorderLayout())
         configPanel = ConfigPanel(projectSetup)
+        configPanel.titleBar.hideShowListener = this
         panelBar = PanelBar()
 
         splitter = object : JBSplitter(true, 0.75f) {
@@ -91,20 +90,24 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             override fun createDivider(): Divider {
                 return object : DividerImpl() {
                     init {
+                        layout = BorderLayout()
                         background = JBUI.CurrentTheme.ToolWindow.headerBackground(true)
+                        add(configPanel.titleBar)
                     }
-                    override fun paintComponent(g: Graphics?) {
-                        super.paintComponent(g)
-                        val g2d = g as Graphics2D
-                        g2d.color = JBColor.border()
-                        val borderY = 0.toDouble()
-                        LinePainter2D.paint(g2d, 0.toDouble(), borderY, width.toDouble(), borderY)
+
+                    override fun setOrientation(isVerticalSplit: Boolean) {
+                        cursor = if (isVertical) {
+                            Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR)
+                        }
+                        else {
+                            Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)
+                        }
                     }
                 }
             }
 
             override fun getDividerWidth(): Int {
-                return ConfigPanel.PAD
+                return TabsUtil.getTabsHeight(JBUI.CurrentTheme.ToolWindow.tabVerticalPadding())
             }
         }
 
@@ -129,13 +132,6 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             canvas.revalidate()
             canvas.repaint()
         }
-
-//        procDoc.addDocumentListener(object: DocumentListener {
-//            override fun documentChanged(e: DocumentEvent) {
-//                println("DOC CHANGED")
-//            }
-//        })
-
 
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
         connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {

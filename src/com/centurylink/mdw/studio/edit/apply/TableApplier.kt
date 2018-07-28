@@ -2,7 +2,6 @@ package com.centurylink.mdw.studio.edit.apply
 
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.edit.WorkflowObj
-import com.centurylink.mdw.studio.edit.valueString
 
 /**
  * Dummy applier for widgets contained within tables.

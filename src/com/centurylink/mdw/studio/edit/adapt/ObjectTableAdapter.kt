@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.edit.adapt
 
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
+import com.centurylink.mdw.studio.edit.default
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -9,6 +10,7 @@ import org.json.JSONObject
  * Converts workflowObj object values to table form for Configurator display.
  * The process Variables tab is one usage.
  */
+@Suppress("unused")
 class ObjectTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
 
     /**
@@ -69,8 +71,12 @@ class ObjectTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
                     jsonObject.put(row.getString(j), rowObj)
                 }
                 else {
-                    if (row.getString(j).isNotEmpty()) {
-                        rowObj.put(columnWidget.name, row.getString(j))
+                    val value = row.getString(j)
+                    if (value.isBlank()) {
+                        columnWidget.default?.let {rowObj.put(columnWidget.name, it)}
+                    }
+                    else {
+                        rowObj.put(columnWidget.name, value)
                     }
                 }
             }

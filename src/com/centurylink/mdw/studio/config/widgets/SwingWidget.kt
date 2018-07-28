@@ -13,11 +13,15 @@ import javax.swing.JPanel
 open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOUT) :
         JPanel(layout), UpdateListeners by UpdateListenersDelegate() {
 
+    // name of (previously-added) widget whose updates I'm interested in
+    open val listenTo: String? = null
+
     fun applyUpdate() {
         if (widget.adapter is WidgetApplier) {
             widget.adapter.willUpdate(widget)
             val applier = widget.adapter as WidgetApplier
             applier.update()
+            println("NOTIFYING LISTENERS: " + applier.workflowObj.name)
             notifyUpdateListeners(applier.workflowObj)
             // reflect updates prior to any subsequent value changes
             widget.adapter.didInit(widget)

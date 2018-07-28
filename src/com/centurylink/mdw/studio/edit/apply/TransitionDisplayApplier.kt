@@ -11,7 +11,7 @@ import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_D
 import com.centurylink.mdw.studio.draw.Display
 import com.centurylink.mdw.studio.edit.valueString
 
-
+@Suppress("unused")
 class TransitionDisplayApplier : AttributeApplier() {
     override fun init(widget: Pagelet.Widget, workflowObj: WorkflowObj) {
         super.init(widget, workflowObj)

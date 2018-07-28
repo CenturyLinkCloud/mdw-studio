@@ -16,6 +16,8 @@ import java.lang.IllegalArgumentException
 @Suppress("unused")
 class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
 
+    override val listenTo = if (widget.source == "Subprocess" ) "processname" else super.listenTo
+
     override fun initialColumnWidgets(): List<Pagelet.Widget> {
         val colWidgs = mutableListOf<Pagelet.Widget>()
         val pagelet = Pagelet(JSONObject("{ \"widgets\": [] }"))
@@ -68,6 +70,17 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
         // initialize rows from widget value
         widget.value?.let {
             val mappingJson = it as JSONObject
+            // clear out invalid mappings (left over from old variables)
+            val toRemove = mutableListOf<String>()
+            for (key in mappingJson.keySet()) {
+                if (bindingVariables.find { it.name == key } == null) {
+                    toRemove.add(key)
+                }
+            }
+            if (!toRemove.isEmpty()) {
+                toRemove.forEach { mappingJson.remove(it) }
+                applyUpdate()
+            }
             for (bindingVariable in bindingVariables) {
                 rows.add(arrayOf(bindingVariable.name, bindingVariable.type, bindingVariable.category,
                         mappingJson.optString(bindingVariable.name)))

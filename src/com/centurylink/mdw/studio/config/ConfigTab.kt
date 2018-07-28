@@ -7,22 +7,27 @@ import com.centurylink.mdw.studio.config.widgets.SwingWidget
 import com.centurylink.mdw.studio.config.widgets.Table
 import com.centurylink.mdw.studio.draw.RoundedBorder
 import com.centurylink.mdw.studio.edit.*
-import com.google.gson.GsonBuilder
 import com.intellij.ui.components.JBScrollPane
 import java.awt.*
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import javax.swing.*
 
-class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowObj) : JPanel(BorderLayout()),
-        UpdateListeners by UpdateListenersDelegate() {
+class ConfigTab(private val tabName: String, private val template: Template, private val workflowObj: WorkflowObj) :
+        JPanel(BorderLayout()), UpdateListeners by UpdateListenersDelegate() {
 
-    val containerPane = JPanel()
-    var scrollPane: JBScrollPane? = null
+    private var containerPane = JPanel()
+    private var scrollPane: JBScrollPane? = null
+    private val allSwingWidgets = mutableMapOf<String,SwingWidget>()
 
     init {
         background = getBackgroundColor()
+        initWidgets()
+    }
+
+    private fun initWidgets() {
         containerPane.background = getBackgroundColor()
+        allSwingWidgets.clear()
 
         // println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
 
@@ -116,7 +121,6 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
             containerConstraints.gridy = 2
             containerConstraints.fill = GridBagConstraints.VERTICAL
             containerConstraints.gridheight = GridBagConstraints.REMAINDER
-            // containerConstraints.anchor = GridBagConstraints.LINE_END
             containerConstraints.weighty = 100.0
             val glue = Box.createVerticalGlue()
             containerPane.add(glue, containerConstraints)
@@ -168,6 +172,20 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
         swingWidget.addUpdateListener { obj ->
             notifyUpdateListeners(obj)
         }
+        swingWidget.listenTo?.let {
+            allSwingWidgets[it]?.let {
+                it.addUpdateListener { obj ->
+                    scrollPane?.let {remove(it) }
+                    remove(containerPane)
+                    containerPane = JPanel()
+                    initWidgets()
+                    parent.revalidate()
+                    parent.repaint()
+                }
+            }
+        }
+
+        allSwingWidgets[widget.name] = swingWidget
         return swingWidget
     }
 
@@ -175,15 +193,16 @@ class ConfigTab(tabName: String, val template: Template, workflowObj: WorkflowOb
      * Returns non-null if pagelet has only one widget, and it is
      * of the specified type.
      */
-    fun findSoloWidget(widgets: List<Pagelet.Widget>, type: String): Pagelet.Widget? {
+    private fun findSoloWidget(widgets: List<Pagelet.Widget>, type: String): Pagelet.Widget? {
         if (widgets.size != 1) {
             return null
         }
         return widgets.find { it.type == type }
     }
 
-
     private fun getBackgroundColor(): Color {
         return UIManager.getColor("EditorPane.background")
     }
+
+
 }

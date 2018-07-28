@@ -8,6 +8,7 @@ import java.lang.Integer.parseInt
 /**
  * to/from Int value in seconds
  */
+@Suppress("unused")
 class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
 
     override fun didInit(widget: Widget) {

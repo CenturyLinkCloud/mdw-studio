@@ -51,7 +51,9 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
 
     private fun createAndAddTable() {
         val tablePanel = JPanel(BorderLayout())
-        tablePanel.border = BorderFactory.createMatteBorder(1, 1, 0, 0, JBColor.border())
+        if (!scrolling) {
+            tablePanel.border = BorderFactory.createMatteBorder(1, 1, 0, 0, JBColor.border())
+        }
         add(tablePanel)
 
         val columnLabels = mutableListOf<String>()
@@ -99,6 +101,8 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
             tablePanel.add(header, BorderLayout.NORTH)
             tablePanel.add(table, BorderLayout.CENTER)
         }
+        tablePanel.revalidate()
+        tablePanel.repaint()
 
         if (!widget.isReadonly && withButtons) {
             add(createButtonPanel(table), BorderLayout.EAST)

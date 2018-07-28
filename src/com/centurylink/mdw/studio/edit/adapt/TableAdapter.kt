@@ -5,6 +5,7 @@ import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.edit.default
 import org.json.JSONArray
 
+@Suppress("unused")
 open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
 
     /**

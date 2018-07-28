@@ -11,7 +11,10 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Cursor
+import java.awt.Dimension
+import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
@@ -19,7 +22,6 @@ import javax.swing.BorderFactory
 import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.swing.border.EmptyBorder
 
 class ConfigPanel(val projectSetup: ProjectSetup) :
         JPanel(BorderLayout()), SelectListener, UpdateListeners by UpdateListenersDelegate() {

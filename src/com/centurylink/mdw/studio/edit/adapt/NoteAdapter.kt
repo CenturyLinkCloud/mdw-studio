@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.edit.label
 /**
  * Note widgets only have a label
  */
+@Suppress("unused")
 class NoteAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     override fun didInit(widget: Widget) {
         widget.value = widget.label

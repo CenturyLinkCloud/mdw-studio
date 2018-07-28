@@ -5,12 +5,16 @@ import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import com.centurylink.mdw.studio.edit.valueString
 import org.json.JSONObject
 
+@Suppress("unused")
 class MappingAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
 
     /**
      * Convert to a JSONObject mapping.
      */
     override fun didInit(widget: Widget) {
+        if (widget.valueString.isNullOrEmpty()) {
+            widget.value = JSONObject()
+        }
         widget.valueString?.let {
             widget.value = toMappings(it)
         }
@@ -18,7 +22,13 @@ class MappingAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
 
     override fun willUpdate(widget: Widget) {
         widget.value?.let {
-            widget.value = (it as JSONObject).toString()
+            val jsonObject = it as JSONObject
+            if (jsonObject.keySet().size == 0) {
+                widget.value = null
+            }
+            else {
+                widget.value = jsonObject.toString()
+            }
         }
     }
 

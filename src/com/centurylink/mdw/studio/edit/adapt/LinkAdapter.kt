@@ -6,6 +6,7 @@ import com.centurylink.mdw.studio.edit.url
 import com.centurylink.mdw.studio.edit.valueString
 import com.centurylink.mdw.studio.proj.ProjectSetup
 
+@Suppress("unused")
 class LinkAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     override fun didInit(widget: Widget) {
         if (widget.name == "implementor") {

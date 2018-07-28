@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.apply.WidgetApplier
 import org.json.JSONArray
 
+@Suppress("unused")
 class PicklistAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
 
     override fun didInit(widget: Widget) {

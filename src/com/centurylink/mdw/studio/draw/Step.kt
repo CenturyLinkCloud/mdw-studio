@@ -37,7 +37,7 @@ class Step(private val g2d: Graphics2D, project: Any?, process: Process, val act
                 "start" -> {
                     if (display.w == 60 && display.h == 40) {
                         // use image for better quality via feathering
-                        drawIcon(Display.START_ICON, display.x, display.y)
+                        drawIcon(Display.START_ICON, display.x, display.y, 0.8f)
                     }
                     else {
                         // use image for better quality via feathering
@@ -47,7 +47,7 @@ class Step(private val g2d: Graphics2D, project: Any?, process: Process, val act
                 }
                 "stop" -> {
                     if (display.w == 60 && display.h == 40) {
-                        drawIcon(Display.STOP_ICON, display.x, display.y)
+                        drawIcon(Display.STOP_ICON, display.x, display.y, 0.8f)
                     }
                     else {
                         drawOval(fill = Display.STOP_COLOR)

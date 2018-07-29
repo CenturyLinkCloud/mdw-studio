@@ -21,7 +21,6 @@ open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOU
             widget.adapter.willUpdate(widget)
             val applier = widget.adapter as WidgetApplier
             applier.update()
-            println("NOTIFYING LISTENERS: " + applier.workflowObj.name)
             notifyUpdateListeners(applier.workflowObj)
             // reflect updates prior to any subsequent value changes
             widget.adapter.didInit(widget)

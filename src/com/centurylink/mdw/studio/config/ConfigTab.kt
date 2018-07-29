@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.config.widgets.SwingWidget
 import com.centurylink.mdw.studio.config.widgets.Table
 import com.centurylink.mdw.studio.draw.RoundedBorder
 import com.centurylink.mdw.studio.edit.*
+import com.google.gson.GsonBuilder
 import com.intellij.ui.components.JBScrollPane
 import java.awt.*
 import java.io.ByteArrayOutputStream
@@ -174,7 +175,7 @@ class ConfigTab(private val tabName: String, private val template: Template, pri
         }
         swingWidget.listenTo?.let {
             allSwingWidgets[it]?.let {
-                it.addUpdateListener { obj ->
+                it.addUpdateListener { _ ->
                     scrollPane?.let {remove(it) }
                     remove(containerPane)
                     containerPane = JPanel()

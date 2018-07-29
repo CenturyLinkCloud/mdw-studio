@@ -43,12 +43,17 @@ abstract class Shape(private val g2d: Graphics2D, open var display: Display): Dr
         g2d.paint = Display.DEFAULT_COLOR
     }
 
-    fun drawIcon(icon: ImageIcon, x: Int, y: Int) {
-        g2d.drawImage(icon.image, x, y, null)
+    fun drawIcon(icon: ImageIcon, x: Int, y: Int, opacity: Float = 1f) {
+        drawImage(icon.image, x, y, opacity)
     }
 
-    fun drawImage(image: Image, x: Int, y: Int) {
+    fun drawImage(image: Image, x: Int, y: Int, opacity: Float = 1f) {
+        var origComposite = g2d.composite
+        if (opacity != 1f) {
+            g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity)
+        }
         g2d.drawImage(image, x, y, null)
+        g2d.composite = origComposite
     }
 
     fun drawOval(x: Int = display.x, y: Int = display.y, w: Int = display.w, h: Int = display.h,

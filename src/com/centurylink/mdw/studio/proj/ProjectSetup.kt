@@ -27,24 +27,33 @@ class Startup : StartupActivity {
 
 class ProjectSetup(val project: Project) : ProjectComponent {
 
-    val isMdwProject = true // TODO: based on mdw framework library project
-
-    val setup: Setup
+    // setup is null if not an mdw project
+    private var setup: Setup? = null
     val assetDir: VirtualFile
+
+    val isMdwProject: Boolean
+        get() = setup != null
 
     lateinit var implementors: Implementors
 
     init {
-        setup = object: Setup(File(project.basePath)) {
-            override fun run(vararg progressMonitors: ProgressMonitor?): Operation {
-                return this
+        val mdwYaml = File("${project.basePath}/${configLoc}/mdw.yaml")
+
+        if (mdwYaml.exists()) {
+            val mySetup = object : Setup(File(project.basePath)) {
+                override fun run(vararg progressMonitors: ProgressMonitor?): Operation {
+                    return this
+                }
             }
+            setup = mySetup
+            assetDir = LocalFileSystem.getInstance().findFileByIoFile(mySetup.assetRoot)!!
         }
-        assetDir = LocalFileSystem.getInstance().findFileByIoFile(setup.assetRoot)!!
+        else {
+            assetDir = project.baseDir
+        }
     }
 
     override fun projectOpened() {
-        // TODO check if workflow project
         if (isMdwProject) {
             implementors = Implementors(this)
         }
@@ -134,8 +143,10 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     companion object {
-        // TODO hubRoot should not be static and not be hardcoded
+        // TODO these values should not be static and should not be hardcoded
+        val configLoc = "config"
         val hubRoot = "http://localhost:8080/mdw"
+
         const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
 

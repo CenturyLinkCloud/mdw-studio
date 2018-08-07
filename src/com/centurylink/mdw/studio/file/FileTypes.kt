@@ -26,3 +26,16 @@ object ProcessFileType : FileType {
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
 
 }
+
+object TaskFileType : FileType {
+
+    val taskIcon = IconLoader.getIcon("/icons/task.gif")
+
+    override fun getDefaultExtension() = "task"
+    override fun getName() = "Task"
+    override fun getDescription() = "Workflow Task"
+    override fun getIcon() = taskIcon
+    override fun isBinary() = false
+    override fun isReadOnly() = false
+    override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
+}

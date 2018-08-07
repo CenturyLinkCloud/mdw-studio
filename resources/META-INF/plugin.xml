@@ -30,6 +30,8 @@
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.TaskEditorGeneralProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.TaskEditorWorkgroupsProvider"/>
     <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
             factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
             conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>

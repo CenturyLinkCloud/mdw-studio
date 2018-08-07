@@ -3,6 +3,8 @@ package com.centurylink.mdw.studio.proj
 import com.centurylink.mdw.cli.Operation
 import com.centurylink.mdw.cli.ProgressMonitor
 import com.centurylink.mdw.cli.Setup
+import com.centurylink.mdw.config.PropertyException
+import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.dataaccess.file.PackageDir.META_DIR
 import com.centurylink.mdw.studio.file.Asset
 import com.intellij.openapi.components.ProjectComponent
@@ -36,21 +38,36 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     lateinit var implementors: Implementors
 
-    init {
-        val mdwYaml = File("${project.basePath}/${configLoc}/mdw.yaml")
+    val projectYaml = File(project.basePath + "/project.yaml")
 
-        if (mdwYaml.exists()) {
-            val mySetup = object : Setup(File(project.basePath)) {
-                override fun run(vararg progressMonitors: ProgressMonitor?): Operation {
-                    return this
+    init {
+        assetDir = initialize()
+    }
+
+    private fun initialize(): VirtualFile {
+        if (projectYaml.exists()) {
+            val yamlProps = YamlProperties(projectYaml)
+            val assetLoc = yamlProps.getString(Props.ASSET_LOC.prop)
+            assetLoc ?: throw PropertyException("Missing from project.yaml: ${Props.ASSET_LOC.prop}")
+            val configLoc = yamlProps.getString(Props.CONFIG_LOC.prop)
+            configLoc ?: throw PropertyException("Missing from project.yaml: ${Props.CONFIG_LOC.prop}")
+            val mdwYaml = File("${project.basePath}/${configLoc}/mdw.yaml")
+            if (mdwYaml.exists()) {
+                val mySetup = object : Setup(File(project.basePath)) {
+                    override fun run(vararg progressMonitors: ProgressMonitor?): Operation {
+                        return this
+                    }
                 }
+                mySetup.configLoc = mdwYaml.parent
+                mySetup.assetLoc = assetLoc
+                setup = mySetup
+                return LocalFileSystem.getInstance().findFileByIoFile(mySetup.assetRoot)!!
             }
-            setup = mySetup
-            assetDir = LocalFileSystem.getInstance().findFileByIoFile(mySetup.assetRoot)!!
+            else {
+                throw PropertyException("Missing: ${mdwYaml.absolutePath}")
+            }
         }
-        else {
-            assetDir = project.baseDir
-        }
+        return project.baseDir
     }
 
     override fun projectOpened() {
@@ -144,7 +161,6 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     companion object {
         // TODO these values should not be static and should not be hardcoded
-        val configLoc = "config"
         val hubRoot = "http://localhost:8080/mdw"
 
         const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
@@ -178,5 +194,10 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         // TODO better groups handling
         // (make this configurable somehow by the user)
         val workgroups = listOf("MDW Support", "Site Admin", "Developers")
+    }
+
+    enum class Props(val prop: String) {
+        ASSET_LOC("project.asset.location"),
+        CONFIG_LOC("project.config.location")
     }
 }

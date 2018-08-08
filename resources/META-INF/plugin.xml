@@ -15,7 +15,9 @@
 
   <idea-version since-build="173.0"/>
 
+  <!--
   <depends>org.jetbrains.kotlin</depends>
+  -->
 
   <project-components>
     <component>
@@ -30,8 +32,9 @@
   <extensions defaultExtensionNs="com.intellij">
     <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.TaskEditorGeneralProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.TaskEditorWorkgroupsProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorGeneralProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorWorkgroupsProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorSourceProvider"/>
     <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
             factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
             conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>

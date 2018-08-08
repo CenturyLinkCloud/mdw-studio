@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import java.awt.Dimension
 import java.awt.event.FocusEvent
@@ -22,30 +23,37 @@ open class Text(widget: Widget) : SwingWidget(widget) {
 
     init {
         background = UIManager.getColor("EditorPane.background")
-        border = BorderFactory.createEmptyBorder()
 
         if (widget.isMultiline) {
+            border = BorderFactory.createEmptyBorder(0, 3, 0, 0)
             val rows = widget.rows ?: 8
             textComponent = object: JTextArea(rows, 0) {
                 override fun getPreferredSize(): Dimension {
-                    return Dimension(widget.width - (if (ProjectSetup.isWindows) 11 else 30),
+                    return Dimension(widget.width - (if (ProjectSetup.isWindows) 11 else 22),
                             super.getPreferredSize().height)
                 }
             }
             textComponent.lineWrap = true
             textComponent.wrapStyleWord = true
             textComponent.font = font
+            val tcBorder = BorderFactory.createEmptyBorder(2, 4, 0, 0)
+            textComponent.border = tcBorder
             val scrollPane = JBScrollPane(textComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                     ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER)
-            scrollPane.border = JTextField().border
+            val spBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, JBColor.border())
+            scrollPane.border = spBorder;
 
             // otherwise focus borders not updated
             textComponent.addFocusListener(object: FocusListener {
                 override fun focusLost(e: FocusEvent) {
+                    scrollPane.border = spBorder
+                    textComponent.border = tcBorder
                     invalidate()
                     repaint()
                 }
                 override fun focusGained(e: FocusEvent) {
+                    scrollPane.border = JTextField().border
+                    textComponent.border = BorderFactory.createEmptyBorder(0, 2, 0, 0)
                     invalidate()
                     repaint()
                 }
@@ -54,6 +62,7 @@ open class Text(widget: Widget) : SwingWidget(widget) {
             add(scrollPane)
         }
         else {
+            border = BorderFactory.createEmptyBorder()
             textComponent = JTextField()
             textComponent.preferredSize = Dimension(widget.width, textComponent.preferredSize.height - 4)
             add(textComponent)

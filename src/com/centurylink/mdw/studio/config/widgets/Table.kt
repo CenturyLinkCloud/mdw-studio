@@ -14,6 +14,8 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.*
+import javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
@@ -94,7 +96,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         table.rowHeight = 24
 
         if (scrolling) {
-            val scrollPane = JBScrollPane(table)
+            val scrollPane = JBScrollPane(table, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED)
             tablePanel.add(scrollPane)
         }
         else {
@@ -162,6 +164,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         btnPanel.border = BorderFactory.createEmptyBorder(15, 5, 0, 0)
 
         val addButton = JButton(AllIcons.General.Add)
+        addButton.isOpaque = false
         addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 2)
         addButton.toolTipText = "Add"
         btnPanel.add(addButton, BorderLayout.NORTH)
@@ -176,6 +179,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         }
 
         val delButton = JButton(AllIcons.General.Remove)
+        delButton.isOpaque = false
         delButton.preferredSize = Dimension(delButton.preferredSize.width - 8, delButton.preferredSize.height - 2)
         delButton.toolTipText = "Delete"
         btnPanel.add(delButton, BorderLayout.SOUTH)

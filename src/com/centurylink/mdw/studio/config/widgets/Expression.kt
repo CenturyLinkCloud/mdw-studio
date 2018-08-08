@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.ui.EditorTextField
 import java.awt.Dimension
+import javax.swing.BorderFactory
 
 /**
  * TODO: background
@@ -18,6 +19,7 @@ class Expression(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     init {
         isOpaque = false
+        border = BorderFactory.createEmptyBorder()
 
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
@@ -39,6 +41,7 @@ class Expression(widget: Pagelet.Widget) : SwingWidget(widget) {
                 return Dimension(widget.width, size.height)
             }
         }
+
         add(textField)
         textField.addDocumentListener(object: com.intellij.openapi.editor.event.DocumentListener {
             override fun beforeDocumentChange(e: DocumentEvent) {

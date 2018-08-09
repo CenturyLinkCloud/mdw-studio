@@ -1,4 +1,4 @@
-package com.centurylink.mdw.studio.draw
+package com.centurylink.mdw.studio.ext
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.constant.WorkAttributeConstant.LOGICAL_ID
@@ -9,8 +9,8 @@ import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.TextNote
 import com.centurylink.mdw.model.workflow.Transition
-import com.centurylink.mdw.studio.ext.findIndex
-import com.centurylink.mdw.studio.ext.replaceAt
+import com.centurylink.mdw.studio.draw.Display
+import com.centurylink.mdw.studio.draw.LinkDisplay
 import com.centurylink.mdw.studio.proj.Implementor
 import com.centurylink.mdw.studio.proj.Implementors
 import org.json.JSONObject

@@ -48,6 +48,7 @@ class ProcessEditorProvider : FileEditorProvider, DumbAware {
 
 class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, HideShowListener {
 
+    private val projectSetup = project.getComponent(ProjectSetup::class.java)
     private var procDoc = FileDocumentManager.getInstance().getDocument(procFile)!!
     private val editPanel: JPanel
     private val canvasScrollPane: JBScrollPane
@@ -55,7 +56,6 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     private val configPanel: ConfigPanel
     private val panelBar: PanelBar
     private val canvas: ProcessCanvas
-    private val projectSetup = project.getComponent(ProjectSetup::class.java)
     private var _process: Process
     private var process: Process
         get() = _process
@@ -75,7 +75,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
 
     init {
         // initialize backing property and then invoke setter
-        _process = Process(org.json.JSONObject(procDoc.text))
+        _process = Process(JSONObject(procDoc.text))
         process = _process
         canvas = ProcessCanvas(projectSetup, process)
         canvasScrollPane = JBScrollPane(canvas)
@@ -127,7 +127,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         panelBar.hideShowListener = this
 
         configPanel.addUpdateListener { obj ->
-            obj.updateProcess()
+            obj.updateAsset()
             handleChange()
             canvas.revalidate()
             canvas.repaint()

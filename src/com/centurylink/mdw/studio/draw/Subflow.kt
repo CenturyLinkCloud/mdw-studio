@@ -4,6 +4,8 @@ import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.edit.WorkflowObj
 import com.centurylink.mdw.studio.edit.WorkflowType
+import com.centurylink.mdw.studio.ext.addActivity
+import com.centurylink.mdw.studio.ext.addTransition
 import com.centurylink.mdw.studio.proj.Implementor
 import com.centurylink.mdw.studio.proj.Implementors
 import java.awt.Color

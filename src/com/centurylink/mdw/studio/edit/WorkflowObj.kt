@@ -1,11 +1,12 @@
 package com.centurylink.mdw.studio.edit
 
+import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.TextNote
 import com.centurylink.mdw.model.workflow.Transition
-import com.centurylink.mdw.studio.draw.*
-import com.centurylink.mdw.studio.ext.Json
+import com.centurylink.mdw.studio.ext.*
 import org.json.JSONObject
 
 enum class WorkflowType {
@@ -14,10 +15,11 @@ enum class WorkflowType {
     transition,
     subprocess,
     textNote,
-    implementor
+    implementor,
+    task
 }
 
-open class WorkflowObj(val project: Any?, val process: Process, val type: WorkflowType, val obj: JSONObject) {
+open class WorkflowObj(val project: Any?, val asset: Asset, val type: WorkflowType, val obj: JSONObject) {
 
     open var id: String
         get() = if (obj.has("id")) obj.getString("id") else "-1"
@@ -27,7 +29,7 @@ open class WorkflowObj(val project: Any?, val process: Process, val type: Workfl
         set(value) { obj.put("name", value)}
 
     val titlePath: String
-        get() = process.packageName + "/" + process.name + ": " + name.lines().joinToString(" ")
+        get() = asset.packageName + "/" + asset.name + ": " + name.lines().joinToString(" ")
 
     var isReadonly = false
 
@@ -104,35 +106,38 @@ open class WorkflowObj(val project: Any?, val process: Process, val type: Workfl
     }
 
     /**
-     * Updates the process to reflect changes to obj attrs
+     * Updates the process or task to reflect changes to obj attrs
      */
-    fun updateProcess() {
+    fun updateAsset() {
         when (type) {
             WorkflowType.process -> {
                 val proc = Process(obj)
-                process.set(proc)
+                (asset as Process).set(proc)
             }
             WorkflowType.activity -> {
                 if (!obj.has("name")) {
                     obj.put("name", "")
                 }
                 val activity = Activity(obj)
-                process.setActivity(id, activity)
+                (asset as Process).setActivity(id, activity)
             }
             WorkflowType.transition -> {
                 val transition = Transition(obj)
-                process.setTransition(id, transition)
+                (asset as Process).setTransition(id, transition)
             }
             WorkflowType.subprocess -> {
                 val subprocess = Process(obj)
-                process.setSubprocess(id, subprocess)
+                (asset as Process).setSubprocess(id, subprocess)
             }
             WorkflowType.textNote -> {
                 if (!obj.has("content")) {
                     obj.put("content", "")
                 }
                 val textNote = TextNote(obj)
-                process.setTextNote(id, textNote)
+                (asset as Process).setTextNote(id, textNote)
+            }
+            WorkflowType.task -> {
+                val task = asset as TaskTemplate
             }
         }
     }

@@ -61,7 +61,7 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
             getBindingVars(process, true)
         }
         else {
-            getBindingVars(workflowObj.process, false)
+            getBindingVars(workflowObj.asset as Process, false)
         }
     }
 

@@ -1,15 +1,13 @@
 package com.centurylink.mdw.studio.edit.apply
 
+import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
+import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.model.workflow.Transition
+import com.centurylink.mdw.model.workflow.Process
+import com.centurylink.mdw.studio.draw.Display
 import com.centurylink.mdw.studio.draw.Link
 import com.centurylink.mdw.studio.draw.LinkDisplay
 import com.centurylink.mdw.studio.edit.WorkflowObj
-import com.google.gson.JsonObject
-import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
-import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
-import com.centurylink.mdw.studio.draw.Display
-import com.centurylink.mdw.studio.edit.valueString
 
 @Suppress("unused")
 class TransitionDisplayApplier : AttributeApplier() {
@@ -50,20 +48,20 @@ class TransitionDisplayApplier : AttributeApplier() {
 
     fun calc(linkDisplay: LinkDisplay, points: Int) {
         val transitionId = workflowObj.id.substring(1).toLong()
-        var transition = workflowObj.process.getTransition(transitionId)
+        val process = workflowObj.asset as Process
+        var transition = process.getTransition(transitionId)
         if (transition == null) {
-            for (subprocess in workflowObj.process.subprocesses) {
+            for (subprocess in process.subprocesses) {
                 transition = subprocess.getTransition(transitionId)
             }
         }
         transition?.let {
-            val fromActivity = workflowObj.process.getActivityById("A${transition.fromId}")
-            val toActivity = workflowObj.process.getActivityById("A${transition.toId}")
+            val fromActivity = process.getActivityById("A${transition.fromId}")
+            val toActivity = process.getActivityById("A${transition.toId}")
             val fromDisplay = Display(fromActivity.getAttribute(WORK_DISPLAY_INFO))
             val toDisplay = Display(toActivity.getAttribute(WORK_DISPLAY_INFO))
             val calcs = Link.Calcs(linkDisplay)
             calcs.calc(points, fromDisplay, toDisplay)
-
         }
     }
 }

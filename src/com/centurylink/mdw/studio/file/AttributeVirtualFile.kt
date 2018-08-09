@@ -49,7 +49,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
     }
 
     fun getJavaPackage(): String {
-        return JavaNaming.getValidPackageName(workflowObj.process.packageName)
+        return JavaNaming.getValidPackageName(workflowObj.asset.packageName)
     }
 
     fun getJavaClassName(): String {
@@ -110,7 +110,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
     }
 
     override fun getPath(): String {
-        return workflowObj.process.packageName + "/" + name
+        return workflowObj.asset.packageName + "/" + name
     }
 
     override fun isWritable(): Boolean {

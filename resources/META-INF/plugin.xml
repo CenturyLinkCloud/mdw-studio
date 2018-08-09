@@ -34,6 +34,10 @@
     <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorGeneralProvider"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorWorkgroupsProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorNoticesProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorRecipientsProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorIndexesProvider"/>
+    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorVariablesProvider"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorSourceProvider"/>
     <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
             factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"

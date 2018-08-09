@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.edit
 
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.edit.adapt.WidgetAdapter
 import com.centurylink.mdw.studio.edit.apply.*
 import com.centurylink.mdw.studio.proj.ProjectSetup
@@ -68,10 +69,10 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
     // TODO parameterized
     when (source) {
         "Variables" -> {
-            options = workflowObj.process.variables.map { it.name }
+            options = (workflowObj.asset as Process).variables.map { it.name }
         }
         "DocumentVariables" -> {
-            options = workflowObj.process.variables.filter {
+            options = (workflowObj.asset as Process).variables.filter {
                 ProjectSetup.documentTypes.keys.contains(it.type)
             }.map { it.name }
         }

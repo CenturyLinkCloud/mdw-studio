@@ -107,7 +107,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     private val projectSetup = project.getComponent(ProjectSetup::class.java)
     private var taskDoc = FileDocumentManager.getInstance().getDocument(taskFile)!!
     private var taskTemplate: TaskTemplate
-    private val configTab: JPanel
+    private val configTab: ConfigTab
 
 
     init {
@@ -125,6 +125,9 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         val definition = Template(defJson.toGson())
         val workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json)
         configTab = ConfigTab(tabName, definition, workflowObj)
+        configTab.addUpdateListener { obj ->
+            obj.updateAsset()
+        }
         configTab.border = BorderFactory.createEmptyBorder(7, 0, 3, 0)
     }
 

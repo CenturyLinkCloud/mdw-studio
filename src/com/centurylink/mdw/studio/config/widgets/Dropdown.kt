@@ -2,13 +2,9 @@ package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.studio.edit.isReadonly
-import com.google.gson.JsonObject
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.DocumentAdapter
 import java.awt.Dimension
-import java.awt.FlowLayout
-import javax.swing.JComboBox
-import javax.swing.JPanel
 import javax.swing.event.DocumentEvent
 import javax.swing.text.JTextComponent
 

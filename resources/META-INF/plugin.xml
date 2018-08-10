@@ -47,7 +47,16 @@
 
 
   <actions>
-    <!-- add actions here -->
+    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif" popup="true"
+           class="com.intellij.ide.actions.NonTrivialActionGroup">
+      <action id="newPackage" text="Package" class="com.centurylink.mdw.studio.action.NewPackageAction" />
+      <separator/>
+      <action id="newProcess" text="Process" icon="/icons/process.gif"
+              class="com.centurylink.mdw.studio.action.NewProcessAction"  />
+      <action id="newTask" text="Task" icon="/icons/task.gif"
+              class="com.centurylink.mdw.studio.action.NewTaskAction" />
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </group>
   </actions>
 
 </idea-plugin>

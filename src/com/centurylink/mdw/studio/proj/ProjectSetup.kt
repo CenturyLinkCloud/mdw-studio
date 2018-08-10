@@ -89,6 +89,17 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         return packageDirs
     }
 
+    fun isAssetDir(dir: VirtualFile): Boolean {
+        var parentDir: VirtualFile? = dir
+        while (parentDir != null) {
+            if (parentDir == assetDir) {
+                return true
+            }
+            parentDir = parentDir.parent
+        }
+        return false
+    }
+
     fun getPackageDir(name: String): VirtualFile? {
         return getPackageDirs().find {
             getPackageName(it) == name

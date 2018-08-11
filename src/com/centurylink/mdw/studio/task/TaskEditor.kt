@@ -28,10 +28,15 @@ import javax.swing.JComponent
 abstract class TaskEditorProvider : FileEditorProvider, DumbAware {
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
     override fun accept(project: Project, file: VirtualFile): Boolean {
-        return file.fileType == TaskFileType
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
+        return file.fileType == TaskFileType && projectSetup.isAssetSubdir(file.parent)
     }
     protected fun isAutoform(file: VirtualFile): Boolean {
-        val attrJson = JSONObject(String(file.contentsToByteArray())).optJSONObject("attributes")
+        val content = String(file.contentsToByteArray())
+        if (content.isEmpty()) {
+            return true
+        }
+        val attrJson = JSONObject(content).optJSONObject("attributes")
         return attrJson != null && "Autoform" == attrJson.optString("FormName")
     }
 }

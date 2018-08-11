@@ -39,7 +39,8 @@ class ProcessEditorProvider : FileEditorProvider, DumbAware {
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
 
     override fun accept(project: Project, file: VirtualFile): Boolean {
-        return file.fileType == ProcessFileType
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
+        return file.fileType == ProcessFileType && projectSetup.isAssetSubdir(file.parent)
     }
 
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {

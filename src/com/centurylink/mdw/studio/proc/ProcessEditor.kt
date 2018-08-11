@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.proc
 
+import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.config.ConfigPanel
 import com.centurylink.mdw.studio.config.HideShowListener
@@ -74,6 +75,10 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     private val generalSettings = GeneralSettings.getInstance()
 
     init {
+        if (procDoc.textLength == 0) {
+            procDoc.setText(Templates.get("assets/new.proc"))
+        }
+
         // initialize backing property and then invoke setter
         _process = Process(JSONObject(procDoc.text))
         process = _process

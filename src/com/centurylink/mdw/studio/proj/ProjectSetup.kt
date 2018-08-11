@@ -40,6 +40,17 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     val projectYaml = File(project.basePath + "/project.yaml")
 
+    val packageDirs: List<VirtualFile>
+        get() {
+            var packageDirs = mutableListOf<VirtualFile>()
+            VfsUtilCore.iterateChildrenRecursively(assetDir, VirtualFileFilter { it.isDirectory()}, ContentIterator {
+                if (it.isDirectory() && it.findFileByRelativePath(".mdw/package.yaml") != null)
+                    packageDirs.add(it)
+                true
+            })
+            return packageDirs
+        }
+
     init {
         assetDir = initialize()
     }
@@ -79,18 +90,11 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     override fun projectClosed() {
     }
 
-    fun getPackageDirs(): List<VirtualFile> {
-        var packageDirs = mutableListOf<VirtualFile>()
-        VfsUtilCore.iterateChildrenRecursively(assetDir, VirtualFileFilter { it.isDirectory()}, ContentIterator {
-            if (it.isDirectory() && it.findFileByRelativePath(".mdw/package.yaml") != null)
-            packageDirs.add(it)
-            true
-        })
-        return packageDirs
-    }
-
-    fun isAssetDir(dir: VirtualFile): Boolean {
-        var parentDir: VirtualFile? = dir
+    /**
+     * Returns true even if dir is a <s>potential</s> asset dir.
+     */
+    fun isAssetSubdir(dir: VirtualFile): Boolean {
+        var parentDir: VirtualFile? = dir.parent
         while (parentDir != null) {
             if (parentDir == assetDir) {
                 return true
@@ -101,7 +105,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     fun getPackageDir(name: String): VirtualFile? {
-        return getPackageDirs().find {
+        return packageDirs.find {
             getPackageName(it) == name
         }
     }

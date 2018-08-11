@@ -27,7 +27,7 @@ class Implementor(val assetPath: String?, json: JSONObject) : ActivityImplemento
 class Implementors(private val projectSetup : ProjectSetup) : LinkedHashMap<String,Implementor>() {
 
     init {
-        for (pkgDir in projectSetup.getPackageDirs()) {
+        for (pkgDir in projectSetup.packageDirs) {
             for (file in pkgDir.children) {
                 if (file.exists() && !file.isDirectory && "impl" == file.extension) {
                     val implAsset = projectSetup.getAssetPath(file)

@@ -47,15 +47,13 @@
 
 
   <actions>
-    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif" popup="true"
+    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif"
            class="com.intellij.ide.actions.NonTrivialActionGroup">
-      <action id="newPackage" text="Package" class="com.centurylink.mdw.studio.action.NewPackageAction" />
-      <separator/>
-      <action id="newProcess" text="Process" icon="/icons/process.gif"
+      <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
               class="com.centurylink.mdw.studio.action.NewProcessAction"  />
-      <action id="newTask" text="Task" icon="/icons/task.gif"
+      <action id="newTask" text="MDW Task" icon="/icons/task.gif"
               class="com.centurylink.mdw.studio.action.NewTaskAction" />
-      <add-to-group group-id="NewGroup" anchor="last"/>
+      <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
     </group>
   </actions>
 

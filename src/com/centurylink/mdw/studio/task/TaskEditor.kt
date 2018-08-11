@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.task
 
+import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.studio.config.ConfigTab
 import com.centurylink.mdw.studio.edit.Template
@@ -23,7 +24,6 @@ import java.beans.PropertyChangeListener
 import java.io.IOException
 import javax.swing.BorderFactory
 import javax.swing.JComponent
-import javax.swing.JPanel
 
 abstract class TaskEditorProvider : FileEditorProvider, DumbAware {
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
@@ -111,6 +111,17 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
 
 
     init {
+        if (taskDoc.textLength == 0) {
+            // load from template
+            val content = Templates.get("assets/autoform.task")
+            val taskJson = JSONObject(content)
+            // populate name and logical id (TODO: remove name property from task json)
+            val name = taskFile.name.substring(0, taskFile.name.length - ".task".length)
+            taskJson.put("name", name)
+            taskJson.put("logicalId", name)
+            taskJson.put("version", "0")
+            taskDoc.setText(taskJson.toString(2))
+        }
         taskTemplate = TaskTemplate(JSONObject(taskDoc.text))
         val taskPagelet = if (taskTemplate.isAutoformTask) {
             Implementors.BASE_PKG + "/AutoFormManualTask.pagelet"

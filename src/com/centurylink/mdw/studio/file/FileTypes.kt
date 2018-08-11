@@ -17,12 +17,10 @@ class FileTypeFactory : com.intellij.openapi.fileTypes.FileTypeFactory() {
 
 object ProcessFileType : JsonFileType() {
 
-    val processIcon = IconLoader.getIcon("/icons/process.gif")
-
     override fun getDefaultExtension() = "proc"
     override fun getName() = "Process"
     override fun getDescription() = "Workflow Process"
-    override fun getIcon() = processIcon
+    override fun getIcon() = Icons.PROCESS
     override fun isReadOnly() = false
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
 
@@ -30,12 +28,10 @@ object ProcessFileType : JsonFileType() {
 
 object TaskFileType : JsonFileType() {
 
-    val taskIcon = IconLoader.getIcon("/icons/task.gif")
-
     override fun getDefaultExtension() = "task"
     override fun getName() = "Task"
     override fun getDescription() = "Workflow Task"
-    override fun getIcon() = taskIcon
+    override fun getIcon() = Icons.TASK
     override fun isReadOnly() = false
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
 }

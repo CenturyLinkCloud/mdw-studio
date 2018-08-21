@@ -26,10 +26,6 @@ class Template(json: JsonObject) {
 
         var widgets = pagelet.widgets.toMutableList()
 
-        widgets.find {
-            it.isHelpLink && (it.section == tab || (it.section == null && isMainTab))
-        }?.let { widgets.remove(it) }
-
         if (category == "object" || category == "attributes") {
             return widgets
         }
@@ -39,7 +35,7 @@ class Template(json: JsonObject) {
             for (widget in widgets) {
                 // TODO unsupported sections: Bindings (LdapAdapter.impl)
                 if (!widget.isHidden) {
-                    if (widget.section == tab || (widget.section == null && isMainTab)) {
+                    if ( !widget.isHelpLink && (widget.section == tab || (widget.section == null && isMainTab))) {
                         filteredWidgets.add(widget)
                     }
                 }

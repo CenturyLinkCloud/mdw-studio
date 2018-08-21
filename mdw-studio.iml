@@ -9,7 +9,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="mdw-common-6.1.06-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="mdw-common-6.1.08-SNAPSHOT" level="project" />
     <orderEntry type="library" name="limberest-1.2.4" level="project" />
     <orderEntry type="library" name="json-20180130" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="jcommander-1.72" level="project" />

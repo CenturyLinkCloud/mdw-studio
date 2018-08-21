@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.task
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.model.task.TaskTemplate
+import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.config.ConfigTab
 import com.centurylink.mdw.studio.edit.Template
 import com.centurylink.mdw.studio.edit.WorkflowObj
@@ -10,7 +11,12 @@ import com.centurylink.mdw.studio.ext.toGson
 import com.centurylink.mdw.studio.file.TaskFileType
 import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorImpl
@@ -20,6 +26,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import org.json.JSONObject
+import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.io.IOException
 import javax.swing.BorderFactory
@@ -113,7 +120,8 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     private var taskDoc = FileDocumentManager.getInstance().getDocument(taskFile)!!
     private var taskTemplate: TaskTemplate
     private val configTab: ConfigTab
-
+    private val propChangeListeners = mutableListOf<PropertyChangeListener>()
+    private var modified: Boolean = false
 
     init {
         if (taskDoc.textLength == 0) {
@@ -141,10 +149,53 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         val definition = Template(defJson.toGson())
         val workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json)
         configTab = ConfigTab(tabName, definition, workflowObj)
+
         configTab.addUpdateListener { obj ->
             obj.updateAsset()
+            handleChange()
         }
+
+        val connection = ApplicationManager.getApplication().messageBus.connect(this)
+        connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {
+            override fun fileContentReloaded(file: VirtualFile, document: Document) {
+                if (file.equals(taskFile)) {
+                    taskDoc = document
+                    taskTemplate = TaskTemplate(JSONObject(taskDoc.text))
+                }
+            }
+            override fun beforeAllDocumentsSaving() {
+                // react to Save All and build events
+                saveToFile()
+            }
+        })
+
         configTab.border = BorderFactory.createEmptyBorder(7, 0, 3, 0)
+    }
+
+    private fun handleChange() {
+        updateModifiedProperty(true)
+    }
+
+      private fun saveToFile() {
+         // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
+         ApplicationManager.getApplication().invokeLater( {
+             WriteAction.run<Throwable> {
+                 if (modified)
+                     taskDoc.setText(taskTemplate.json.toString(2))
+                 updateModifiedProperty(false)
+             }
+         }, ModalityState.NON_MODAL)
+     }
+
+    fun updateModifiedProperty(newValue: Boolean) {
+         val wasModified = modified
+         modified = newValue
+         if (wasModified != modified) {
+             for (propChangeListener in propChangeListeners) {
+                 propChangeListener.propertyChange(PropertyChangeEvent(this@TaskEditorTab,
+                         FileEditor.PROP_MODIFIED, wasModified, modified))
+             }
+         }
     }
 
     override fun getName(): String {
@@ -156,7 +207,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     }
 
     override fun isModified(): Boolean {
-        return false
+        return modified
     }
 
     override fun setState(state: FileEditorState) {
@@ -177,9 +228,11 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     }
 
     override fun addPropertyChangeListener(listener: PropertyChangeListener) {
+        propChangeListeners.add(listener)
     }
 
     override fun removePropertyChangeListener(listener: PropertyChangeListener) {
+        propChangeListeners.remove(listener)
     }
 
     override fun <T : Any?> getUserData(key: Key<T>): T? {

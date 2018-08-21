@@ -54,7 +54,7 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
 
 class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer() {
 
-    override fun getTableCellRendererComponent(table: JTable, value: Any, isSelected: Boolean, hasFocus: Boolean,
+    override fun getTableCellRendererComponent(table: JTable, value: Any?, isSelected: Boolean, hasFocus: Boolean,
             row: Int, column: Int): Component {
         val assetCell = AssetCell(value.toString(), isReadonly, projectSetup)
         assetCell.init(table, isSelected, hasFocus)

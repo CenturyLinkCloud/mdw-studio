@@ -71,8 +71,10 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
             val rows = safeSplit(value, ";")
             for (i in 0 until rows.length()) {
                 val row = rows.getString(i)
-                val cols = safeSplit(row, ",")
-                table.put(cols)
+                if (row.isNotEmpty()) {
+                    val cols = safeSplit(row, ",")
+                    table.put(cols)
+                }
             }
             return table
         }

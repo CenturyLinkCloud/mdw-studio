@@ -79,6 +79,9 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
         "UserGroup" -> {
             options = ProjectSetup.workgroups
         }
+        "TaskCategory" -> {
+            options = ProjectSetup.categories.keys.toMutableList()
+        }
     }
 
     val adapter = createAdapter(category)

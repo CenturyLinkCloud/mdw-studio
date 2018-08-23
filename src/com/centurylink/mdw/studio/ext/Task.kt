@@ -30,7 +30,7 @@ fun TaskTemplate.update(obj: JSONObject) {
         attrsJson.remove("category")
     }
     else if (obj.has("category"))
-        taskCategory = ProjectSetup.categories.get(obj.getString("category"))
+        taskCategory = obj.getString("category")
     if (attrsJson.has("description")) {
         comment = attrsJson.getString("description")
         attrsJson.remove("description")

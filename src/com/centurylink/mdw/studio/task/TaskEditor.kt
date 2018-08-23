@@ -122,7 +122,6 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     private var taskTemplate: TaskTemplate
     private val configTab: ConfigTab
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
-    private val generalSettings = GeneralSettings.getInstance()
     private var modified: Boolean = false
 
     init {
@@ -167,8 +166,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             }
             override fun beforeAllDocumentsSaving() {
                 // react to Save All and build events
-                if (modified)
-                    saveToFile()
+                saveToFile()
             }
         })
 
@@ -183,8 +181,10 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
          // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
          ApplicationManager.getApplication().invokeLater( {
              WriteAction.run<Throwable> {
-                 taskDoc.setText(taskTemplate.json.toString(2))
-                 updateModifiedProperty(false)
+                 if (modified) {
+                     taskDoc.setText(taskTemplate.json.toString(2))
+                     updateModifiedProperty(false)
+                 }
              }
          }, ModalityState.NON_MODAL)
      }
@@ -227,9 +227,6 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     }
 
     override fun deselectNotify() {
-        if (generalSettings.isSaveOnFrameDeactivation) {
-            saveToFile()
-        }
     }
 
     override fun addPropertyChangeListener(listener: PropertyChangeListener) {

@@ -108,6 +108,9 @@ class TaskEditorSourceProvider : TaskEditorProvider() {
             }
             override fun setState(state: FileEditorState, exactState: Boolean) {
             }
+            override fun isModified(): Boolean {
+                return false
+            }
         }
     }
 }

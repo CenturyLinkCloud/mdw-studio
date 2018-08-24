@@ -32,11 +32,9 @@ fun TaskTemplate.update(obj: JSONObject) {
     else if (obj.has("category"))
         taskCategory = obj.getString("category")
     if (attrsJson.has("description")) {
-        comment = attrsJson.getString("description")
+        attrsJson.put("TaskDescription", attrsJson.getString("description"))
         attrsJson.remove("description")
     }
-    else if (obj.has("description"))
-        comment = obj.getString("description")
     if (attrsJson.has("version")) {
         version = Asset.parseVersion(attrsJson.getString("version"))
         attrsJson.remove("version")

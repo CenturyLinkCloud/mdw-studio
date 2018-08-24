@@ -2,7 +2,6 @@ package com.centurylink.mdw.studio.task
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.model.task.TaskTemplate
-import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.config.ConfigTab
 import com.centurylink.mdw.studio.edit.Template
 import com.centurylink.mdw.studio.edit.WorkflowObj
@@ -13,7 +12,6 @@ import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
-import com.intellij.ide.GeneralSettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.WriteAction

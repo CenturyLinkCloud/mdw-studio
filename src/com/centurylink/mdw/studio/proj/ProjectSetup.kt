@@ -291,6 +291,19 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         // TODO better groups handling
         // (make this configurable somehow by the user)
         val workgroups = listOf("MDW Support", "Site Admin", "Developers")
+        val categories = mapOf(
+                "Ordering" to "ORD",
+                "General Inquiry" to "GEN",
+                "Billing" to "BIL",
+                "Complaint" to "COM",
+                "Portal Support" to "POR",
+                "Training" to "TRN",
+                "Repair" to "RPR",
+                "Inventory" to "INV",
+                "Test" to "TST",
+                "Vacation Planning" to "VAC",
+                "Customer Contact" to "CNT"
+        )
     }
 
     enum class Props(val prop: String) {

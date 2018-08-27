@@ -19,7 +19,7 @@ enum class WorkflowType {
     task
 }
 
-open class WorkflowObj(val project: Any?, val asset: Asset, val type: WorkflowType, val obj: JSONObject) {
+open class WorkflowObj(val project: Any?, var asset: Asset, val type: WorkflowType, var obj: JSONObject) {
 
     open var id: String
         get() = if (obj.has("id")) obj.getString("id") else "-1"
@@ -139,6 +139,8 @@ open class WorkflowObj(val project: Any?, val asset: Asset, val type: WorkflowTy
             WorkflowType.task -> {
                 val task = asset as TaskTemplate
                 task.update(obj)
+                asset = task
+                obj = task.json
             }
         }
     }

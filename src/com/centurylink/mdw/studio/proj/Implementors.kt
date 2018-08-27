@@ -27,8 +27,8 @@ class Implementor(val assetPath: String?, json: JSONObject) : ActivityImplemento
 class Implementors(private val projectSetup : ProjectSetup) : LinkedHashMap<String,Implementor>() {
 
     init {
-        for (pkgDir in projectSetup.packageDirs) {
-            for (file in pkgDir.children) {
+        for (pkg in projectSetup.packages) {
+            for (file in pkg.dir.children) {
                 if (file.exists() && !file.isDirectory && "impl" == file.extension) {
                     val implAsset = projectSetup.getAssetPath(file)
                     val impl = Implementor(implAsset, JSONObject(String(file.contentsToByteArray())))
@@ -49,14 +49,14 @@ class Implementors(private val projectSetup : ProjectSetup) : LinkedHashMap<Stri
                                 }
                             }
                         }
-                        impl.icon = projectSetup.getIcon("$iconPkg/$iconAsset")
+                        impl.icon = projectSetup.getIconAsset("$iconPkg/$iconAsset")
                     }
                     put(impl.implementorClassName, impl)
                 }
             }
         }
         for (pseudoImpl in PSEUDO_IMPLS) {
-            pseudoImpl.icon = projectSetup.getIcon(pseudoImpl.iconName)
+            pseudoImpl.icon = projectSetup.getIconAsset(pseudoImpl.iconName)
             put(pseudoImpl.implementorClassName, pseudoImpl)
         }
     }
@@ -70,7 +70,7 @@ class Implementors(private val projectSetup : ProjectSetup) : LinkedHashMap<Stri
         const val BASE_PKG = "com.centurylink.mdw.base"
         val PSEUDO_IMPLS = listOf(
                 Implementor("subflow", "Exception Handler Subflow", "$BASE_PKG/subflow.png", "Exception Handler"),
-                Implementor("subflow", "Cancelation Handler Subflow", "$BASE_PKG/subflow.png", "Cancelation Handler"),
+                Implementor("subflow", "Cancellation Handler Subflow", "$BASE_PKG/subflow.png", "Cancellation Handler"),
                 Implementor("subflow", "Delay Handler Subflow", "$BASE_PKG/subflow.png", "Delay Handler"),
                 Implementor("note", "Text Note", "$BASE_PKG/note.png", "TextNote")
         )

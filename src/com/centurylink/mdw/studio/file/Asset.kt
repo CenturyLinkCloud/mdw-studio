@@ -2,10 +2,8 @@ package com.centurylink.mdw.studio.file
 
 import com.intellij.openapi.vfs.VirtualFile
 import java.security.MessageDigest
-import kotlin.experimental.and
 
-
-class Asset(val packageName: String, val file: VirtualFile, val version: Int) {
+class Asset(val pkg: AssetPackage, val file: VirtualFile) {
 
     val id: Long
         get() = hexId.toLong(16)
@@ -15,13 +13,23 @@ class Asset(val packageName: String, val file: VirtualFile, val version: Int) {
     val name: String
         get() = file.name
 
-    val versionString: String
-        get() = if (version == 0) "0" else (version/1000).toString() + "." + version%1000
-    val formattedVersion: String
-        get() = "v$versionString"
+    val version: Int
+        get() {
+            pkg.versionProps?.let { verProps ->
+                verProps.getProperty(name)?.let { verProp ->
+                    return verProp.split(" ")[0].toInt()
+                }
+            }
+            return 0
+        }
 
-    val logicalPath: String
-        get() = packageName + "/" + name + " " + formattedVersion
+    val verString: String
+        get() = if (version == 0) "0" else (version/1000).toString() + "." + version%1000
+
+    val path: String
+        get() = "${pkg.name}/$name"
+    private val logicalPath: String
+        get() = "$path v$verString"
 
     companion object {
         fun hash(logicalPath: String): String {
@@ -31,7 +39,7 @@ class Asset(val packageName: String, val file: VirtualFile, val version: Int) {
             return byteArrayToHexString(bytes).substring(0, 7)
         }
 
-        fun byteArrayToHexString(b: ByteArray): String {
+        private fun byteArrayToHexString(b: ByteArray): String {
             var result = ""
             for (i in b.indices) {
                 result += Integer.toString((b[i].toInt() and 0xff.toInt()) + 0x100, 16).substring(1)

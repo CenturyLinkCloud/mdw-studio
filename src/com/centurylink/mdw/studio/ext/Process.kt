@@ -15,35 +15,6 @@ import com.centurylink.mdw.studio.proj.Implementor
 import com.centurylink.mdw.studio.proj.Implementors
 import org.json.JSONObject
 
-fun Process.maxTransitionId(): Long {
-    var maxTrans: Transition? = null
-    if (!transitions.isEmpty()) {
-        maxTrans = transitions.reduce { acc, trans -> if (acc.id > trans.id) acc else trans }
-    }
-    subprocesses?.let {
-        for (subprocess in subprocesses) {
-            if (!subprocess.transitions.isEmpty()) {
-                val maxSubTrans = subprocess.transitions.reduce { acc, trans -> if (acc.id > trans.id) acc else trans }
-                if (maxTrans == null || maxSubTrans.id > maxTrans!!.id) {
-                    maxTrans = maxSubTrans
-                }
-            }
-        }
-    }
-    return if (maxTrans == null) 0 else maxTrans!!.id
-}
-
-fun Process.addTransition(fromActivity: Activity, toActivity: Activity): Transition {
-    val transition = Transition()
-    transition.id = maxTransitionId() + 1
-    transition.eventType = EventType.FINISH
-    transition.fromId = fromActivity.id
-    transition.toId = toActivity.id
-    transition.setAttribute(LOGICAL_ID, "T${transition.id}")
-    transitions.add(transition)
-    return transition
-}
-
 fun Process.maxActivityId(): Long {
     var maxAct: Activity? = null
     if (!activities.isEmpty()) {
@@ -89,31 +60,36 @@ fun Process.addActivity(x: Int, y: Int, implementor: Implementor, boxed: Boolean
     return activity
 }
 
-fun Process.addTextNote(x: Int, y: Int): TextNote {
-    var maxId = 0
-    textNotes?.let {
-        if (!textNotes.isEmpty()) {
-            for (textNote in textNotes) {
-                val textNoteId = textNote.logicalId.substring(1).toInt()
-                if (textNoteId > maxId) {
-                    maxId = textNoteId
+fun Process.maxTransitionId(): Long {
+    var maxTrans: Transition? = null
+    if (!transitions.isEmpty()) {
+        maxTrans = transitions.reduce { acc, trans -> if (acc.id > trans.id) acc else trans }
+    }
+    subprocesses?.let {
+        for (subprocess in subprocesses) {
+            if (!subprocess.transitions.isEmpty()) {
+                val maxSubTrans = subprocess.transitions.reduce { acc, trans -> if (acc.id > trans.id) acc else trans }
+                if (maxTrans == null || maxSubTrans.id > maxTrans!!.id) {
+                    maxTrans = maxSubTrans
                 }
             }
         }
     }
-    val textNote = TextNote()
-    textNote.logicalId = "N${maxId + 1}"
-    textNote.content = ""
-    textNote.setAttribute(LOGICAL_ID, textNote.logicalId)
-    if (textNotes == null) {
-        textNotes = mutableListOf()
-    }
-    textNote.setAttribute(WORK_DISPLAY_INFO, Display(x, y, 200, 60).toString())
-    textNotes.add(textNote)
-    return textNote
+    return if (maxTrans == null) 0 else maxTrans!!.id
 }
 
-fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
+fun Process.addTransition(fromActivity: Activity, toActivity: Activity): Transition {
+    val transition = Transition()
+    transition.id = maxTransitionId() + 1
+    transition.eventType = EventType.FINISH
+    transition.fromId = fromActivity.id
+    transition.toId = toActivity.id
+    transition.setAttribute(LOGICAL_ID, "T${transition.id}")
+    transitions.add(transition)
+    return transition
+}
+
+fun Process.maxSubprocessId(): Long {
     var maxSubprocId = 0L
     subprocesses?.let {
         if (!subprocesses.isEmpty()) {
@@ -123,9 +99,15 @@ fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
             maxSubprocId = maxOf(maxSubprocId, maxSubproc.id)
         }
     }
+    return maxSubprocId
+}
+
+fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
+
+    val maxSubprocId = maxSubprocessId()
 
     val template = when(type) {
-        "Cancelation Handler" -> "cancel.subproc"
+        "Cancellation Handler" -> "cancel.subproc"
         "Delay Handler" -> "delay.subproc"
         "Exception Handler" -> "exception.subproc"
         else -> type + ".subproc" // handle unforeseen types
@@ -172,6 +154,34 @@ fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
             Display(x, y, subprocDisplay.w, subprocDisplay.h).toString())
     subprocesses.add(subprocess)
     return subprocess
+}
+
+fun Process.maxTextNoteId(): Long {
+    var maxId = 0L
+    textNotes?.let {
+        if (!textNotes.isEmpty()) {
+            for (textNote in textNotes) {
+                val textNoteId = textNote.logicalId.substring(1).toLong()
+                if (textNoteId > maxId) {
+                    maxId = textNoteId
+                }
+            }
+        }
+    }
+    return maxId
+}
+
+fun Process.addTextNote(x: Int, y: Int): TextNote {
+    val textNote = TextNote()
+    textNote.logicalId = "N${maxTextNoteId() + 1}"
+    textNote.content = ""
+    textNote.setAttribute(LOGICAL_ID, textNote.logicalId)
+    if (textNotes == null) {
+        textNotes = mutableListOf()
+    }
+    textNote.setAttribute(WORK_DISPLAY_INFO, Display(x, y, 200, 60).toString())
+    textNotes.add(textNote)
+    return textNote
 }
 
 /**

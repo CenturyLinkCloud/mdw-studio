@@ -76,7 +76,7 @@ class ToolPanel(val implementor: Implementor) : JPanel(FlowLayout(FlowLayout.LEF
 
         transferHandler = object : TransferHandler() {
 
-            val transferData = "{ \"mdw.implementor\" = \"${implementor.implementorClassName}\" }"
+            val transferData = "{ \"mdw.implementor\": \"${implementor.implementorClassName}\" }"
 
             override fun createTransferable(c: JComponent): Transferable {
                 return object : Transferable {

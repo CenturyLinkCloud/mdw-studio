@@ -10,7 +10,7 @@ import java.awt.Color
 import java.awt.Cursor
 import java.awt.Graphics2D
 
-class Diagram(private val g2d: Graphics2D, val display: Display, val project: Any?, val process: Process,
+class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val process: Process,
         val implementors: Implementors, val readonly: Boolean = false) : Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {
@@ -40,10 +40,7 @@ class Diagram(private val g2d: Graphics2D, val display: Display, val project: An
 
         // activities
         for (activity in process.activities) {
-            var impl = implementors.get(activity.implementor)
-            if (impl == null) {
-                impl = Implementor(activity.implementor)
-            }
+            var impl = implementors[activity.implementor] ?: Implementor(activity.implementor)
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
         }
@@ -72,8 +69,6 @@ class Diagram(private val g2d: Graphics2D, val display: Display, val project: An
     }
 
     override fun draw(): Display {
-        // println("DRAW PROCESS: " + process.json.toString(2))
-
         if (showGrid) {
             g2d.color = Display.GRID_COLOR
             g2d.stroke = Display.GRID_STROKE
@@ -161,6 +156,10 @@ class Diagram(private val g2d: Graphics2D, val display: Display, val project: An
 
     override fun select() {
         isSelected = true
+    }
+
+    fun hasSelection(): Boolean {
+        return selection.selectObj != this && selection.selectObj !is Label
     }
 
     override fun move(deltaX: Int, deltaY: Int, limits: Display?) {
@@ -392,6 +391,31 @@ class Diagram(private val g2d: Graphics2D, val display: Display, val project: An
             "note" -> addNote(de.x, de.y)
             else -> addStep(de.x, de.y, implementor)
         }
+    }
+
+    fun onPaste(pasted: Selection) {
+        for (selObj in pasted.selectObjs) {
+            selObj.move(PASTE_OFFSET, PASTE_OFFSET)
+            when (selObj) {
+                is Step ->  {
+                    process.activities.add(selObj.activity)
+                    steps.add(selObj)
+                }
+                is Link -> {
+                    process.transitions.add(selObj.transition)
+                    links.add(selObj)
+                }
+                is Subflow -> {
+                    process.subprocesses.add(selObj.subprocess)
+                    subflows.add(selObj)
+                }
+                is Note -> {
+                    process.textNotes.add(selObj.textNote)
+                    notes.add(selObj)
+                }
+            }
+        }
+        selection = pasted
     }
 
     fun onDelete() {
@@ -653,6 +677,7 @@ class Diagram(private val g2d: Graphics2D, val display: Display, val project: An
         var LINE_COLOR = Color.GREEN
         val MARQUEE_COLOR = Color.CYAN
         const val MARQUEE_ROUNDING = 3
+        const val PASTE_OFFSET = 20
     }
 }
 

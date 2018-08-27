@@ -5,20 +5,17 @@ import com.centurylink.mdw.studio.draw.Diagram
 import com.centurylink.mdw.studio.draw.DiagramEvent
 import com.centurylink.mdw.studio.draw.Display
 import com.centurylink.mdw.studio.draw.DragEvent
-import com.centurylink.mdw.studio.draw.Label
 import com.centurylink.mdw.studio.edit.SelectListener
 import com.centurylink.mdw.studio.edit.UpdateListeners
 import com.centurylink.mdw.studio.edit.UpdateListenersDelegate
-import com.centurylink.mdw.studio.ext.JsonObject
-import com.centurylink.mdw.studio.proj.Implementor
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.Transferable
 import java.awt.event.*
 import javax.swing.*
+import javax.swing.TransferHandler.*
 
 class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly: Boolean = false) :
         JPanel(BorderLayout()), UpdateListeners by UpdateListenersDelegate() {
@@ -82,6 +79,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                     }
                 }
             }
+
             override fun mouseReleased(e: MouseEvent) {
                 mouseDown = false
                 if (!readonly) {
@@ -140,55 +138,45 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
             }
         })
 
-        transferHandler = object : TransferHandler() {
-            override fun canImport(support: TransferSupport): Boolean {
-                if (!readonly && support.transferable.isDataFlavorSupported(jsonFlavor)) {
-                    return getImplementor(support.transferable) != null
-                }
-                return false
-            }
-            override fun importData(support: TransferSupport): Boolean {
-                if (support.transferable.isDataFlavorSupported(jsonFlavor)) {
-                    val impl = getImplementor(support.transferable)
-                    if (impl != null) {
-                        val dropPoint = support.dropLocation.dropPoint
-                        diagram?.let {
-                            val x = maxOf(dropPoint.x - 60, 0)
-                            val y = maxOf(dropPoint.y - 30, 0)
-                            it.onDrop(DiagramEvent(x, y), impl)
+        // copy
+        actionMap.put(getCopyAction().getValue(Action.NAME), getCopyAction())
+        inputMap.put(KeyStroke.getKeyStroke("ctrl C"), getCopyAction().getValue(Action.NAME))
+
+        if (!readonly) {
+            // cut
+            actionMap.put(getCutAction().getValue(Action.NAME), object : AbstractAction() {
+                override fun actionPerformed(e: ActionEvent) {
+                    diagram?.let {
+                        if (it.hasSelection()) {
+                            getCopyAction().actionPerformed(e)
+                            it.onDelete()
                             notifyUpdateListeners(it.workflowObj)
                             invalidate()
                             repaint()
                         }
                     }
                 }
-                return false
-            }
-            fun getImplementor(transferable: Transferable): Implementor? {
-                val json = JsonObject(transferable.getTransferData(jsonFlavor).toString())
-                return setup.implementors.get(json.get("mdw.implementor")?.asString)
-            }
-        }
+            })
+            inputMap.put(KeyStroke.getKeyStroke("ctrl X"), getCutAction().getValue(Action.NAME))
 
-        if (!readonly) {
-            getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "mdw.delete")
+            // paste
+            actionMap.put(getPasteAction().getValue(Action.NAME), getPasteAction())
+            inputMap.put(KeyStroke.getKeyStroke("ctrl V"), getPasteAction().getValue(Action.NAME))
+
+            // delete
             actionMap.put("mdw.delete", object : AbstractAction() {
                 override fun actionPerformed(e: ActionEvent) {
                     diagram?.let {
-                        val selObj = it.selection.selectObj
-                        if (selObj != it && !(selObj is Label)) {
-                            val msg = if (it.selection.isMulti()) "Delete selected items?" else "Delete ${selObj.workflowObj.type}?"
-                            if (JOptionPane.showConfirmDialog(this@ProcessCanvas, msg, "Confirm Delete",
-                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == 0) {
-                                it.onDelete()
-                                notifyUpdateListeners(it.workflowObj)
-                                invalidate()
-                                repaint()
-                            }
+                        if (it.hasSelection()) {
+                            it.onDelete()
+                            notifyUpdateListeners(it.workflowObj)
+                            invalidate()
+                            repaint()
                         }
                     }
                 }
             })
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "mdw.delete")
         }
     }
 
@@ -203,22 +191,37 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
 
         // draw the process diagram
         var prevSelect = diagram?.selection
-        diagram = Diagram(g2d, initDisplay, setup, process, setup.implementors, readonly)
+        val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, readonly)
+        diagram = d
         if (prevSelect == null) {
             // first time
-            diagram?.let {
-                prevSelect = it.selection
-                for (listener in selectListeners) {
-                    listener.onSelect(it.selection.selectObjs)
-                }
+            prevSelect = d.selection
+            for (listener in selectListeners) {
+                listener.onSelect(d.selection.selectObjs)
             }
         }
         else {
-            prevSelect?.let {
-                diagram?.selection = it
+            d.selection = prevSelect
+        }
+
+//        val prevTransferData = transferHandler?.let {
+//            (it as TransferHandler).transferData
+//        }
+        transferHandler = TransferHandler(d)
+//         (transferHandler as TransferHandler).transferData = prevTransferData
+        (transferHandler as TransferHandler).addUpdateListener { workflowObj ->
+            notifyUpdateListeners(workflowObj)
+            prevSelect = d.selection
+            invalidate()
+            repaint()
+            d.selection.selectObjs.let {
+                for (listener in selectListeners) {
+                    listener.onSelect(it)
+                }
             }
         }
-        diagram?.draw()
+
+        d.draw()
     }
 
     override fun getPreferredSize(): Dimension {
@@ -236,9 +239,5 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE)
         // g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
         super.paint(g)
-    }
-
-    companion object {
-        val jsonFlavor = DataFlavor("application/json")
     }
 }

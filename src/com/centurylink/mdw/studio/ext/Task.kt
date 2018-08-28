@@ -17,20 +17,14 @@ fun TaskTemplate.update(obj: JSONObject) {
         logicalId = attrsJson.getString("logicalId")
         attrsJson.remove("logicalId")
     }
-    else if (obj.has("logicalId"))
-        logicalId = obj.getString("logicalId")
     if (attrsJson.has("name")) {
         taskName = attrsJson.getString("name")
         attrsJson.remove("name")
     }
-    else if (obj.has("name"))
-        taskName = obj.getString("name")
     if ( attrsJson.has("category")) {
         taskCategory = ProjectSetup.categories.get(attrsJson.getString("category"))
         attrsJson.remove("category")
     }
-    else if (obj.has("category"))
-        taskCategory = obj.getString("category")
     if (attrsJson.has("description")) {
         attrsJson.put("TaskDescription", attrsJson.getString("description"))
         attrsJson.remove("description")
@@ -39,8 +33,6 @@ fun TaskTemplate.update(obj: JSONObject) {
         version = Asset.parseVersion(attrsJson.getString("version"))
         attrsJson.remove("version")
     }
-    else if (obj.has("version"))
-        version = Asset.parseVersion(obj.getString("version"))
     language = "TASK"
     taskTypeId = TaskType.TASK_TYPE_TEMPLATE
     attributes = Attribute.getAttributes(attrsJson)

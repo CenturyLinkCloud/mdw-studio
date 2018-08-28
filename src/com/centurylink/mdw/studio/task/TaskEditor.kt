@@ -6,6 +6,7 @@ import com.centurylink.mdw.studio.config.ConfigTab
 import com.centurylink.mdw.studio.edit.Template
 import com.centurylink.mdw.studio.edit.WorkflowObj
 import com.centurylink.mdw.studio.edit.WorkflowType
+import com.centurylink.mdw.studio.edit.apply.ObjectApplier
 import com.centurylink.mdw.studio.ext.toGson
 import com.centurylink.mdw.studio.file.TaskFileType
 import com.centurylink.mdw.studio.proj.Implementors
@@ -121,7 +122,8 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     private val projectSetup = project.getComponent(ProjectSetup::class.java)
     private var taskDoc = FileDocumentManager.getInstance().getDocument(taskFile)!!
     private var taskTemplate: TaskTemplate
-    private val configTab: ConfigTab
+    private var workflowObj: WorkflowObj
+    private var configTab: ConfigTab
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
     private var modified: Boolean = false
 
@@ -137,6 +139,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             taskJson.put("version", "0")
             taskDoc.setText(taskJson.toString(2))
         }
+
         taskTemplate = TaskTemplate(JSONObject(taskDoc.text))
         val taskPagelet = if (taskTemplate.isAutoformTask) {
             Implementors.BASE_PKG + "/AutoFormManualTask.pagelet"
@@ -149,9 +152,16 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         defJson.put("category", "task")
         defJson.put("pagelet", String(pageletAsset.contentsToByteArray()))
         val definition = Template(defJson.toGson())
-        val workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json)
-        configTab = ConfigTab(tabName, definition, workflowObj)
+        definition.filterWidgets("General").forEach {
+            if (it.name == "name" || it.name == "logicalId" || it.name == "category" || it.name == "version" ||
+                    it.name == "description") {
+                it.attributes["applier"] = ObjectApplier::class.qualifiedName
+            }
+        }
 
+        workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json)
+        configTab = ConfigTab(tabName, definition, workflowObj)
+        configTab.border = BorderFactory.createEmptyBorder(7, 0, 3, 0)
         configTab.addUpdateListener { obj ->
             obj.updateAsset()
             handleChange()
@@ -161,8 +171,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {
             override fun fileContentReloaded(file: VirtualFile, document: Document) {
                 if (file.equals(taskFile)) {
-                    taskDoc = document
-                    taskTemplate = TaskTemplate(JSONObject(taskDoc.text))
+                    syncFromDoc(document)
                 }
             }
             override fun beforeAllDocumentsSaving() {
@@ -171,16 +180,22 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             }
         })
 
-        configTab.border = BorderFactory.createEmptyBorder(7, 0, 3, 0)
+    }
+
+    private fun syncFromDoc(document: Document) {
+        taskDoc = document
+        val json = JSONObject(taskDoc.text)
+        taskTemplate = TaskTemplate(json)
+        workflowObj.asset = taskTemplate
+        workflowObj.obj = json
     }
 
     private fun handleChange() {
         updateModifiedProperty(true)
     }
 
-      private fun saveToFile() {
-         // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
-         ApplicationManager.getApplication().invokeLater( {
+    private fun saveToFile() {
+         ApplicationManager.getApplication().invokeAndWait( {
              WriteAction.run<Throwable> {
                  if (modified) {
                      taskDoc.setText(taskTemplate.json.toString(2))
@@ -225,9 +240,13 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     }
 
     override fun selectNotify() {
+        taskFile.refresh(true, false) {
+            syncFromDoc(FileDocumentManager.getInstance().getDocument(taskFile)!!)
+        }
     }
 
     override fun deselectNotify() {
+        saveToFile()
     }
 
     override fun addPropertyChangeListener(listener: PropertyChangeListener) {

@@ -139,8 +139,6 @@ open class WorkflowObj(val project: Any?, var asset: Asset, val type: WorkflowTy
             WorkflowType.task -> {
                 val task = asset as TaskTemplate
                 task.update(obj)
-                asset = task
-                obj = task.json
             }
         }
     }

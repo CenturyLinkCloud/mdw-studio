@@ -76,7 +76,6 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     private var modified: Boolean = false
     // listeners installed by FileEditorManagerImpl
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
-    private val generalSettings = GeneralSettings.getInstance()
     private var initiallySaved = false
 
     init {
@@ -212,7 +211,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         configPanel.hideShowListener = this
         panelBar.hideShowListener = this
 
-        if (generalSettings.isSaveOnFrameDeactivation) {
+        if (GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
             saveToFile()
         }
     }
@@ -249,7 +248,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun deselectNotify() {
-        if (generalSettings.isSaveOnFrameDeactivation) {
+        if (GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
             saveToFile()
         }
     }

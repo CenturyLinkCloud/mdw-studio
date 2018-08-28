@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import javax.swing.*
 
-class ConfigTab(private val tabName: String, private val template: Template, private val workflowObj: WorkflowObj) :
+class ConfigTab(private val tabName: String, private val template: Template, val workflowObj: WorkflowObj) :
         JPanel(BorderLayout()), UpdateListeners by UpdateListenersDelegate() {
 
     private var containerPane = JPanel()

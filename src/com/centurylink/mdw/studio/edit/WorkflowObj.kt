@@ -150,7 +150,7 @@ open class WorkflowObj(val project: Any?, var asset: Asset, val type: WorkflowTy
     }
 
     fun toString(pretty: Boolean): String {
-        return type.toString() + ": " + obj.toString(if (pretty) 2 else 0)
+        return obj.toString(if (pretty) 2 else 0)
     }
 
     fun toString(property: String): String {

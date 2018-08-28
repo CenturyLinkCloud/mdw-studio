@@ -28,15 +28,16 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
 
     val titleBar = TitleBar("")
     private var tabPanel: TabPanel? = null
+    private var blankPanel: JPanel? = null
     var hideShowListener: HideShowListener? = null
 
     init {
     }
 
     override fun onSelect(selectObjs: List<Drawable>) {
-        tabPanel?.let {
-            remove(it)
-        }
+        tabPanel?.let { remove(it) }
+        blankPanel?.let { remove(it) }
+
         if (selectObjs.size == 1) {
             val selectObj = selectObjs[0]
             titleBar.itemLabel.text = selectObj.workflowObj.name.lines().joinToString(" ")
@@ -50,7 +51,8 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         }
         else {
             titleBar.itemLabel.text = ""
-            add(JPanel(), BorderLayout.CENTER)
+            blankPanel = JPanel()
+            add(blankPanel, BorderLayout.CENTER)
         }
         // this is needed so that tab label MouseListener is active
         revalidate()

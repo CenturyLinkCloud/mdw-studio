@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.config.HideShowListener
 import com.centurylink.mdw.studio.config.PanelBar
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.ProcessFileType
+import com.centurylink.mdw.studio.proj.AssetFileListener
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
@@ -21,6 +22,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Divider
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.tabs.TabsUtil
@@ -67,13 +70,14 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             asset = projectSetup.getAsset(procFile)!! // asset must be found
             _process.id = asset.id
             _process.version = asset.version
-            _process.packageName = asset.packageName
+            _process.packageName = asset.pkg.name
         }
     private lateinit var asset: Asset
     private var modified: Boolean = false
     // listeners installed by FileEditorManagerImpl
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
     private val generalSettings = GeneralSettings.getInstance()
+    private var initiallySaved = false
 
     init {
         if (procDoc.textLength == 0) {
@@ -168,6 +172,13 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         ApplicationManager.getApplication().invokeLater( {
             WriteAction.run<Throwable> {
                 procDoc.setText(process.json.toString(2))
+                if (!initiallySaved) {
+                    // forcefully trigger asset listener
+                    val events = mutableListOf<VFileEvent>()
+                    events.add(VFileContentChangeEvent(this, procFile, 0, 0, false))
+                    AssetFileListener(projectSetup).after(events)
+                    initiallySaved = true
+                }
                 updateModifiedProperty(false)
             }
         }, ModalityState.NON_MODAL)

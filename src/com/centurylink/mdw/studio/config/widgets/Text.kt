@@ -52,8 +52,14 @@ open class Text(widget: Widget) : SwingWidget(widget) {
                     repaint()
                 }
                 override fun focusGained(e: FocusEvent) {
-                    scrollPane.border = JTextField().border
-                    textComponent.border = BorderFactory.createEmptyBorder(0, 2, 0, 0)
+                    if (ProjectSetup.isWindows) {
+                        scrollPane.border = BorderFactory.createLineBorder(JTextField().selectionColor)
+
+                    }
+                    else {
+                        scrollPane.border = JTextField().border
+                        textComponent.border = BorderFactory.createEmptyBorder(0, 2, 0, 0)
+                    }
                     invalidate()
                     repaint()
                 }

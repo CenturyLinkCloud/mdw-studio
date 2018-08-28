@@ -30,6 +30,7 @@
   </project-components>
 
   <extensions defaultExtensionNs="com.intellij">
+    <projectViewPane implementation="com.centurylink.mdw.studio.proj.AssetProjectView"/>
     <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
     <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorGeneralProvider"/>

@@ -22,7 +22,7 @@ class LinkAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
                     var lastSlash = it.lastIndexOf('.')
                     var pkgName = it.substring(0, lastSlash)
                     var assetName = it.substring(lastSlash + 1)
-                    widget.url = ProjectSetup.hubRoot + "/#/asset/" + pkgName + "/" + assetName + ".java"
+                    widget.url = ProjectSetup.HUB_ROOT + "/#/asset/" + pkgName + "/" + assetName + ".java"
                 }
             }
         }

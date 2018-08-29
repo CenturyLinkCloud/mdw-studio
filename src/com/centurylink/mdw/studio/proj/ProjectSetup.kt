@@ -5,6 +5,7 @@ import com.centurylink.mdw.cli.ProgressMonitor
 import com.centurylink.mdw.cli.Setup
 import com.centurylink.mdw.config.PropertyException
 import com.centurylink.mdw.config.YamlProperties
+import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
@@ -39,6 +40,11 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     val isMdwProject: Boolean
         get() = setup != null
+
+    val hubRootUrl: String?
+        get() {
+            return getMdwProp(PropertyNames.MDW_HUB_URL)
+        }
 
     lateinit var implementors: Implementors
 
@@ -117,6 +123,12 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     override fun projectClosed() {
+    }
+
+    private fun getMdwProp(prop: String): String? {
+        return setup?.mdwConfig?.let {
+            YamlProperties("mdw", File("${setup?.configRoot ?: ""}/$it")).getString(prop)
+        }
     }
 
     /**
@@ -264,7 +276,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         val LOG = Logger.getInstance(ProjectSetup.javaClass)
 
         // TODO these values should not be static and should not be hardcoded
-        val hubRoot = "http://localhost:8080/mdw"
+        val HUB_ROOT = "http://localhost:8080/mdw"
 
         const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"

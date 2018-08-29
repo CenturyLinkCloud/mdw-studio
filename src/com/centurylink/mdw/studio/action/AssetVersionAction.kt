@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys
 import javax.swing.JOptionPane
 import javax.swing.JOptionPane.PLAIN_MESSAGE
 
-class AssetVersionAction() : AnAction() {
+class AssetVersionAction() : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.getData(CommonDataKeys.PROJECT)
@@ -53,17 +53,6 @@ class AssetVersionAction() : AnAction() {
             presentation.isVisible = applicable
             presentation.isEnabled = applicable
         }
-    }
-
-    private fun getAsset(event: AnActionEvent): Asset? {
-        event.getData(CommonDataKeys.PROJECT)?.let {
-            val projectSetup = it.getComponent(ProjectSetup::class.java)
-            val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-            file?.let {
-                return projectSetup.getAsset(file)
-            }
-        }
-        return null
     }
 
     private fun getPackage(event: AnActionEvent): AssetPackage? {

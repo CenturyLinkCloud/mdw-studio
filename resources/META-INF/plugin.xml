@@ -55,11 +55,18 @@
               class="com.centurylink.mdw.studio.action.NewTaskAction" />
       <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
     </group>
-    <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
-            description="Major version should be incremented to indicate possible breaking changes."
-            class="com.centurylink.mdw.studio.action.AssetVersionAction">
+    <group id="mdwAssetActions" text="MDW">
+      <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
+              description="Major version should be incremented to indicate possible breaking changes."
+              class="com.centurylink.mdw.studio.action.AssetVersionAction">
+      </action>
+      <action id="mdwProcessInstances" text="Process Instances" icon="/icons/process.gif"
+              description="Show process instances in MDWHub"
+              class="com.centurylink.mdw.studio.action.ProcessInstances">
+      </action>
+      <separator/>
       <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
-    </action>
+    </group>
   </actions>
 
 </idea-plugin>

@@ -235,10 +235,14 @@ class ProjectSetup(val project: Project) : ProjectComponent {
             val out = ByteArrayOutputStream()
             versionProps.store(out, null)
             verFile.setBinaryContent(out.toByteArray())
-            // increment package version
-            val pkg = asset.pkg
+            setVersion(asset.pkg, asset.pkg.version + 1)
+        }
+    }
+
+    fun setVersion(pkg: AssetPackage, version: Int) {
+        WriteAction.run<IOException> {
             pkg.metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)?.let { pkgYaml ->
-                pkg.version += 1
+                pkg.version = version
                 pkgYaml.setBinaryContent(AssetPackage.createPackageYaml(pkg.name, pkg.version).toByteArray())
             }
         }

@@ -33,7 +33,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                 val gitVerProp = gitVerProps.getProperty(asset.name)
                                 gitVerProp?.let {
                                     val headVer = gitVerProp.split(" ")[0].toInt()
-                                    if (headVer <= asset.version) {
+                                    if (headVer >= asset.version) {
                                         projectSetup.setVersion(asset, headVer + 1)
                                     }
                                 }

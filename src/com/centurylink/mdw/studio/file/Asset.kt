@@ -31,6 +31,10 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
     private val logicalPath: String
         get() = "$path v$verString"
 
+    override fun toString(): String {
+        return pkg.name + "/" + name
+    }
+
     companion object {
         fun hash(logicalPath: String): String {
             val blob = "blob " + logicalPath.length + "\u0000" + logicalPath

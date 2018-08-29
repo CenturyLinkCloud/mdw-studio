@@ -176,6 +176,8 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     fun getPackage(dir: VirtualFile): AssetPackage? {
+        if (dir.toString().length < assetDir.toString().length + 2)
+            return null
         return getPackage(getPackageName(dir))
     }
 

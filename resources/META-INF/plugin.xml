@@ -48,14 +48,18 @@
 
 
   <actions>
-    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif"
-           class="com.intellij.ide.actions.NonTrivialActionGroup">
+    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
       <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
               class="com.centurylink.mdw.studio.action.NewProcessAction"  />
       <action id="newTask" text="MDW Task" icon="/icons/task.gif"
               class="com.centurylink.mdw.studio.action.NewTaskAction" />
       <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
     </group>
+    <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
+            description="Major version should be incremented to indicate possible breaking changes."
+            class="com.centurylink.mdw.studio.action.AssetVersionAction">
+      <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
+    </action>
   </actions>
 
 </idea-plugin>

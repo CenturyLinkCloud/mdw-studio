@@ -47,6 +47,10 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
         schemaVersion = loader.getRequired("schemaVersion", topMap, "")
     }
 
+    override fun toString(): String {
+        return name
+    }
+
     companion object {
         const val META_DIR = ".mdw"
         const val PACKAGE_YAML = "package.yaml"

@@ -7,20 +7,21 @@ import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase
 import com.intellij.ide.projectView.impl.ProjectTreeStructure
 import com.intellij.ide.projectView.impl.ProjectViewPane
-import com.intellij.ide.projectView.impl.ProjectViewTree
 import com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode
-import com.intellij.ide.util.treeView.AbstractTreeBuilder
 import com.intellij.ide.util.treeView.AbstractTreeNode
-import com.intellij.ide.util.treeView.AbstractTreeUpdater
 import com.intellij.openapi.project.Project
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN
 import javax.swing.Icon
-import javax.swing.tree.DefaultTreeModel
 
 class AssetProjectView(val project: Project) : ProjectViewPane(project) {
+
+    override fun isInitiallyVisible(): Boolean {
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
+        return projectSetup.isMdwProject
+    }
 
     override fun getId(): String {
         return ID
@@ -38,24 +39,12 @@ class AssetProjectView(val project: Project) : ProjectViewPane(project) {
         return 3
     }
 
-    companion object {
-        const val ID = "mdwAssets"
-    }
-
     override fun createStructure(): ProjectAbstractTreeStructureBase {
         return AssetViewTreeStructure(project)
     }
 
-    override fun createTreeUpdater(treeBuilder: AbstractTreeBuilder?): AbstractTreeUpdater {
-        val treeUpdater =  super.createTreeUpdater(treeBuilder)
-
-        return treeUpdater
-    }
-
-    override fun createTree(treeModel: DefaultTreeModel?): ProjectViewTree {
-        val tree = super.createTree(treeModel)
-
-        return tree
+    companion object {
+        const val ID = "mdwAssets"
     }
 }
 

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 import org.json.JSONObject
 
-class NewTaskAction : NewAssetAction("New MDW Task", "Create a task template", Icons.TASK) {
+class NewTask : NewAssetAction("New MDW Task", "Create a task template", Icons.TASK) {
 
     override val fileExtension = "task"
 

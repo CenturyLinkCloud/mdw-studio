@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.file
 
 import com.intellij.openapi.vfs.VirtualFile
+import java.net.URLEncoder
 import java.security.MessageDigest
 
 class Asset(val pkg: AssetPackage, val file: VirtualFile) {
@@ -12,6 +13,8 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
 
     val name: String
         get() = file.name
+    val encodedName: String
+        get() = file.name.replace(" ", "%20")  // URLEncoder uses '+' for spaces
 
     val version: Int
         get() {
@@ -49,6 +52,10 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
                 result += Integer.toString((b[i].toInt() and 0xff.toInt()) + 0x100, 16).substring(1)
             }
             return result
+        }
+
+        fun isIgnored(file: VirtualFile): Boolean {
+            return file.name == ".DS_Store"
         }
     }
 }

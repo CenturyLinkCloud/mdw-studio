@@ -50,17 +50,21 @@
   <actions>
     <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
       <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
-              class="com.centurylink.mdw.studio.action.NewProcessAction"  />
+              class="com.centurylink.mdw.studio.action.NewProcess"  />
       <action id="newTask" text="MDW Task" icon="/icons/task.gif"
-              class="com.centurylink.mdw.studio.action.NewTaskAction" />
+              class="com.centurylink.mdw.studio.action.NewTask" />
       <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
     </group>
     <group id="mdwAssetActions" text="MDW">
       <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
               description="Major version should be incremented to indicate possible breaking changes."
-              class="com.centurylink.mdw.studio.action.AssetVersionAction">
+              class="com.centurylink.mdw.studio.action.AssetVersion">
       </action>
-      <action id="mdwProcessInstances" text="Process Instances" icon="/icons/process.gif"
+      <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
+              description="Run process through MDWHub"
+              class="com.centurylink.mdw.studio.action.RunProcess">
+      </action>
+      <action id="mdwProcessInstances" text="Process Instances" icon="/icons/list.gif"
               description="Show process instances in MDWHub"
               class="com.centurylink.mdw.studio.action.ProcessInstances">
       </action>

@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys
 import javax.swing.JOptionPane
 import javax.swing.JOptionPane.PLAIN_MESSAGE
 
-class AssetVersionAction() : AssetAction() {
+class AssetVersion() : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.getData(CommonDataKeys.PROJECT)

@@ -5,7 +5,7 @@ import com.intellij.ide.actions.CreateFileFromTemplateDialog
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 
-class NewProcessAction : NewAssetAction("New MDW Process", "Create a workflow process", Icons.PROCESS) {
+class NewProcess : NewAssetAction("New MDW Process", "Create a workflow process", Icons.PROCESS) {
 
     override val fileExtension = "proc"
 

@@ -3,13 +3,12 @@ package com.centurylink.mdw.studio.action
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnActionEvent
 
-class ProcessInstances : AssetAction() {
+class RunProcess : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         getAsset(event)?.let { asset ->
             getProjectSetup(event)?.let { projectSetup ->
-                val url = projectSetup.hubRootUrl +
-                        "?definitionId=${asset.id}&processSpec=${asset.encodedName}#/workflow/processes"
+                val url = projectSetup.hubRootUrl + "#/workflow/run/" + asset.pkg.name + "/" + asset.encodedName
                 BrowserUtil.browse(url)
             }
         }
@@ -21,7 +20,7 @@ class ProcessInstances : AssetAction() {
         if (presentation.isVisible && presentation.isEnabled) {
             var applicable = false
             getAsset(event)?.let {
-              applicable = it.path.endsWith(".proc")
+                applicable = it.path.endsWith(".proc")
             }
             presentation.isVisible = applicable
             presentation.isEnabled = applicable

@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.proj
 
+import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
 import com.centurylink.mdw.studio.file.AssetPackage
@@ -52,7 +53,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
         event.file?.let {
             if (!it.isDirectory) {
                 if (projectSetup.isAssetSubdir(it.parent)) {
-                    if (!AssetPackage.isMeta(it)) {
+                    if (!AssetPackage.isMeta(it) && !Asset.isIgnored(it)) {
                         // we care about this file
                         var asset = projectSetup.getAsset(it) ?: projectSetup.createAsset(it)
                         return AssetEvent(event, asset)

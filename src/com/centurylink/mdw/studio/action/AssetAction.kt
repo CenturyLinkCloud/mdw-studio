@@ -19,11 +19,26 @@ abstract class AssetAction : AnAction() {
 
     protected fun getAsset(event: AnActionEvent): Asset? {
         getProjectSetup(event)?.let { projectSetup ->
-            val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-            file?.let {
-                return projectSetup.getAsset(file)
+            if (projectSetup.isMdwProject) {
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file?.let {
+                    return projectSetup.getAsset(file)
+                }
             }
         }
         return null
+    }
+
+    override fun update(event: AnActionEvent) {
+        super.update(event)
+        val presentation = event.presentation
+        if (presentation.isVisible && presentation.isEnabled) {
+            var applicable = false
+            getAsset(event)?.let {
+                applicable = it.path.endsWith(".proc")
+            }
+            presentation.isVisible = applicable
+            presentation.isEnabled = applicable
+        }
     }
 }

@@ -63,13 +63,15 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
             val project = event.getData(CommonDataKeys.PROJECT)
             project?.let {
                 val projectSetup = project.getComponent(ProjectSetup::class.java)
-                val view = event.getData(LangDataKeys.IDE_VIEW)
-                view?.let {
-                    val directories = view.directories
-                    for (directory in directories) {
-                        if (projectSetup.isAssetSubdir(directory.virtualFile)) {
-                            applicable = true
-                            break
+                if (projectSetup.isMdwProject) {
+                    val view = event.getData(LangDataKeys.IDE_VIEW)
+                    view?.let {
+                        val directories = view.directories
+                        for (directory in directories) {
+                            if (projectSetup.isAssetSubdir(directory.virtualFile)) {
+                                applicable = true
+                                break
+                            }
                         }
                     }
                 }

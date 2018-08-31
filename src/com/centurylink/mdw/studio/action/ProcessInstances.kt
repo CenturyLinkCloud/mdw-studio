@@ -17,7 +17,7 @@ class ProcessInstances : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
-        val presentation = event.getPresentation()
+        val presentation = event.presentation
         if (presentation.isVisible && presentation.isEnabled) {
             var applicable = false
             getAsset(event)?.let {

@@ -56,11 +56,13 @@ class AssetVersion() : AssetAction() {
     private fun getPackage(event: AnActionEvent): AssetPackage? {
         event.getData(CommonDataKeys.PROJECT)?.let {
             val projectSetup = it.getComponent(ProjectSetup::class.java)
-            val view = event.getData(LangDataKeys.IDE_VIEW)
-            view?.let {
-                val directories = view.directories
-                if (directories.size == 1) {
-                    return projectSetup.getPackage(directories[0].virtualFile)
+            if (projectSetup.isMdwProject) {
+                val view = event.getData(LangDataKeys.IDE_VIEW)
+                view?.let {
+                    val directories = view.directories
+                    if (directories.size == 1) {
+                        return projectSetup.getPackage(directories[0].virtualFile)
+                    }
                 }
             }
         }

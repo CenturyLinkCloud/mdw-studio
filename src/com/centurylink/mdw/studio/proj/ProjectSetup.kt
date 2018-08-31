@@ -14,6 +14,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
@@ -282,7 +283,11 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
 
         val isWindows: Boolean by lazy {
-            System.getProperty("os.name").startsWith("Windows")
+            SystemInfo.isWindows
+        }
+
+        val isMac: Boolean by lazy {
+            SystemInfo.isMac
         }
 
         val documentTypes = mapOf(

@@ -12,7 +12,6 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.util.ui.UIUtil
 import java.awt.*
-import java.awt.datatransfer.DataFlavor
 import java.awt.event.*
 import javax.swing.*
 import javax.swing.TransferHandler.*
@@ -140,7 +139,13 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
 
         // copy
         actionMap.put(getCopyAction().getValue(Action.NAME), getCopyAction())
-        inputMap.put(KeyStroke.getKeyStroke("ctrl C"), getCopyAction().getValue(Action.NAME))
+        if (ProjectSetup.isMac) {
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getCopyAction().getValue(Action.NAME))
+        }
+        else {
+            inputMap.put(KeyStroke.getKeyStroke("ctrl C"), getCopyAction().getValue(Action.NAME))
+        }
+
 
         if (!readonly) {
             // cut
@@ -157,11 +162,21 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                     }
                 }
             })
-            inputMap.put(KeyStroke.getKeyStroke("ctrl X"), getCutAction().getValue(Action.NAME))
+            if (ProjectSetup.isMac) {
+                inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getCutAction().getValue(Action.NAME))
+            }
+            else {
+                inputMap.put(KeyStroke.getKeyStroke("ctrl X"), getCutAction().getValue(Action.NAME))
+            }
 
             // paste
             actionMap.put(getPasteAction().getValue(Action.NAME), getPasteAction())
-            inputMap.put(KeyStroke.getKeyStroke("ctrl V"), getPasteAction().getValue(Action.NAME))
+            if (ProjectSetup.isMac) {
+                inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getPasteAction().getValue(Action.NAME))
+            }
+            else {
+                inputMap.put(KeyStroke.getKeyStroke("ctrl V"), getPasteAction().getValue(Action.NAME))
+            }
 
             // delete
             actionMap.put("mdw.delete", object : AbstractAction() {

@@ -68,6 +68,10 @@
               description="Show process instances in MDWHub"
               class="com.centurylink.mdw.studio.action.ProcessInstances">
       </action>
+      <action id="mdwTaskInstances" text="Task Instances" icon="/icons/list.gif"
+              description="Show task instances in MDWHub"
+              class="com.centurylink.mdw.studio.action.TaskInstances">
+      </action>
       <separator/>
       <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
     </group>

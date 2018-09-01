@@ -10,6 +10,8 @@ import com.centurylink.mdw.studio.edit.UpdateListeners
 import com.centurylink.mdw.studio.edit.UpdateListenersDelegate
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
+import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
@@ -17,7 +19,7 @@ import javax.swing.*
 import javax.swing.TransferHandler.*
 
 class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly: Boolean = false) :
-        JPanel(BorderLayout()), UpdateListeners by UpdateListenersDelegate() {
+        JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var zoom = 100
 
@@ -219,11 +221,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
             d.selection = prevSelect
         }
 
-//        val prevTransferData = transferHandler?.let {
-//            (it as TransferHandler).transferData
-//        }
         transferHandler = TransferHandler(d)
-//         (transferHandler as TransferHandler).transferData = prevTransferData
         (transferHandler as TransferHandler).addUpdateListener { workflowObj ->
             notifyUpdateListeners(workflowObj)
             prevSelect = d.selection
@@ -237,6 +235,19 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
         }
 
         d.draw()
+    }
+
+    override fun getData(dataId: String): Any? {
+        if (PlatformDataKeys.HELP_ID.`is`(dataId)) {
+            return "help"
+        }
+        if (PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) ||
+                PlatformDataKeys.COPY_PROVIDER.`is`(dataId) ||
+                PlatformDataKeys.CUT_PROVIDER.`is`(dataId) ||
+                PlatformDataKeys.PASTE_PROVIDER.`is`(dataId)) {
+            return CanvasActionProvider()
+        }
+        return null
     }
 
     override fun getPreferredSize(): Dimension {

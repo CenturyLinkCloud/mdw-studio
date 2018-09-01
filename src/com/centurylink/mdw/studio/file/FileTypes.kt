@@ -1,19 +1,14 @@
 package com.centurylink.mdw.studio.file
 
-import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.ide.highlighter.XmlLikeFileType
 import com.intellij.json.JsonFileType
 import com.intellij.lang.xml.XMLLanguage
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeConsumer
 import com.intellij.openapi.fileTypes.INativeFileType
-import com.intellij.openapi.fileTypes.NativeFileType
 import com.intellij.openapi.fileTypes.NativeFileType.openAssociatedApplication
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.openapi.vfs.VirtualFile
-import javax.swing.Icon
 
 class FileTypeFactory : com.intellij.openapi.fileTypes.FileTypeFactory() {
 

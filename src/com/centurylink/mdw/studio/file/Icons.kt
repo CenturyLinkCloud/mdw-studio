@@ -11,7 +11,7 @@ class Icons {
         val PROCESS = IconLoader.getIcon("/icons/process.gif")
         val TASK = IconLoader.getIcon("/icons/task.gif")
         val IMPL = IconLoader.getIcon("/icons/impl.gif")
-        val SPRING = IconLoader.getIcon("/icons/spring.gif")
+        val SPRING = IconLoader.getIcon("/icons/spring.png")
         val EXCEL = IconLoader.getIcon("/icons/excel.gif")
 
         fun readIcon(path: String): ImageIcon {

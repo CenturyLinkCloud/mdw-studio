@@ -12,6 +12,7 @@ import com.centurylink.mdw.studio.file.AssetPackage
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.SystemInfo
@@ -29,7 +30,11 @@ import javax.swing.ImageIcon
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
-        val projectSetup = project.getComponent(ProjectSetup::class.java)
+        FileTypeManager.getInstance().getFileTypeByExtension("groovy")?.let {
+            WriteAction.run<RuntimeException> {
+                FileTypeManager.getInstance().associateExtension(it, "test")
+            }
+        }
     }
 }
 

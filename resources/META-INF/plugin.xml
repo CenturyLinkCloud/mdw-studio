@@ -2,7 +2,7 @@
   <id>com.centurylink.mdw.studio</id>
   <name>MDW Studio</name>
   <version>1.0</version>
-  <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
+  <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw-studio/">MDW</vendor>
 
   <description><![CDATA[
       MDW Studio for workflow design.
@@ -17,6 +17,7 @@
 
   <!--
   <depends>org.jetbrains.kotlin</depends>
+  <depends>org.intellij.groovy</depends>
   -->
 
   <project-components>
@@ -75,7 +76,12 @@
       <separator/>
       <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
     </group>
-    <action id="mdwSyncServer" text="Sync Server" icon="/icons/hub.png"
+    <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
+            description="Open MDWHub"
+            class="com.centurylink.mdw.studio.action.HubAction">
+      <add-to-group group-id="MainToolBar" />
+    </action>
+    <action id="mdwSyncServer" text="Sync Server" icon="/icons/sync.png"
             description="Refresh server cache to reflect asset changes"
             class="com.centurylink.mdw.studio.action.SyncServer">
       <add-to-group group-id="MainToolBar" />

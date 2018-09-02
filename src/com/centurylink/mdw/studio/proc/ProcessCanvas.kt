@@ -15,10 +15,10 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
-import javax.swing.*
-import javax.swing.TransferHandler.*
+import javax.swing.JPanel
+import javax.swing.UIManager
 
-class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly: Boolean = false) :
+class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonly: Boolean = false) :
         JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var zoom = 100
@@ -37,6 +37,8 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
     var dragX = -1
     var dragY = -1
     var dragging = false
+
+    private var actionProvider: CanvasActions? = null
 
     init {
         Display.DEFAULT_COLOR = UIManager.getColor("EditorPane.foreground")
@@ -83,13 +85,18 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
 
             override fun mouseReleased(e: MouseEvent) {
                 mouseDown = false
-                if (!readonly) {
+                if (!isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     diagram?.let {
                         it.onMouseUp(DiagramEvent(e.x, e.y, shift, ctrl, drag = dragging))
                         if (dragging) {
                             notifyUpdateListeners(it.workflowObj)
+                            it.selection.selectObjs.let { selObj ->
+                                for (listener in selectListeners) {
+                                    listener.onSelect(selObj)
+                                }
+                            }
                         }
                     }
                     invalidate()
@@ -109,7 +116,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
             }
 
             override fun mouseDragged(e: MouseEvent) {
-                if (!readonly) {
+                if (!isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     if (!dragging || dragX == -1) {
@@ -138,63 +145,6 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                 }
             }
         })
-
-        // copy
-        actionMap.put(getCopyAction().getValue(Action.NAME), getCopyAction())
-        if (ProjectSetup.isMac) {
-            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getCopyAction().getValue(Action.NAME))
-        }
-        else {
-            inputMap.put(KeyStroke.getKeyStroke("ctrl C"), getCopyAction().getValue(Action.NAME))
-        }
-
-
-        if (!readonly) {
-            // cut
-            actionMap.put(getCutAction().getValue(Action.NAME), object : AbstractAction() {
-                override fun actionPerformed(e: ActionEvent) {
-                    diagram?.let {
-                        if (it.hasSelection()) {
-                            getCopyAction().actionPerformed(e)
-                            it.onDelete()
-                            notifyUpdateListeners(it.workflowObj)
-                            invalidate()
-                            repaint()
-                        }
-                    }
-                }
-            })
-            if (ProjectSetup.isMac) {
-                inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getCutAction().getValue(Action.NAME))
-            }
-            else {
-                inputMap.put(KeyStroke.getKeyStroke("ctrl X"), getCutAction().getValue(Action.NAME))
-            }
-
-            // paste
-            actionMap.put(getPasteAction().getValue(Action.NAME), getPasteAction())
-            if (ProjectSetup.isMac) {
-                inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().menuShortcutKeyMask), getPasteAction().getValue(Action.NAME))
-            }
-            else {
-                inputMap.put(KeyStroke.getKeyStroke("ctrl V"), getPasteAction().getValue(Action.NAME))
-            }
-
-            // delete
-            actionMap.put("mdw.delete", object : AbstractAction() {
-                override fun actionPerformed(e: ActionEvent) {
-                    diagram?.let {
-                        if (it.hasSelection()) {
-                            it.onDelete()
-                            notifyUpdateListeners(it.workflowObj)
-                            invalidate()
-                            repaint()
-                        }
-                    }
-                }
-            })
-            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "mdw.delete")
-        }
     }
 
     override fun paintComponent(g: Graphics) {
@@ -208,7 +158,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
 
         // draw the process diagram
         var prevSelect = diagram?.selection
-        val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, readonly)
+        val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, isReadonly)
         diagram = d
         if (prevSelect == null) {
             // first time
@@ -219,6 +169,20 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
         }
         else {
             d.selection = prevSelect
+        }
+
+        actionProvider = CanvasActions(d)
+        (actionProvider as CanvasActions).addUpdateListener { workflowObj ->
+            notifyUpdateListeners(workflowObj)
+            prevSelect = d.selection
+            invalidate()
+            repaint()
+            d.selection.selectObjs.let {
+                for (listener in selectListeners) {
+                    listener.onSelect(it)
+                }
+            }
+            grabFocus()
         }
 
         transferHandler = TransferHandler(d)
@@ -245,7 +209,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val readonly:
                 PlatformDataKeys.COPY_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.CUT_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.PASTE_PROVIDER.`is`(dataId)) {
-            return CanvasActionProvider()
+            return actionProvider
         }
         return null
     }

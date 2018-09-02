@@ -237,7 +237,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {
-        return null
+        return canvas
     }
 
     override fun getCurrentLocation(): FileEditorLocation? {

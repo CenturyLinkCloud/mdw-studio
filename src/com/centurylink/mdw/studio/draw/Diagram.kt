@@ -11,7 +11,7 @@ import java.awt.Cursor
 import java.awt.Graphics2D
 
 class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val process: Process,
-        val implementors: Implementors, val readonly: Boolean = false) : Drawable, Selectable by Select() {
+        val implementors: Implementors, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {
         init {
@@ -191,16 +191,16 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
         }
     }
 
-    private fun addStep(x: Int, y: Int, implementor: Implementor) {
+    private fun addStep(x: Int, y: Int, implementor: Implementor): Step {
         for (subflow in subflows) {
             if (subflow.isHover(x, y)) {
-                subflow.addStep(implementor, x, y)
-                return
+                return subflow.addStep(implementor, x, y)
             }
         }
         val activity = process.addActivity(x, y, implementor)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn
+        return step
     }
 
     private fun getLinks(step: Step): List<Link> {
@@ -213,35 +213,37 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
         return links
     }
 
-    private fun addLink(from: Step, to: Step) {
+    private fun addLink(from: Step, to: Step): Link {
         for (subflow in subflows) {
             if (subflow.findStep(from.activity.logicalId) != null && subflow.findStep(to.activity.logicalId) != null) {
-                subflow.addLink(from, to)
-                return
+                return subflow.addLink(from, to)
             }
         }
         val transition = process.addTransition(from.activity, to.activity)
         val link = Link(g2d, project, process, transition, from, to)
         link.calc()
         links.add(link) // unnecessary if redrawn
+        return link
     }
 
-    private fun addSubflow(x: Int, y: Int, type: String) {
+    private fun addSubflow(x: Int, y: Int, type: String): Subflow {
         val subprocess = process.addSubprocess(x, y, type)
         val subflow = Subflow(g2d, project, process, subprocess, implementors)
         subflows.add(subflow)
+        return subflow
     }
 
-    private fun addNote(x: Int, y: Int) {
+    private fun addNote(x: Int, y: Int): Note {
         val textNote = process.addTextNote(x, y)
         val note = Note(g2d, project, process, textNote)
         notes.add(note) // unnecessary if redrawn
+        return note
     }
 
     fun onMouseMove(de: DiagramEvent): Cursor {
         hoverObj = getHoverObj(de.x, de.y)
         hoverObj?.let {
-            if (!readonly && (hoverObj == selection.selectObj)) {
+            if (!isReadonly && (hoverObj == selection.selectObj)) {
                 selection.anchor = hoverObj?.getAnchor(de.x, de.y)
                 if (selection.anchor != null) {
                     if (hoverObj is Link) {
@@ -270,7 +272,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
         if (selObj is Label && selObj.owner != this) {
             selObj = selObj.owner
         }
-        if (!readonly && de.ctrl) {
+        if (!isReadonly && de.ctrl) {
             if (selection.includes(selObj)) {
                 selection.remove(selObj)
             }
@@ -294,7 +296,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
             if (selection.selectObj is Step) {
                 val destObj = getHoverObj(de.x, de.y)
                 if (destObj is Step) {
-                    addLink(selection.selectObj as Step, destObj)
+                    selection.selectObj = addLink(selection.selectObj as Step, destObj)
                 }
             }
         }
@@ -312,7 +314,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
     }
 
     fun onMouseDrag(de: DiagramEvent, drag: DragEvent) {
-        if (!readonly && !de.ctrl && de.drag) {
+        if (!isReadonly && !de.ctrl && de.drag) {
             val deltaX = de.x - drag.origX
             val deltaY = de.y - drag.origY
             if (Math.abs(deltaX) > Display.MIN_DRAG || Math.abs(deltaY) > Display.MIN_DRAG) {
@@ -387,9 +389,9 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
 
     fun onDrop(de: DiagramEvent, implementor: Implementor) {
         when (implementor.category) {
-            "subflow" -> addSubflow(de.x, de.y, implementor.implementorClassName)
-            "note" -> addNote(de.x, de.y)
-            else -> addStep(de.x, de.y, implementor)
+            "subflow" -> selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClassName)
+            "note" -> selection.selectObj = addNote(de.x, de.y)
+            else -> selection.selectObj = addStep(de.x, de.y, implementor)
         }
     }
 

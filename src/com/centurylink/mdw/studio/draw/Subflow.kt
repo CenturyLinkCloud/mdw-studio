@@ -61,10 +61,11 @@ class Subflow(private val g2d: Graphics2D, private val project: Any?, private va
         return null
     }
 
-    fun addStep(implementor: Implementor, x: Int, y: Int) {
+    fun addStep(implementor: Implementor, x: Int, y: Int): Step {
         val activity = subprocess.addActivity(x, y, implementor)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn
+        return step
     }
 
     fun getLinks(step: Step): List<Link> {
@@ -77,11 +78,12 @@ class Subflow(private val g2d: Graphics2D, private val project: Any?, private va
         return links
     }
 
-    fun addLink(from: Step, to: Step) {
+    fun addLink(from: Step, to: Step): Link {
         val transition = subprocess.addTransition(from.activity, to.activity)
         val link = Link(g2d, project, process, transition, from, to)
         link.calc()
         links.add(link) // unnecessary if redrawn
+        return link
     }
 
     override fun draw(): Display {

@@ -2,7 +2,7 @@
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
     <version>1.0</version>
-    <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw-studio/">MDW</vendor>
+    <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description>MDW Studio for workflow design></description>
 

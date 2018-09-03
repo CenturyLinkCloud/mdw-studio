@@ -5,7 +5,7 @@ plugins {
 }
 
 group "com.centurylink.mdw"
-version "1.0.0-SNAPSHOT"
+version "1.0.1-SNAPSHOT"
 
 sourceCompatibility = 1.8
 
@@ -42,13 +42,20 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
 intellij {
     version "2018.2.2"
 }
+
 patchPluginXml {
     changeNotes """
       Release ${version}.<br>
       <ul>
         <li>Initial release</li>
       </ul>"""
+}
+
+publishPlugin {
+    username intellijPublishUsername
+    password intellijPublishPassword
 }

@@ -99,6 +99,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
         if (clipboard.isDataFlavorAvailable(DATA_FLAVOR_JSON)) {
             val jsonData = clipboard.getData(DATA_FLAVOR_JSON)
             if (jsonData is String) {
+                @Suppress("USELESS_CAST")
                 val selection = SelectionBuilder(diagram).fromJson(JSONObject(jsonData as String))
                 if (selection != null) {
                     diagram.onPaste(selection)

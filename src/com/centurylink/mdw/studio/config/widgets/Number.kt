@@ -22,11 +22,11 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
         }
         var min = 0
         widget.min?.let {
-            min = it as Int
+            min = it
         }
         var max = 1000
         widget.max?.let {
-            max = it as Int
+            max = it
         }
 
         spinner = object : JBIntSpinner(num, min, max) {

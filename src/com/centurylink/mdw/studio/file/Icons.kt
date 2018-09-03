@@ -16,9 +16,11 @@ class Icons {
 
         fun readIcon(path: String): ImageIcon {
             val classLoader = this::class.java.classLoader
-            val file = File(classLoader.getResource(path).file)
-            val bytes = Files.readAllBytes(file.toPath())
-            return ImageIcon(bytes)
+            classLoader.getResourceAsStream(path).use {
+                val bytes = ByteArray(it.available())
+                it.read(bytes)
+                return ImageIcon(bytes)
+            }
         }
     }
 }

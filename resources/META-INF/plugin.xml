@@ -1,91 +1,77 @@
 <idea-plugin>
-  <id>com.centurylink.mdw.studio</id>
-  <name>MDW Studio</name>
-  <version>1.0</version>
-  <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw-studio/">MDW</vendor>
+    <id>com.centurylink.mdw.studio</id>
+    <name>MDW Studio</name>
+    <version>1.0</version>
+    <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw-studio/">MDW</vendor>
 
-  <description><![CDATA[
-      MDW Studio for workflow design.
-    ]]></description>
+    <description>MDW Studio for workflow design></description>
 
-  <change-notes><![CDATA[
-      Initial release.
-    ]]>
-  </change-notes>
+    <idea-version since-build="182.0"/>
 
-  <idea-version since-build="173.0"/>
+    <depends>com.intellij.modules.lang</depends>
 
-  <!--
-  <depends>org.jetbrains.kotlin</depends>
-  <depends>org.intellij.groovy</depends>
-  -->
+    <project-components>
+        <component>
+            <interface-class>com.centurylink.mdw.studio.proj.ProjectSetup</interface-class>
+            <implementation-class>com.centurylink.mdw.studio.proj.ProjectSetup</implementation-class>
+        </component>
+    </project-components>
 
-  <project-components>
-    <component>
-      <interface-class>com.centurylink.mdw.studio.proj.ProjectSetup</interface-class>
-      <implementation-class>com.centurylink.mdw.studio.proj.ProjectSetup</implementation-class>
-      <!--
-      <loadForDefaultProject/>
-      -->
-    </component>
-  </project-components>
-
-  <extensions defaultExtensionNs="com.intellij">
-    <projectViewPane implementation="com.centurylink.mdw.studio.proj.AssetProjectView"/>
-    <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorGeneralProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorWorkgroupsProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorNoticesProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorRecipientsProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorIndexesProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorVariablesProvider"/>
-    <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorSourceProvider"/>
-    <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
-            factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
-            conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
-    <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectViewPane implementation="com.centurylink.mdw.studio.proj.AssetProjectView"/>
+        <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorGeneralProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorWorkgroupsProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorNoticesProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorRecipientsProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorIndexesProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorVariablesProvider"/>
+        <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorSourceProvider"/>
+        <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
+                    factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
+                    conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
+        <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
+    </extensions>
 
 
-  <actions>
-    <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
-      <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
-              class="com.centurylink.mdw.studio.action.NewProcess"  />
-      <action id="newTask" text="MDW Task" icon="/icons/task.gif"
-              class="com.centurylink.mdw.studio.action.NewTask" />
-      <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
-    </group>
-    <group id="mdwAssetActions" text="MDW">
-      <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
-              description="Major version should be incremented to indicate possible breaking changes."
-              class="com.centurylink.mdw.studio.action.AssetVersion">
-      </action>
-      <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
-              description="Run process through MDWHub"
-              class="com.centurylink.mdw.studio.action.RunProcess">
-      </action>
-      <action id="mdwProcessInstances" text="Process Instances" icon="/icons/list.gif"
-              description="Show process instances in MDWHub"
-              class="com.centurylink.mdw.studio.action.ProcessInstances">
-      </action>
-      <action id="mdwTaskInstances" text="Task Instances" icon="/icons/list.gif"
-              description="Show task instances in MDWHub"
-              class="com.centurylink.mdw.studio.action.TaskInstances">
-      </action>
-      <separator/>
-      <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
-    </group>
-    <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
-            description="Open MDWHub"
-            class="com.centurylink.mdw.studio.action.HubAction">
-      <add-to-group group-id="MainToolBar" />
-    </action>
-    <action id="mdwSyncServer" text="Sync Server" icon="/icons/sync.png"
-            description="Refresh server cache to reflect asset changes"
-            class="com.centurylink.mdw.studio.action.SyncServer">
-      <add-to-group group-id="MainToolBar" />
-    </action>
-  </actions>
-
+    <actions>
+        <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
+            <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
+                    class="com.centurylink.mdw.studio.action.NewProcess"  />
+            <action id="newTask" text="MDW Task" icon="/icons/task.gif"
+                    class="com.centurylink.mdw.studio.action.NewTask" />
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
+        </group>
+        <group id="mdwAssetActions" text="MDW">
+            <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
+                    description="Major version should be incremented to indicate possible breaking changes."
+                    class="com.centurylink.mdw.studio.action.AssetVersion">
+            </action>
+            <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
+                    description="Run process through MDWHub"
+                    class="com.centurylink.mdw.studio.action.RunProcess">
+            </action>
+            <action id="mdwProcessInstances" text="Process Instances" icon="/icons/list.gif"
+                    description="Show process instances in MDWHub"
+                    class="com.centurylink.mdw.studio.action.ProcessInstances">
+            </action>
+            <action id="mdwTaskInstances" text="Task Instances" icon="/icons/list.gif"
+                    description="Show task instances in MDWHub"
+                    class="com.centurylink.mdw.studio.action.TaskInstances">
+            </action>
+            <separator/>
+            <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
+        </group>
+        <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
+                description="Open MDWHub"
+                class="com.centurylink.mdw.studio.action.HubAction">
+            <add-to-group group-id="MainToolBar" />
+        </action>
+        <action id="mdwSyncServer" text="Sync Server" icon="/icons/sync.png"
+                description="Refresh server cache to reflect asset changes"
+                class="com.centurylink.mdw.studio.action.SyncServer">
+            <add-to-group group-id="MainToolBar" />
+        </action>
+    </actions>
 </idea-plugin>

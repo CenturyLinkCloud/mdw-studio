@@ -18,7 +18,7 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
 
     val version: Int
         get() {
-            pkg.versionProps?.let { verProps ->
+            pkg.versionProps.let { verProps ->
                 verProps.getProperty(name)?.let { verProp ->
                     return verProp.split(" ")[0].toInt()
                 }

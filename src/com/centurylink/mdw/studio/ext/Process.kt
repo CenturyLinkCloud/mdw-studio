@@ -207,10 +207,10 @@ fun Process.setActivity(logicalId: String, activity: Activity) {
     else {
         subprocesses?.let {
             for (subprocess in subprocesses) {
-                val i = subprocess.activities.findIndex { it.logicalId == logicalId }
-                if (i >= 0) {
-                    activity.setAttribute(WORK_DISPLAY_INFO, activities[i].getAttribute(WORK_DISPLAY_INFO))
-                    subprocess.activities.replaceAt(i, activity)
+                val j = subprocess.activities.findIndex { it.logicalId == logicalId }
+                if (j >= 0) {
+                    activity.setAttribute(WORK_DISPLAY_INFO, activities[j].getAttribute(WORK_DISPLAY_INFO))
+                    subprocess.activities.replaceAt(j, activity)
                 }
             }
         }
@@ -231,10 +231,10 @@ fun Process.setTransition(logicalId: String, transition: Transition) {
     else {
         subprocesses?.let {
             for (subprocess in subprocesses) {
-                val i = subprocess.transitions.findIndex { it.logicalId == logicalId }
-                if (i >= 0) {
-                    transition.fromId = subprocess.transitions[i].fromId
-                    subprocess.transitions.replaceAt(i, transition)
+                val j = subprocess.transitions.findIndex { it.logicalId == logicalId }
+                if (j >= 0) {
+                    transition.fromId = subprocess.transitions[j].fromId
+                    subprocess.transitions.replaceAt(j, transition)
                 }
             }
         }

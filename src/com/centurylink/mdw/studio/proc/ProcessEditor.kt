@@ -143,9 +143,9 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         }
 
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
-        connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {
+        connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerListener {
             override fun fileContentReloaded(file: VirtualFile, document: Document) {
-                if (file.equals(procFile)) {
+                if (file == procFile) {
                     procDoc = document
                     process = Process(JSONObject(procDoc.text))
                     canvas.process = process

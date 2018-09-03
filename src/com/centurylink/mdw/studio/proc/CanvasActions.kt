@@ -126,7 +126,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
     }
 
     companion object {
-        val LOG = Logger.getInstance(javaClass)
+        val LOG = Logger.getInstance(CanvasActions::class.java)
 
         val DATA_FLAVOR_JSON = DataFlavor("application/json")
         val DATA_FLAVOR_TEXT = DataFlavor("text/plain")

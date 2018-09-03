@@ -279,7 +279,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     companion object {
-        val LOG = Logger.getInstance(ProjectSetup.javaClass)
+        val LOG = Logger.getInstance(ProjectSetup::class.java)
 
         // TODO these values should not be static and should not be hardcoded
         val HUB_ROOT = "http://localhost:8080/mdw"

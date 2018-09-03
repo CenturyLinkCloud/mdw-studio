@@ -45,6 +45,6 @@ class SyncServer : AnAction() {
     }
 
     companion object {
-        val LOG = Logger.getInstance(SyncServer.javaClass)
+        val LOG = Logger.getInstance(SyncServer::class.java)
     }
 }

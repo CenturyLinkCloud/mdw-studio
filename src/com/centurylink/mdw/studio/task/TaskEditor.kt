@@ -168,7 +168,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         }
 
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
-        connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerAdapter() {
+        connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerListener {
             override fun fileContentReloaded(file: VirtualFile, document: Document) {
                 if (file.equals(taskFile)) {
                     syncFromDoc(document)

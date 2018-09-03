@@ -118,7 +118,7 @@ class AssetViewTreeStructure(project: Project) :
                 val children = mutableListOf<AbstractTreeNode<Any>>()
                 for (child in super.getChildren()) {
                     if (child is PsiDirectoryNode) {
-                        val rootDir = (child as PsiDirectoryNode).virtualFile
+                        val rootDir = child.virtualFile
                         if (rootDir != null && projectSetup.isAssetParent(rootDir)) {
                             children.add(child)
                         }

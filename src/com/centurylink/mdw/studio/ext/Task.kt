@@ -20,7 +20,10 @@ fun TaskTemplate.update(obj: JSONObject) {
         if (taskCategory.isNullOrEmpty()){
             taskCategory = obj.getString("category")
         }
-    } else null
+    }
+    else {
+        null
+    }
     version = if (obj.has("version")) Asset.parseVersion(obj.getString("version")) else 0
     language = "TASK"
     taskTypeId = TaskType.TASK_TYPE_TEMPLATE

@@ -31,7 +31,7 @@ open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOU
         val DEFAULT_LAYOUT = FlowLayout(FlowLayout.LEFT, 5, if (ProjectSetup.isWindows) 2 else 0)
 
         fun create(widget: Pagelet.Widget): SwingWidget {
-            val swingWidgetClass = javaClass.`package`.name + "." +
+            val swingWidgetClass = SwingWidget::class.java.`package`.name + "." +
                     widget.type.substring(0, 1).toUpperCase() + widget.type.substring(1)
             val widgetConstructor = Class.forName(swingWidgetClass).getConstructor(Pagelet.Widget::class.java)
             return widgetConstructor.newInstance(widget) as SwingWidget

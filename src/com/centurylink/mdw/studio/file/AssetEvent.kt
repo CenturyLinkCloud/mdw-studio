@@ -30,6 +30,6 @@ class AssetEvent(fileEvent: VFileEvent, val asset: Asset) {
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is AssetEvent && (other as AssetEvent).toString() == toString()
+        return other is AssetEvent && other.toString() == toString()
     }
 }

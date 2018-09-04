@@ -15,3 +15,10 @@
   - https://plugins.jetbrains.com/plugin/11095-mdw-studio
   
 ## Publish
+0. (One-time step) Add valid credentials in ~/.gradle/gradle.properties (in your HOME directory):
+   ```
+   intellijPublishUsername=myusername
+   intellijPublishPassword=mypassword
+   ```
+1. Update version in build.gradle and resources/META-INF/plugin.xml.
+2. Run Gradle task intellij/publishPlugin.

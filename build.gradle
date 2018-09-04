@@ -5,7 +5,7 @@ plugins {
 }
 
 group "com.centurylink.mdw"
-version "1.0.1-SNAPSHOT"
+version "1.0.2-beta"
 
 sourceCompatibility = 1.8
 
@@ -56,6 +56,6 @@ patchPluginXml {
 }
 
 publishPlugin {
-    username intellijPublishUsername
-    password intellijPublishPassword
+    username project.hasProperty("intellijPublishUsername") ? intellijPublishUsername : ""
+    password project.hasProperty("intellijPublishPassword") ? intellijPublishPassword : ""
 }

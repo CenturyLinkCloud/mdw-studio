@@ -5,7 +5,7 @@ plugins {
 }
 
 group "com.centurylink.mdw"
-version "1.0.2-beta"
+version "1.0.3-beta"
 
 sourceCompatibility = 1.8
 

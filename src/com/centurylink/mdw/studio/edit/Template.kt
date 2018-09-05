@@ -22,25 +22,21 @@ class Template(json: JsonObject) {
     }
 
     fun filterWidgets(tab: String): List<Pagelet.Widget> {
-        val isMainTab = tab == "Design" || tab == "General"
-
-        var widgets = pagelet.widgets.toMutableList()
-
-        if (category == "object" || category == "attributes") {
-            return widgets
-        }
-        else {
-            // implementors
-            var filteredWidgets = mutableListOf<Pagelet.Widget>()
-            for (widget in widgets) {
-                // TODO unsupported sections: Bindings (LdapAdapter.impl)
-                if (!widget.isHidden) {
-                    if ( !widget.isHelpLink && (widget.section == tab || (widget.section == null && isMainTab))) {
-                        filteredWidgets.add(widget)
-                    }
+        return pagelet.widgets.filter {
+            when(category) {
+                "object" -> {
+                    !it.isHidden && !it.isHelpLink
+                }
+                "attributes" -> {
+                    !it.isHidden && !it.isHelpLink
+                }
+                "task" -> {
+                    !it.isHidden && !it.isHelpLink && (it.section == tab || (it.section == null && tab == "General"))
+                }
+                else -> {
+                    !it.isHidden && !it.isHelpLink && (it.section == tab || (it.section == null && tab == "Design"))
                 }
             }
-            return filteredWidgets
         }
     }
 }

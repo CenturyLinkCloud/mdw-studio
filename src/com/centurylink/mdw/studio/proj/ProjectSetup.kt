@@ -9,6 +9,7 @@ import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
+import com.centurylink.mdw.util.HttpHelper
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
@@ -21,18 +22,39 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import org.json.JSONException
+import org.json.JSONObject
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.Thread.sleep
+import java.net.URL
 import javax.swing.ImageIcon
+import kotlin.concurrent.thread
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
         FileTypeManager.getInstance().getFileTypeByExtension("groovy")?.let {
             WriteAction.run<RuntimeException> {
                 FileTypeManager.getInstance().associateExtension(it, "test")
+            }
+        }
+        // start the server detection background thread
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
+        val serverCheckUrl = URL(projectSetup.hubRootUrl + "/services/AppSummary")
+        thread(true, true, name = "mdwServerDetection") {
+            while (true) {
+                sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
+                try {
+                    val response = HttpHelper(serverCheckUrl).get()
+                    projectSetup.isServerRunning = JSONObject(response).has("mdwVersion")
+                } catch (e: IOException) {
+                    projectSetup.isServerRunning = false
+                } catch (e: JSONException) {
+                    projectSetup.isServerRunning = false
+                }
             }
         }
     }
@@ -57,6 +79,8 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     private val projectYaml = File(project.basePath + "/project.yaml")
 
     val git: VersionControlGit?
+
+    var isServerRunning = false
 
     val packages: List<AssetPackage>
         get() {
@@ -286,6 +310,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
         const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
+        const val SERVER_DETECT_INTERVAL = 3000L
 
         val isWindows: Boolean by lazy {
             SystemInfo.isWindows

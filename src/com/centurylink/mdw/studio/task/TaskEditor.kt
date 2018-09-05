@@ -1,11 +1,11 @@
 package com.centurylink.mdw.studio.task
 
 import com.centurylink.mdw.app.Templates
+import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.task.TaskTemplate
+import com.centurylink.mdw.studio.config.ConfigPanel
 import com.centurylink.mdw.studio.config.ConfigTab
-import com.centurylink.mdw.studio.edit.Template
-import com.centurylink.mdw.studio.edit.WorkflowObj
-import com.centurylink.mdw.studio.edit.WorkflowType
+import com.centurylink.mdw.studio.edit.*
 import com.centurylink.mdw.studio.edit.apply.ObjectApplier
 import com.centurylink.mdw.studio.ext.toGson
 import com.centurylink.mdw.studio.file.TaskFileType
@@ -13,6 +13,7 @@ import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.WriteAction
@@ -26,11 +27,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import org.json.JSONObject
+import java.awt.BorderLayout
+import java.awt.Cursor
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.io.IOException
-import javax.swing.BorderFactory
-import javax.swing.JComponent
+import javax.swing.*
 
 abstract class TaskEditorProvider : FileEditorProvider, DumbAware {
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
@@ -123,11 +127,13 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     private var taskDoc = FileDocumentManager.getInstance().getDocument(taskFile)!!
     private var taskTemplate: TaskTemplate
     private var workflowObj: WorkflowObj
+    private var editorPane = JPanel(BorderLayout())
     private var configTab: ConfigTab
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
     private var modified: Boolean = false
 
     init {
+        editorPane.border = BorderFactory.createEmptyBorder()
         if (taskDoc.textLength == 0) {
             // load from template
             val content = Templates.get("assets/autoform.task")
@@ -166,6 +172,14 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             obj.updateAsset()
             handleChange()
         }
+        editorPane.add(configTab)
+
+        // help link
+        definition.pagelet.widgets.find {
+            it.isHelpLink && (it.section == tabName || (it.section == null && tabName == "General"))
+        }?.let {
+            addHelpLink(it)
+        }
 
         val connection = ApplicationManager.getApplication().messageBus.connect(this)
         connection.subscribe(AppTopics.FILE_DOCUMENT_SYNC, object : FileDocumentManagerListener {
@@ -180,6 +194,30 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             }
         })
 
+    }
+
+    private fun addHelpLink(widget: Pagelet.Widget) {
+        val helpLabel = JLabel(widget.label, ConfigPanel.ICON_HELP, SwingConstants.LEADING)
+        helpLabel.border = BorderFactory.createEmptyBorder(0, 0, 1, 0)
+        helpLabel.addMouseListener(object : MouseAdapter() {
+            override fun mouseEntered(e: MouseEvent?) {
+                helpLabel.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                helpLabel.border = BorderFactory.createMatteBorder(0, 0, 1, 0,
+                        UIManager.getColor("EditorPane.foreground"))
+            }
+            override fun mouseExited(e: MouseEvent?) {
+                helpLabel.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                helpLabel.border = BorderFactory.createEmptyBorder(0, 0, 1, 0)
+            }
+            override fun mouseReleased(e: MouseEvent) {
+                BrowserUtil.browse(ProjectSetup.HELP_LINK_URL + "/" + widget.url)
+            }
+        })
+        val helpPane = JPanel(BorderLayout())
+        helpPane.add(helpLabel, BorderLayout.EAST)
+        helpPane.border = BorderFactory.createEmptyBorder(1, 1, 5, 10)
+        helpPane.background = UIManager.getColor("EditorPane.background")
+        editorPane.add(helpPane, BorderLayout.SOUTH)
     }
 
     private fun syncFromDoc(document: Document) {
@@ -232,7 +270,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
     }
 
     override fun getComponent(): JComponent {
-        return configTab
+        return editorPane
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {

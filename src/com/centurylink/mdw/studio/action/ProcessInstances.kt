@@ -25,14 +25,11 @@ class ProcessInstances : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
-        val presentation = event.presentation
-        if (presentation.isVisible && presentation.isEnabled) {
-            var applicable = false
+        if (event.presentation.isVisible) {
             getAsset(event)?.let {
-              applicable = it.path.endsWith(".proc")
+                event.presentation.isVisible = it.path.endsWith(".proc")
+                event.presentation.isEnabled = getProjectSetup(event)?.isServerRunning ?: false
             }
-            presentation.isVisible = applicable
-            presentation.isEnabled = applicable
         }
     }
 }

@@ -12,7 +12,7 @@ import java.net.URL
 import javax.swing.JOptionPane
 import kotlin.concurrent.thread
 
-class SyncServer : AnAction() {
+class SyncServer : ServerAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.getData(CommonDataKeys.PROJECT)
@@ -31,17 +31,6 @@ class SyncServer : AnAction() {
                 }
             }
         }
-    }
-
-    override fun update(event: AnActionEvent) {
-        var applicable = false
-        val project = event.getData(CommonDataKeys.PROJECT)
-        project?.let {
-            val projectSetup = project.getComponent(ProjectSetup::class.java)
-            applicable = projectSetup.isMdwProject
-        }
-        event.presentation.isVisible = applicable
-        event.presentation.isEnabled = applicable
     }
 
     companion object {

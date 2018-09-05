@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import javax.swing.JOptionPane
 
-class HubAction : AnAction() {
+class HubAction : ServerAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.getComponent(ProjectSetup::class.java)?.let {
@@ -22,4 +22,5 @@ class HubAction : AnAction() {
             }
         }
     }
+
 }

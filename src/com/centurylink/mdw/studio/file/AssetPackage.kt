@@ -58,6 +58,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
         const val VERSIONS = "versions"
         const val VERSIONS_FILE = "$META_DIR/$VERSIONS"
         const val SCHEMA_VERSION = "6.1"
+        private val IGNORED_DIRS = arrayOf("node_modules")
 
         fun createPackageYaml(name: String, version: Int): String {
             return "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: ${Package.formatVersion(version)}"
@@ -70,6 +71,25 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             else {
                 file.parent.name == META_DIR
             }
+        }
+
+        /**
+         * TODO: honor .mdwignore
+         */
+        fun isIgnore(file: VirtualFile): Boolean {
+            if (isMeta(file)) {
+                return true
+            }
+            else {
+                var parent: VirtualFile? = file
+                while (parent != null) {
+                    if (IGNORED_DIRS.contains(parent.name)) {
+                        return true
+                    }
+                    parent = parent.parent
+                }
+            }
+            return false
         }
     }
 }

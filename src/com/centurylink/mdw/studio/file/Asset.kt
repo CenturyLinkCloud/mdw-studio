@@ -39,6 +39,8 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
     }
 
     companion object {
+        private val IGNORED_FILES = arrayOf(".DS_Store")
+
         fun hash(logicalPath: String): String {
             val blob = "blob " + logicalPath.length + "\u0000" + logicalPath
             val md = MessageDigest.getInstance("SHA-1")
@@ -54,8 +56,11 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
             return result
         }
 
-        fun isIgnored(file: VirtualFile): Boolean {
-            return file.name == ".DS_Store"
+        /**
+         * TODO: honor .mdwignore
+         */
+        fun isIgnore(file: VirtualFile): Boolean {
+            return IGNORED_FILES.contains(file.name)
         }
     }
 }

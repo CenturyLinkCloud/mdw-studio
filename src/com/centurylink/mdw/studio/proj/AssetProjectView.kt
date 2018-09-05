@@ -7,11 +7,13 @@ import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase
 import com.intellij.ide.projectView.impl.ProjectTreeStructure
 import com.intellij.ide.projectView.impl.ProjectViewPane
+import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode
 import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN
 import javax.swing.Icon
@@ -87,7 +89,7 @@ class AssetViewTreeStructure(project: Project) :
                     is PsiFileNode -> {
                         val file = child.virtualFile
                         file?.let {
-                            if (projectSetup.isAssetSubdir(file.parent) && !AssetPackage.isMeta(file)) {
+                            if (projectSetup.isAssetSubdir(file.parent) && !AssetPackage.isIgnore(file)) {
                                 projectSetup.getAsset(file)?.let {
                                     val childNode = object : PsiFileNode(child.project, child.value, child.settings) {
                                         override fun postprocess(presentation: PresentationData) {
@@ -103,6 +105,35 @@ class AssetViewTreeStructure(project: Project) :
                                         childNode.parent = element
                                     }
                                     children.add(childNode)
+                                }
+                            }
+                        }
+                    }
+                    is ClassTreeNode -> {
+                        if (child.isTopLevel && child.parent is PsiDirectoryNode) {
+                            val parentDir = (child.parent as PsiDirectoryNode).virtualFile
+                            if (parentDir != null) {
+                                if (projectSetup.isAssetSubdir(parentDir) /*&& !AssetPackage.isIgnore(file)*/) {
+                                    val context = child.psiClass.context
+                                    if (context is PsiFile) {
+                                        val file = context.virtualFile
+                                        projectSetup.getAsset(file)?.let {
+                                            val childNode = object : ClassTreeNode(child.project, child.value, child.settings) {
+                                                override fun postprocess(presentation: PresentationData) {
+                                                    presentation.applyFrom(child.presentation)
+                                                    val statusColor = child.getFileStatusColor(child.fileStatus)
+                                                    presentation.addText(file.name, SimpleTextAttributes(STYLE_PLAIN, statusColor))
+                                                    if (it.version > 0) {
+                                                        presentation.addText(" v${it.verString}", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+                                                    }
+                                                }
+                                            }
+                                            if (element is AbstractTreeNode<*>) {
+                                                childNode.parent = element
+                                            }
+                                            children.add(childNode)
+                                        }
+                                    }
                                 }
                             }
                         }

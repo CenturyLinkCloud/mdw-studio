@@ -55,7 +55,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
         event.file?.let {
             if (!it.isDirectory) {
                 if (projectSetup.isAssetSubdir(it.parent)) {
-                    if (!AssetPackage.isMeta(it) && !Asset.isIgnored(it)) {
+                    if (!AssetPackage.isIgnore(it) && !Asset.isIgnore(it)) {
                         // we care about this file
                         var asset = projectSetup.getAsset(it) ?: projectSetup.createAsset(it)
                         return AssetEvent(event, asset)

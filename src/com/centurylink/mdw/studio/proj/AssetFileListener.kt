@@ -4,6 +4,8 @@ import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
 import com.centurylink.mdw.studio.file.AssetPackage
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import java.io.ByteArrayInputStream
@@ -24,18 +26,30 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                         projectSetup.setVersion(asset, 1)
                     }
                     EventType.Update -> {
+                        // TODO handle large files
                         val increment = projectSetup.git?.let { git ->
-                            // TODO: ignore vcs revert
-                            val gitVerFileBytes = git.readFromHead(git.getRelativePath(
-                                    File(asset.pkg.dir.path + "/" + AssetPackage.VERSIONS_FILE)))
-                            gitVerFileBytes?.let {
-                                val gitVerProps = Properties()
-                                gitVerProps.load(ByteArrayInputStream(gitVerFileBytes))
-                                val gitVerProp = gitVerProps.getProperty(asset.name)
-                                gitVerProp?.let {
-                                    val headVer = gitVerProp.split(" ")[0].toInt()
-                                    if (headVer >= asset.version) {
-                                        projectSetup.setVersion(asset, headVer + 1)
+                            if (asset.name.endsWith(".impl")) {
+                                projectSetup.reloadImplementors()
+                            }
+                            else if (FileUtilRt.isTooLarge(asset.file.length)) {
+                                LOG.info("Skip vercheck for large asset: $asset")
+                            }
+                            else {
+                                LOG.debug("Performing vercheck: $asset")
+                                val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)));
+                                if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
+                                    val gitVerFileBytes = git.readFromHead(git.getRelativePath(
+                                            File(asset.pkg.dir.path + "/" + AssetPackage.VERSIONS_FILE)))
+                                    gitVerFileBytes?.let {
+                                        val gitVerProps = Properties()
+                                        gitVerProps.load(ByteArrayInputStream(gitVerFileBytes))
+                                        val gitVerProp = gitVerProps.getProperty(asset.name)
+                                        gitVerProp?.let {
+                                            val headVer = gitVerProp.split(" ")[0].toInt()
+                                            if (headVer >= asset.version) {
+                                                projectSetup.setVersion(asset, headVer + 1)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -64,5 +78,9 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
             }
         }
         return null
+    }
+
+    companion object {
+        val LOG = Logger.getInstance(AssetFileListener::class.java)
     }
 }

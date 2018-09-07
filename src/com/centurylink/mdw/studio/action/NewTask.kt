@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.studio.file.Icons
+import com.centurylink.mdw.studio.file.TaskFileType
 import com.intellij.ide.actions.CreateFileFromTemplateDialog
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
@@ -9,6 +10,7 @@ import org.json.JSONObject
 class NewTask : NewAssetAction("New MDW Task", "Create a task template", Icons.TASK) {
 
     override val fileExtension = "task"
+    override val fileType = TaskFileType
 
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
         builder

@@ -2,13 +2,15 @@ package com.centurylink.mdw.studio.tool
 
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.draw.Display
-import com.centurylink.mdw.studio.draw.Display.Companion.ICON_WIDTH
 import com.centurylink.mdw.studio.draw.Display.Companion.ICON_HEIGHT
 import com.centurylink.mdw.studio.draw.Display.Companion.ICON_PAD
+import com.centurylink.mdw.studio.draw.Display.Companion.ICON_WIDTH
 import com.centurylink.mdw.studio.draw.Shape
 import com.centurylink.mdw.studio.edit.WorkflowObj
 import com.centurylink.mdw.studio.edit.WorkflowType
 import com.centurylink.mdw.studio.proj.Implementor
+import com.centurylink.mdw.studio.proj.ImplementorChangeListener
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.Disposable
@@ -23,7 +25,7 @@ import javax.swing.*
 import javax.swing.border.EmptyBorder
 
 
-class ToolboxPanel(val setup: ProjectSetup) : JPanel(), Disposable {
+class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposable, ImplementorChangeListener {
 
     val toolPanels = mutableListOf<ToolPanel>()
     var selected: ToolPanel? = null
@@ -31,8 +33,12 @@ class ToolboxPanel(val setup: ProjectSetup) : JPanel(), Disposable {
     init {
         layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
         border = BorderFactory.createEmptyBorder(2, 2, 2, 0)
+        initialize()
+        projectSetup.addImplementorChangeListener(this)
+    }
 
-        for (implementor in setup.implementors.toSortedList()) {
+    private fun initialize() {
+        for (implementor in projectSetup.implementors.toSortedList()) {
             val toolPanel = ToolPanel(implementor)
             toolPanel.border = BORDER_NOT
             toolPanel.addMouseListener(object: MouseAdapter() {
@@ -50,8 +56,18 @@ class ToolboxPanel(val setup: ProjectSetup) : JPanel(), Disposable {
             val toolLabel = JLabel(implementor.label)
             toolLabel.border = EmptyBorder(0, 0, ICON_PAD, 0)
             toolPanel.add(toolLabel)
+            toolPanels.add(toolPanel)
             add(toolPanel)
         }
+    }
+
+    override fun onChange(implementors: Implementors) {
+        for (toolPanel in toolPanels) {
+            remove(toolPanel)
+        }
+        initialize()
+        revalidate()
+        repaint()
     }
 
     override fun dispose() {

@@ -36,7 +36,7 @@ import kotlin.concurrent.thread
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
-        FileTypeManager.getInstance().getFileTypeByExtension("groovy")?.let {
+        FileTypeManager.getInstance().getFileTypeByExtension("groovy").let {
             WriteAction.run<RuntimeException> {
                 FileTypeManager.getInstance().associateExtension(it, "test")
             }
@@ -75,6 +75,20 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         }
 
     lateinit var implementors: Implementors
+    private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()
+    fun addImplementorChangeListener(listener: ImplementorChangeListener) {
+        removeImplementorChangeListener(listener)
+        implementorChangeListeners.add(listener)
+    }
+    fun removeImplementorChangeListener(listener: ImplementorChangeListener) {
+        implementorChangeListeners.remove(listener)
+    }
+    fun reloadImplementors() {
+        implementors = Implementors(this)
+        for (listener in implementorChangeListeners) {
+            listener.onChange(implementors)
+        }
+    }
 
     private val projectYaml = File(project.basePath + "/project.yaml")
 

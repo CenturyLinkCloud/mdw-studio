@@ -78,3 +78,7 @@ class Implementors(private val projectSetup : ProjectSetup) : LinkedHashMap<Stri
         const val STOP_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessFinishActivity"
     }
 }
+
+interface ImplementorChangeListener {
+    fun onChange(implementors: Implementors)
+}

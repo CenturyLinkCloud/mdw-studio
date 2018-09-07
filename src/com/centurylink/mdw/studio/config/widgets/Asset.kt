@@ -151,7 +151,9 @@ class AssetSelectButton(label: String, var assetPath: String?, projectSetup: Pro
 
         addActionListener {
             if (!assetPath.isNullOrEmpty()) {
-                assetFile = projectSetup.getAssetFile(assetPath!!)
+                if (assetPath!!.contains("/")) {
+                    assetFile = projectSetup.getAssetFile(assetPath!!)
+                }
             }
             val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
             descriptor.withRoots(projectSetup.assetDir)

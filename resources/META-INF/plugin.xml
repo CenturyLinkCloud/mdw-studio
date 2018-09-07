@@ -45,8 +45,15 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
             <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
                     class="com.centurylink.mdw.studio.action.NewProcess"  />
-            <action id="newTask" text="MDW Task" icon="/icons/task.gif"
+            <action id="mdwNewTask" text="MDW Task" icon="/icons/task.gif"
                     class="com.centurylink.mdw.studio.action.NewTask" />
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
+        </group>
+        <group id="mdwNewActivity" text="MDW Activity" icon="/icons/impl.gif" popup="true">
+            <action id="mdwNewActivityJava" text="Java Activity" icon="AllIcons.FileTypes.Java"
+                    class="com.centurylink.mdw.studio.action.NewActivityJava"  />
+            <action id="mdwNewActivityKotlin" text="Kotlin Activity" icon="/icons/kotlin_file.png"
+                    class="com.centurylink.mdw.studio.action.NewActivityKotlin" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
         <group id="mdwAssetActions" text="MDW">

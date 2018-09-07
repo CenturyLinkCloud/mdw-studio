@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.file
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.util.IconLoader
 import java.io.File
 import java.nio.file.Files
@@ -13,6 +14,8 @@ class Icons {
         val IMPL = IconLoader.getIcon("/icons/impl.gif")
         val SPRING = IconLoader.getIcon("/icons/spring.png")
         val EXCEL = IconLoader.getIcon("/icons/excel.gif")
+        val KOTLIN = IconLoader.getIcon("/icons/kotlin_file.png")
+        val JAVA = AllIcons.FileTypes.Java
 
         fun readIcon(path: String): ImageIcon {
             val classLoader = this::class.java.classLoader

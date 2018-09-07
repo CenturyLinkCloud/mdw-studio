@@ -43,17 +43,19 @@ class Startup : StartupActivity {
         }
         // start the server detection background thread
         val projectSetup = project.getComponent(ProjectSetup::class.java)
-        val serverCheckUrl = URL(projectSetup.hubRootUrl + "/services/AppSummary")
-        thread(true, true, name = "mdwServerDetection") {
-            while (true) {
-                sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
-                try {
-                    val response = HttpHelper(serverCheckUrl).get()
-                    projectSetup.isServerRunning = JSONObject(response).has("mdwVersion")
-                } catch (e: IOException) {
-                    projectSetup.isServerRunning = false
-                } catch (e: JSONException) {
-                    projectSetup.isServerRunning = false
+        projectSetup.hubRootUrl?.let {
+            val serverCheckUrl = URL(it + "/services/AppSummary")
+            thread(true, true, name = "mdwServerDetection") {
+                while (true) {
+                    sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
+                    try {
+                        val response = HttpHelper(serverCheckUrl).get()
+                        projectSetup.isServerRunning = JSONObject(response).has("mdwVersion")
+                    } catch (e: IOException) {
+                        projectSetup.isServerRunning = false
+                    } catch (e: JSONException) {
+                        projectSetup.isServerRunning = false
+                    }
                 }
             }
         }
@@ -125,12 +127,18 @@ class ProjectSetup(val project: Project) : ProjectComponent {
             connection.subscribe<BulkFileListener>(VFS_CHANGES, AssetFileListener(this))
         }
         val setup = this.setup
-        if (setup == null || !setup.gitExists()) {
+        if (setup == null) {
             git = null
         }
         else {
-            git = VersionControlGit()
-            git.connect(setup.gitRemoteUrl, setup.gitUser, null, setup.gitRoot)
+            com.centurylink.mdw.cli.Props.init("mdw.yaml")
+            if (setup.gitExists()) {
+                git = VersionControlGit()
+                git.connect(setup.gitRemoteUrl, setup.gitUser, null, setup.gitRoot)
+            }
+            else {
+                git = null
+            }
         }
     }
 
@@ -148,8 +156,8 @@ class ProjectSetup(val project: Project) : ProjectComponent {
                         return this
                     }
                 }
-                mySetup.configLoc = mdwYaml.parent
-                mySetup.assetLoc = assetLoc
+                mySetup.configLoc = projectYaml.parentFile.absolutePath + "/" + configLoc
+                mySetup.assetLoc = projectYaml.parentFile.absolutePath + "/" + assetLoc
                 setup = mySetup
                 return LocalFileSystem.getInstance().findFileByIoFile(mySetup.assetRoot)!!
             }

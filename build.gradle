@@ -22,12 +22,14 @@ sourceSets {
 
 repositories {
     mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
-    compile("com.centurylink.mdw:mdw-common:6.1.08") { transitive = false }
+    compile("com.centurylink.mdw:mdw-common:6.1.09-SNAPSHOT") { transitive = false }
+    // compile files("../mdw/mdw/deploy/app/mdw-common-6.1.09-SNAPSHOT.jar")
     compile "com.google.code.gson:gson:2.8.5"
     compile "com.beust:jcommander:1.72"
     compile "org.json:json:20180130"

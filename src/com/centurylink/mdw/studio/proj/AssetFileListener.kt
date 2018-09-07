@@ -34,8 +34,12 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             else if (FileUtilRt.isTooLarge(asset.file.length)) {
                                 LOG.info("Skip vercheck for large asset: $asset")
                             }
+                            else if (asset.version == 0) {
+                                projectSetup.setVersion(asset, 1)
+                            }
                             else {
                                 LOG.debug("Performing vercheck: $asset")
+                                println("COMPARING: " + asset)
                                 val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)));
                                 if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
                                     val gitVerFileBytes = git.readFromHead(git.getRelativePath(

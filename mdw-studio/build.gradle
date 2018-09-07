@@ -1,0 +1,59 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.3.7"
+    id "org.jetbrains.kotlin.jvm" version "1.2.61"
+}
+
+group "com.centurylink.mdw"
+version "1.0.2-SNAPSHOT"
+
+sourceCompatibility = 1.8
+
+sourceSets {
+    main {
+        java {
+            srcDir "src"
+        }
+        resources {
+            srcDir "resources"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    compile project(":mdw-draw")
+    compile "com.beust:jcommander:1.72"
+    compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { transitive = false }
+    compile "org.yaml:snakeyaml:1.18"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+intellij {
+    version "2018.2.2"
+}
+
+patchPluginXml {
+    changeNotes """
+      Release ${version}.<br>
+      <ul>
+        <li>Initial release</li>
+      </ul>"""
+}
+
+publishPlugin {
+    username project.hasProperty("intellijPublishUsername") ? intellijPublishUsername : ""
+    password project.hasProperty("intellijPublishPassword") ? intellijPublishPassword : ""
+    channels project.hasProperty("intellijPublishChannel") ? intellijPublishChannel : "Beta"
+}

@@ -41,7 +41,7 @@ abstract class TaskEditorProvider : FileEditorProvider, DumbAware {
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
     override fun accept(project: Project, file: VirtualFile): Boolean {
         val projectSetup = project.getComponent(ProjectSetup::class.java)
-        return file.fileType == TaskFileType && projectSetup.isAssetSubdir(file.parent)
+        return file.fileType == TaskFileType && projectSetup.isMdwProject && projectSetup.isAssetSubdir(file.parent)
     }
     protected fun isAutoform(file: VirtualFile): Boolean {
         val content = String(file.contentsToByteArray())

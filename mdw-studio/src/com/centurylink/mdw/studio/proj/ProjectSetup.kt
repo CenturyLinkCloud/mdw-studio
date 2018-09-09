@@ -7,6 +7,7 @@ import com.centurylink.mdw.config.PropertyException
 import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
+import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
@@ -14,6 +15,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.SystemInfo
@@ -93,6 +95,16 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     }
 
     private val projectYaml = File(project.basePath + "/project.yaml")
+
+    val mdwVersion: MdwVersion
+        get() {
+          return if (projectYaml.exists()) {
+              MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))
+          }
+          else {
+              MdwVersion(null)
+          }
+        }
 
     val git: VersionControlGit?
 
@@ -339,6 +351,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     enum class Props(val prop: String) {
         ASSET_LOC("project.asset.location"),
-        CONFIG_LOC("project.config.location")
+        CONFIG_LOC("project.config.location"),
+        MDW_VERSION("project.mdw.version")
     }
 }

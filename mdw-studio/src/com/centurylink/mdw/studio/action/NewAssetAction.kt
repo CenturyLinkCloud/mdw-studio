@@ -21,27 +21,30 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
     abstract val fileExtension: String
     abstract val fileType: FileType
 
-    // these are null until createFile() has been called
-    val baseName: String?
-        get() = assetName?.let{ it.substring(0, it.length - fileExtension.length - 1) }
     var projectSetup: ProjectSetup? = null
-    var assetName: String? = null
     var assetPackage: AssetPackage? = null
 
     override fun beforeActionPerformedUpdate(event: AnActionEvent) {
         super.beforeActionPerformedUpdate(event)
-        projectSetup = event.getData(CommonDataKeys.PROJECT)?.getComponent(ProjectSetup::class.java)
+        projectSetup = event.getData(CommonDataKeys.PROJECT)?.getComponent(ProjectSetup::class.java) ?: return
+        val view = LangDataKeys.IDE_VIEW.getData(event.dataContext) ?: return
+        val dir = view.getOrChooseDirectory() ?: return
+        assetPackage = projectSetup?.getPackage(dir.virtualFile)
     }
 
     override fun createFile(name: String, templatePath: String, dir: PsiDirectory): PsiFile? {
-        val fileName = getFileName(name)
-        this.assetPackage = projectSetup?.getPackage(dir.virtualFile)
+        val fileName = getAssetName(name)
         val content = substitute(loadTemplate(fileName, templatePath))
         return createAndOpen(dir, fileName, content)
     }
 
-    open fun substitute(input: String): String {
-        return input
+    open fun substitute(input: String, values: Map<String,Any?>? = null): String {
+        return if (values == null) {
+            input
+        }
+        else {
+            Templates.substitute(input, values)
+        }
     }
 
     open fun createAndOpen(dir: PsiDirectory, fileName: String, content: String): PsiFile? {
@@ -59,19 +62,24 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
         }
     }
 
-    open fun getFileName(name: String): String {
+    open fun getAssetName(name: String): String {
         var fileName = name
         val lastDot = fileName.lastIndexOf('.')
         if (lastDot > 0) {
             val ext = if (fileName.endsWith('.')) "" else fileName.substring(lastDot + 1)
             if (ext != fileExtension)
-                fileName += "." + fileExtension
+                fileName += ".$fileExtension"
         }
         else {
-            fileName += "." + fileExtension
+            fileName += ".$fileExtension"
         }
-        this.assetName = fileName
         return fileName
+    }
+
+    open fun getBaseName(name: String): String? {
+        return getAssetName(name).let {
+            it.substring(0, it.length - fileExtension.length - 1)
+        }
     }
 
     open fun loadTemplate(fileName: String, path: String): String {
@@ -88,11 +96,11 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
         if (presentation.isVisible && presentation.isEnabled) {
             var applicable = false
             val project = event.getData(CommonDataKeys.PROJECT)
-            project?.let {
+            if (project != null) {
                 val projectSetup = project.getComponent(ProjectSetup::class.java)
                 if (projectSetup.isMdwProject) {
                     val view = event.getData(LangDataKeys.IDE_VIEW)
-                    view?.let {
+                    if (view != null) {
                         val directories = view.directories
                         for (directory in directories) {
                             if (projectSetup.isAssetSubdir(directory.virtualFile)) {

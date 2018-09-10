@@ -1,6 +1,3 @@
-.gradle/
 .DS_Store
 **/*.iml
-.idea/gradle.xml
-.idea/workspace.xml
 **/*.swp

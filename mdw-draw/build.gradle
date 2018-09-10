@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.jvm' version "1.2.61"
 }
 
 group 'com.centurylink.mdw'
@@ -9,6 +9,9 @@ sourceSets {
     main {
         java {
             srcDir "src"
+        }
+        resources {
+            srcDir "resources"
         }
     }
 }

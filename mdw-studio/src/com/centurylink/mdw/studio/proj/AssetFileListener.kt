@@ -5,9 +5,11 @@ import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import com.intellij.psi.PsiManager
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.*
@@ -39,6 +41,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             }
                             else {
                                 LOG.debug("Performing vercheck: $asset")
+                                println("VERCHECK: $asset")
                                 val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)));
                                 if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
                                     val gitVerFileBytes = git.readFromHead(git.getRelativePath(
@@ -52,6 +55,13 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                             if (headVer >= asset.version) {
                                                 projectSetup.setVersion(asset, headVer + 1)
                                             }
+                                        }
+                                    }
+                                }
+                                DumbService.getInstance(projectSetup.project).smartInvokeLater {
+                                    if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
+                                        PsiManager.getInstance(projectSetup.project).findFile(asset.file)?.let { psiFile ->
+                                            Implementors.getImpl(psiFile)?.let { projectSetup.reloadImplementors() }
                                         }
                                     }
                                 }

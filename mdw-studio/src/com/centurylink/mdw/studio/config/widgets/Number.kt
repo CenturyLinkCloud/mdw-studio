@@ -16,10 +16,6 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
     init {
         isOpaque = false
 
-        var num = 0
-        widget.value?.let {
-            num = it as Int
-        }
         var min = 0
         widget.min?.let {
             min = it
@@ -27,6 +23,17 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
         var max = 1000
         widget.max?.let {
             max = it
+        }
+
+        var num = 0
+        widget.value?.let {
+            num = it as Int
+        }
+        if (num < min) {
+            num = min
+        }
+        else if (num > max) {
+            num = max
         }
 
         spinner = object : JBIntSpinner(num, min, max) {

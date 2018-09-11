@@ -16,10 +16,12 @@ class Impl(val assetPath: String?, json: JSONObject) : ActivityImplementor(json)
         baseClassName = "com.centurylink.mdw.activity.types.GeneralActivity"
     }
 
-    constructor(category: String, label: String, icon: String, implClass: String) : this(implClass) {
+    constructor(category: String, label: String, icon: String, implClass: String, pagelet: String? = null) : this(implClass) {
         baseClassName = category
+        this.label = label
         implementorClassName = implClass
         iconName = icon
+        attributeDescription = pagelet
     }
 
     companion object {

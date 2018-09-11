@@ -1,7 +1,6 @@
 package com.centurylink.mdw.studio.file
 
 import com.intellij.openapi.vfs.VirtualFile
-import java.net.URLEncoder
 import java.security.MessageDigest
 
 class Asset(val pkg: AssetPackage, val file: VirtualFile) {
@@ -34,8 +33,11 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
     private val logicalPath: String
         get() = "$path v$verString"
 
+    val contents: ByteArray
+        get() = file.contentsToByteArray()
+
     override fun toString(): String {
-        return pkg.name + "/" + name
+        return path
     }
 
     companion object {

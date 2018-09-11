@@ -15,7 +15,6 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.SystemInfo
@@ -257,12 +256,28 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         return getPackage(getPackageName(dir))
     }
 
+    fun getAsset(path: String): Asset? {
+        return getAssetFile(path)?.let { getAsset(it) }
+    }
+
     fun getAsset(file: VirtualFile): Asset? {
         val pkg = getPackage(file.parent)
         pkg?.let {
             return Asset(pkg, file)
         }
         return null
+    }
+
+    fun findAssetsOfType(ext: String): List<Asset> {
+        val assets = mutableListOf<Asset>()
+        for (pkg in packages) {
+            for (file in pkg.dir.children) {
+                if (file.exists() && !file.isDirectory && file.extension == ext) {
+                    assets.add(Asset(pkg, file))
+                }
+            }
+        }
+        return assets
     }
 
     fun createAsset(file: VirtualFile): Asset {

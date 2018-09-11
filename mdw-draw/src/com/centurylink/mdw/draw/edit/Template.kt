@@ -23,6 +23,9 @@ class Template(json: JsonObject) {
 
     fun filterWidgets(tab: String): List<Pagelet.Widget> {
         return pagelet.widgets.filter {
+            if (it.attributes == null) {
+                it.attributes = mutableMapOf<String,String>() // avoid NPE in accessors
+            }
             when(category) {
                 "object" -> {
                     !it.isHidden && !it.isHelpLink

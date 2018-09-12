@@ -15,6 +15,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.SystemInfo
@@ -294,15 +295,16 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     private fun createPackage(packageName: String): AssetPackage {
         val pkgDir = assetDir.findFileByRelativePath(packageName.replace('.', '/'))
         pkgDir ?: throw IOException("Package directory not found: $packageName")
-        val metaDir = WriteAction.compute<VirtualFile,IOException> {
-            var metaDir = pkgDir.findFileByRelativePath(AssetPackage.META_DIR)
-            if (metaDir == null) {
-                metaDir = pkgDir.createChildDirectory(this, AssetPackage.META_DIR)
+        var metaDir = pkgDir.findFileByRelativePath(AssetPackage.META_DIR)
+        if (metaDir == null) {
+            metaDir = pkgDir.createChildDirectory(this, AssetPackage.META_DIR)
+        }
+        val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML) ?:
+                metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
+        DumbService.getInstance(project).smartInvokeLater {
+            WriteAction.run<IOException> {
+                packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
             }
-            val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML) ?:
-                    metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
-            packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
-            metaDir
         }
         return AssetPackage(getPackageName(pkgDir), pkgDir)
     }
@@ -316,25 +318,31 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     fun setVersion(asset: Asset, version: Int) {
         val verFile = asset.pkg.dir.findFileByRelativePath(AssetPackage.VERSIONS_FILE) ?: createVersionsFile(asset.pkg)
         val versionProps = asset.pkg.versionProps
-        WriteAction.run<IOException> {
-            if (version > 0) {
-                versionProps[asset.name] = version.toString()
-            }
-            else {
-                versionProps.remove(asset.name)
-            }
-            val out = ByteArrayOutputStream()
-            versionProps.store(out, null)
-            verFile.setBinaryContent(out.toByteArray())
-            setVersion(asset.pkg, asset.pkg.version + 1)
+        if (version > 0) {
+            versionProps[asset.name] = version.toString()
         }
+        else {
+            versionProps.remove(asset.name)
+        }
+        val out = ByteArrayOutputStream()
+        versionProps.store(out, null)
+        // ensure any indexing is completed
+        DumbService.getInstance(project).smartInvokeLater {
+            WriteAction.run<IOException> {
+                verFile.setBinaryContent(out.toByteArray())
+            }
+        }
+        setVersion(asset.pkg, asset.pkg.version + 1)
     }
 
     fun setVersion(pkg: AssetPackage, version: Int) {
-        WriteAction.run<IOException> {
-            pkg.metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)?.let { pkgYaml ->
-                pkg.version = version
-                pkgYaml.setBinaryContent(AssetPackage.createPackageYaml(pkg.name, pkg.version).toByteArray())
+        pkg.metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)?.let { pkgYaml ->
+            pkg.version = version
+            // ensure any indexing is completed
+            DumbService.getInstance(project).smartInvokeLater {
+                WriteAction.run<IOException> {
+                    pkgYaml.setBinaryContent(AssetPackage.createPackageYaml(pkg.name, pkg.version).toByteArray())
+                }
             }
         }
     }

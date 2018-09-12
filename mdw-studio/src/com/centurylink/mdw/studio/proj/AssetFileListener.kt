@@ -69,9 +69,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                         }
                     }
                     EventType.Delete -> {
-                       DumbService.getInstance(projectSetup.project).smartInvokeLater {
-                           projectSetup.setVersion(asset, 0)
-                       }
+                       projectSetup.setVersion(asset, 0)
                     }
                     EventType.Unknown -> {
                     }

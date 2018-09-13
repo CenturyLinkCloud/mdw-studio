@@ -3,6 +3,7 @@ package com.centurylink.mdw.studio.action
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.util.HttpHelper
 import com.intellij.icons.AllIcons
+import com.intellij.notification.Notification
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -11,6 +12,10 @@ import java.io.IOException
 import java.net.URL
 import javax.swing.JOptionPane
 import kotlin.concurrent.thread
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
+import java.lang.Thread.sleep
+
 
 class SyncServer : ServerAction() {
 
@@ -22,6 +27,11 @@ class SyncServer : ServerAction() {
             thread {
                 try {
                     httpHelper.post("{}")
+                    val note = Notification("MDW", "Synced", "MDW Server refresh completed",
+                            NotificationType.INFORMATION);
+                    Notifications.Bus.notify(note, project)
+                    sleep(2000)
+                    note.expire()
                 }
                 catch (e: IOException) {
                     LOG.error(e)

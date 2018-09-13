@@ -41,7 +41,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             }
                             else {
                                 LOG.debug("Performing vercheck: $asset")
-                                println("VERCHECK: $asset")
+                                // println("VERCHECK: $asset")
                                 val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)));
                                 if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
                                     val gitVerFileBytes = git.readFromHead(git.getRelativePath(
@@ -58,8 +58,8 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                         }
                                     }
                                 }
-                                DumbService.getInstance(projectSetup.project).smartInvokeLater {
-                                    if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
+                                if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
+                                    DumbService.getInstance(projectSetup.project).smartInvokeLater {
                                         PsiManager.getInstance(projectSetup.project).findFile(asset.file)?.let { psiFile ->
                                             Implementors.getImpl(psiFile)?.let { projectSetup.reloadImplementors() }
                                         }

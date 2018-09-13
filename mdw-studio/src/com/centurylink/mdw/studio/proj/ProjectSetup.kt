@@ -88,9 +88,11 @@ class ProjectSetup(val project: Project) : ProjectComponent {
         implementorChangeListeners.remove(listener)
     }
     fun reloadImplementors() {
-        implementors = Implementors(this)
-        for (listener in implementorChangeListeners) {
-            listener.onChange(implementors)
+        DumbService.getInstance(project).smartInvokeLater {
+            implementors = Implementors(this)
+            for (listener in implementorChangeListeners) {
+                listener.onChange(implementors)
+            }
         }
     }
 

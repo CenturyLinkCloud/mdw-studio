@@ -208,7 +208,7 @@ fun Process.setActivity(logicalId: String, activity: Activity) {
             for (subprocess in subprocesses) {
                 val j = subprocess.activities.findIndex { it.logicalId == logicalId }
                 if (j >= 0) {
-                    activity.setAttribute(WORK_DISPLAY_INFO, activities[j].getAttribute(WORK_DISPLAY_INFO))
+                    activity.setAttribute(WORK_DISPLAY_INFO, subprocess.activities[j].getAttribute(WORK_DISPLAY_INFO))
                     subprocess.activities.replaceAt(j, activity)
                 }
             }

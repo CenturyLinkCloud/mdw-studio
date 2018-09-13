@@ -8,11 +8,15 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.editor.event.DocumentEvent
 import java.awt.BorderLayout
 import java.io.IOException
 import javax.swing.BorderFactory
 import javax.swing.UIManager
 
+/**
+ * For straight editing (eg: documentation) inside the config tab.
+ */
 @Suppress("unused")
 class Editor(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
     init {
@@ -28,9 +32,9 @@ class Editor(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         document ?: throw IOException("No document: " + virtualFile.path)
 
         document.addDocumentListener(object: DocumentListener {
-            override fun beforeDocumentChange(e: com.intellij.openapi.editor.event.DocumentEvent) {
+            override fun beforeDocumentChange(e: DocumentEvent) {
             }
-            override fun documentChanged(e: com.intellij.openapi.editor.event.DocumentEvent) {
+            override fun documentChanged(e: DocumentEvent) {
                 widget.value = e.document.text
                 applyUpdate()
             }

@@ -21,19 +21,9 @@ import java.io.OutputStream
 class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val value: String?, private val ext: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
-    val contents: String
+    val contents = value ?: getTemplateContents() ?: ""
 
-    init {
-        if (value == null) {
-            contents = getTemplateContents() ?: ""
-        }
-        else {
-            contents = value
-        }
-
-    }
-
-    fun getTemplateContents(): String? {
+    private fun getTemplateContents(): String? {
         val ext = getExt()
         return when (ext) {
             "java" -> {
@@ -48,11 +38,11 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
         }
     }
 
-    fun getJavaPackage(): String {
+    private fun getJavaPackage(): String {
         return JavaNaming.getValidPackageName(workflowObj.asset.packageName)
     }
 
-    fun getJavaClassName(): String {
+    private fun getJavaClassName(): String {
         return JavaNaming.getValidClassName(workflowObj.name + "_" + workflowObj.id)
     }
 
@@ -69,7 +59,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
         }
     }
 
-    fun getExt(): String {
+    private fun getExt(): String {
         if (ext != null) {
             return ext // documentation, etc
         }

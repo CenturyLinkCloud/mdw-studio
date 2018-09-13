@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.util.*
 
 class AssetPackage(val name: String, val dir: VirtualFile) {
@@ -36,15 +37,20 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
         }
 
     init {
-        val loader = YamlLoader(String(metaFile.contentsToByteArray()))
-        val topMap = loader.getRequiredMap("", loader.getTop(), "")
-        val parsedName = loader.getRequired("name", topMap, "")
-        if (name != parsedName) {
-            throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
+        try {
+            val loader = YamlLoader(String(metaFile.contentsToByteArray()))
+            val topMap = loader.getRequiredMap("", loader.getTop(), "")
+            val parsedName = loader.getRequired("name", topMap, "")
+            if (name != parsedName) {
+                throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
+            }
+            val ver = loader.getRequired("version", topMap, "")
+            version = Package.parseVersion(ver)
+            schemaVersion = loader.getRequired("schemaVersion", topMap, "")
         }
-        var ver = loader.getRequired("version", topMap, "")
-        version = Package.parseVersion(ver)
-        schemaVersion = loader.getRequired("schemaVersion", topMap, "")
+        catch (ex: YAMLException) {
+            throw IOException("Error parsing package meta: $metaFile");
+        }
     }
 
     override fun toString(): String {

@@ -38,7 +38,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
 
         // activities
         for (activity in process.activities) {
-            var impl = implementors[activity.implementor] ?: Impl(activity.implementor)
+            val impl = implementors[activity.implementor] ?: Impl(activity.implementor)
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
         }
@@ -172,7 +172,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val 
         }
     }
 
-    fun findObj(id: String): Drawable? {
+    private fun findObj(id: String): Drawable? {
         for (subflow in subflows) {
             val subflowObj = subflow.findObj(id)
             if (subflowObj != null) {

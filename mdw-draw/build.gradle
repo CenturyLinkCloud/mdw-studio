@@ -24,8 +24,8 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-reflect"
-    compile("com.centurylink.mdw:mdw-common:6.1.09-SNAPSHOT") { transitive = false }
-    // compile files("../../mdw/mdw/deploy/app/mdw-common-6.1.09-SNAPSHOT.jar")
+    // compile("com.centurylink.mdw:mdw-common:6.1.09-SNAPSHOT") { transitive = false }
+    compile files("../../mdw/mdw/deploy/app/mdw-common-6.1.09-SNAPSHOT.jar")
     compile("io.limberest:limberest:1.2.4") { transitive = false }
     compile "org.json:json:20180130"
     compile "com.google.code.gson:gson:2.8.5"

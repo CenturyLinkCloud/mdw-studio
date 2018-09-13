@@ -19,6 +19,9 @@ import java.io.IOException
 import javax.swing.BorderFactory
 import javax.swing.JLabel
 
+/**
+ * For in-place editing of dynamic java, scripts, etc.
+ */
 @Suppress("unused")
 class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
 

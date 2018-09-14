@@ -1,10 +1,11 @@
 package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.draw.Data
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.Drawable
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.JsonObject
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons

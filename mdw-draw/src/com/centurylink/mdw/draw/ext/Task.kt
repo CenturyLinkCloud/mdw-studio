@@ -1,6 +1,6 @@
 package com.centurylink.mdw.draw.ext
 
-import com.centurylink.mdw.draw.Data
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.asset.Asset
 import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.task.TaskTemplate

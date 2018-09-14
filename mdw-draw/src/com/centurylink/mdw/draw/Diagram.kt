@@ -3,12 +3,15 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.*
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.Graphics2D
 
-class Diagram(val g2d: Graphics2D, val display: Display, val project: Any?, val process: Process,
+class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, val process: Process,
         val implementors: Map<String,Impl>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {

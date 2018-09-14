@@ -1,4 +1,4 @@
-package com.centurylink.mdw.draw
+package com.centurylink.mdw.draw.model
 
 class Data {
 

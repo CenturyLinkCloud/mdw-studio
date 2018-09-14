@@ -1,12 +1,10 @@
 package com.centurylink.mdw.studio.config.widgets
 
+import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
-import com.centurylink.mdw.draw.edit.isReadonly
-import com.centurylink.mdw.draw.edit.label
-import com.centurylink.mdw.draw.edit.source
-import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -27,7 +25,7 @@ import javax.swing.JOptionPane
 class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
     private val projectSetup = (widget.adapter as WidgetApplier).workflowObj.project as ProjectSetup
-    private val assetLink = AssetLink(widget.valueString, projectSetup)
+    private val assetLink = AssetLink(widget.url ?: widget.valueString, projectSetup)
 
     init {
         isOpaque = false
@@ -91,15 +89,22 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
         border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
         addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                assetFile = projectSetup.getAssetFile(assetPath!!)
-                if (assetFile == null) {
-                    // compatibility processes might not have extension
-                    val procFile = projectSetup.getAssetFile(assetPath + ".proc")
-                    procFile?.let { assetFile = procFile }
-                }
-                assetFile ?: throw IOException("Asset not found: ${assetPath}")
-                assetFile?.let {
-                    FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                assetPath?.let { assetPath ->
+                    if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
+                        BrowserUtil.browse(assetPath)
+                    }
+                    else {
+                        assetFile = projectSetup.getAssetFile(assetPath)
+                        if (assetFile == null) {
+                            // compatibility processes might not have extension
+                            val procFile = projectSetup.getAssetFile(assetPath + ".proc")
+                            procFile?.let { assetFile = procFile }
+                        }
+                        assetFile ?: throw IOException("Asset not found: ${assetPath}")
+                        assetFile?.let {
+                            FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                        }
+                    }
                 }
             }
         })

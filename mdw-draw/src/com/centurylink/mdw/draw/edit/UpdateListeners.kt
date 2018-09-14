@@ -1,5 +1,7 @@
 package com.centurylink.mdw.draw.edit
 
+import com.centurylink.mdw.draw.model.WorkflowObj
+
 typealias UpdateListener = (obj: WorkflowObj) -> Unit
 
 interface UpdateListeners {

@@ -1,15 +1,16 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
-import com.centurylink.mdw.draw.edit.WorkflowObj
-import com.centurylink.mdw.draw.edit.WorkflowType
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.TextNote
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
 
-class Note (private val g2d: Graphics2D, project: Any?, process: Process, val textNote: TextNote) :
+class Note (private val g2d: Graphics2D, project: Project, process: Process, val textNote: TextNote) :
         Shape(g2d, Display(textNote.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.textNote, textNote.json) {

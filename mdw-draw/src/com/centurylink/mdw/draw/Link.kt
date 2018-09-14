@@ -1,9 +1,9 @@
 package com.centurylink.mdw.draw
 
-import com.centurylink.mdw.draw.edit.Select
-import com.centurylink.mdw.draw.edit.Selectable
-import com.centurylink.mdw.draw.edit.WorkflowObj
-import com.centurylink.mdw.draw.edit.WorkflowType
+import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.Transition
@@ -80,7 +80,7 @@ class Pt(val x: Int, val y: Int) { }
 
 class Seg(val from: Pt, val to: Pt) { }
 
-class Link(val g2d: Graphics2D, project: Any?, process: Process, val transition: Transition, var from: Step, var to: Step) :
+class Link(val g2d: Graphics2D, project: Project, process: Process, val transition: Transition, var from: Step, var to: Step) :
         Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.transition, transition.json) {

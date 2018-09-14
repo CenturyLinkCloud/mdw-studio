@@ -64,7 +64,7 @@ class Startup : StartupActivity {
     }
 }
 
-class ProjectSetup(val project: Project) : ProjectComponent {
+class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw.draw.model.Project {
 
     // setup is null if not an mdw project
     private var setup: Setup? = null
@@ -73,10 +73,13 @@ class ProjectSetup(val project: Project) : ProjectComponent {
     val isMdwProject: Boolean
         get() = setup != null
 
-    val hubRootUrl: String?
+    override val hubRootUrl: String?
         get() {
             return getMdwProp(PropertyNames.MDW_HUB_URL)
         }
+
+    override val assetRoot: File
+      get() = File(assetDir.path)
 
     lateinit var implementors: Implementors
     private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()
@@ -98,7 +101,7 @@ class ProjectSetup(val project: Project) : ProjectComponent {
 
     private val projectYaml = File(project.basePath + "/project.yaml")
 
-    val mdwVersion: MdwVersion
+    override val mdwVersion: MdwVersion
         get() {
           return if (projectYaml.exists()) {
               MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))

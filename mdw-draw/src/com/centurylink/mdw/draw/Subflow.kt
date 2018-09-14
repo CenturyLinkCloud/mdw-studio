@@ -1,15 +1,16 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
-import com.centurylink.mdw.draw.edit.WorkflowObj
-import com.centurylink.mdw.draw.edit.WorkflowType
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.draw.ext.addActivity
 import com.centurylink.mdw.draw.ext.addTransition
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color
 import java.awt.Graphics2D
 
-class Subflow(private val g2d: Graphics2D, private val project: Any?, private val process: Process,
+class Subflow(private val g2d: Graphics2D, private val project: Project, private val process: Process,
         val subprocess: Process, val implementors: Map<String,Impl>) :
         Shape(g2d, Display(subprocess.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable  {
 

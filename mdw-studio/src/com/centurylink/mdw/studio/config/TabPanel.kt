@@ -2,7 +2,7 @@ package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.ext.contains
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonElement

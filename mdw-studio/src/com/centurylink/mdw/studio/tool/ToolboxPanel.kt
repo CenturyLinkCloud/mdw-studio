@@ -1,19 +1,20 @@
 package com.centurylink.mdw.studio.tool
 
-import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.Display.Companion.ICON_HEIGHT
 import com.centurylink.mdw.draw.Display.Companion.ICON_PAD
 import com.centurylink.mdw.draw.Display.Companion.ICON_WIDTH
-import com.centurylink.mdw.draw.Shape
-import com.centurylink.mdw.draw.edit.WorkflowObj
-import com.centurylink.mdw.draw.edit.WorkflowType
 import com.centurylink.mdw.draw.Impl
+import com.centurylink.mdw.draw.Shape
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.proj.ImplementorChangeListener
 import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.Disposable
+import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
@@ -27,7 +28,7 @@ import javax.swing.border.EmptyBorder
 
 class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposable, ImplementorChangeListener {
 
-    val toolPanels = mutableListOf<ToolPanel>()
+    private val toolPanels = mutableListOf<ToolPanel>()
     var selected: ToolPanel? = null
 
     init {
@@ -39,7 +40,7 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
 
     private fun initialize() {
         for (implementor in projectSetup.implementors.toSortedList()) {
-            val toolPanel = ToolPanel(implementor)
+            val toolPanel = ToolPanel(projectSetup, implementor)
             toolPanel.border = BORDER_NOT
             toolPanel.addMouseListener(object: MouseAdapter() {
                 override fun mousePressed(e: MouseEvent?) {
@@ -82,7 +83,7 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
     }
 }
 
-class ToolPanel(val implementor: Impl) : JPanel(FlowLayout(FlowLayout.LEFT)) {
+class ToolPanel(val projectSetup: ProjectSetup, val implementor: Impl) : JPanel(FlowLayout(FlowLayout.LEFT)) {
 
     val icon = ToolboxIcon(implementor)
 
@@ -132,7 +133,7 @@ class ToolPanel(val implementor: Impl) : JPanel(FlowLayout(FlowLayout.LEFT)) {
         else {
             val w = ICON_WIDTH
             val h = ICON_HEIGHT
-            val img = BufferedImage(w + 2, h, BufferedImage.TYPE_INT_ARGB)
+            val img = UIUtil.createImage(w + 2, h, BufferedImage.TYPE_INT_ARGB)
             val g2d = img.graphics as Graphics2D
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -154,55 +155,56 @@ class ToolPanel(val implementor: Impl) : JPanel(FlowLayout(FlowLayout.LEFT)) {
     companion object {
         val jsonFlavor = DataFlavor("application/json")
     }
-}
 
-class ToolboxIcon(val implementor: Impl) {
-    fun draw(g2d: Graphics2D) {
-        val shape = IconShape(g2d, implementor)
-        shape.draw()
-    }
-}
-
-class IconShape(private val g2d: Graphics2D, val implementor: Impl) :
-        Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
-
-    override val workflowObj = object : WorkflowObj(null, Process(), WorkflowType.implementor, implementor.json) {
-        override var id = implementor.implementorClassName
-        override var name = implementor.label
-    }
-
-    override fun draw(): Display {
-        if (implementor.icon != null) {
-            g2d.drawImage(implementor.icon!!.image, display.x, display.y, null)
+    inner class ToolboxIcon(private val implementor: Impl) {
+        fun draw(g2d: Graphics2D) {
+            val shape = IconShape(g2d, implementor)
+            shape.draw()
         }
-        else if (implementor.iconName != null && implementor.iconName.startsWith("shape:")) {
-            val shape = implementor.iconName.substring(6)
-            when(shape) {
-                "start" -> {
-                    drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
-                            fill = Display.START_COLOR)
-                }
-                "stop" -> {
-                    drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
-                            fill = Display.STOP_COLOR)
-                }
-                "decision" -> {
-                    drawDiamond()
-                }
-                else -> {
-                    drawRect(display.x + 1, display.y + 2, display.w - 3, display.h - 3)
+    }
+
+    inner class IconShape(private val g2d: Graphics2D, val implementor: Impl) :
+            Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
+
+        override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json) {
+            override var id = implementor.implementorClassName
+            override var name = implementor.label
+        }
+
+        override fun draw(): Display {
+            if (implementor.icon != null) {
+                g2d.drawImage(implementor.icon!!.image, display.x, display.y, null)
+            }
+            else if (implementor.iconName != null && implementor.iconName.startsWith("shape:")) {
+                val shape = implementor.iconName.substring(6)
+                when(shape) {
+                    "start" -> {
+                        drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
+                                fill = Display.START_COLOR)
+                    }
+                    "stop" -> {
+                        drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
+                                fill = Display.STOP_COLOR)
+                    }
+                    "decision" -> {
+                        drawDiamond()
+                    }
+                    else -> {
+                        drawRect(display.x + 1, display.y + 2, display.w - 3, display.h - 3)
+                    }
                 }
             }
-        }
-        else {
-            drawRect(display.x + 1, display.y + 2, display.w - 3, display.h - 3)
-        }
+            else {
+                drawRect(display.x + 1, display.y + 2, display.w - 3, display.h - 3)
+            }
 
-        return display
+            return display
+        }
     }
+
 }
 
-class IconPanel(val toolboxIcon: ToolboxIcon) : JPanel() {
+class IconPanel(private val toolboxIcon: ToolPanel.ToolboxIcon) : JPanel() {
 
     override fun paintComponent(g: Graphics) {
         toolboxIcon.draw(g as Graphics2D)
@@ -218,3 +220,4 @@ class IconPanel(val toolboxIcon: ToolboxIcon) : JPanel() {
         super.paint(g)
     }
 }
+

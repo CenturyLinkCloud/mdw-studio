@@ -1,13 +1,14 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
-import com.centurylink.mdw.draw.edit.WorkflowObj
-import com.centurylink.mdw.draw.edit.WorkflowType
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Graphics2D
 
-class Step(private val g2d: Graphics2D, project: Any?, process: Process, val activity: Activity,
+class Step(private val g2d: Graphics2D, project: Project, process: Process, val activity: Activity,
         val implementor: Impl, private val boxStyle: Boolean = true) :
         Shape(g2d, Display(activity.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 

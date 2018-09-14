@@ -5,7 +5,7 @@ import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_D
 import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.Link
 import com.centurylink.mdw.draw.LinkDisplay
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.workflow.Process
 

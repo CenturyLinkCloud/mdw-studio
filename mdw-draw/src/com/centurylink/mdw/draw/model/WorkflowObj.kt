@@ -1,4 +1,4 @@
-package com.centurylink.mdw.draw.edit
+package com.centurylink.mdw.draw.model
 
 import com.centurylink.mdw.draw.ext.*
 import com.centurylink.mdw.model.asset.Asset
@@ -19,7 +19,7 @@ enum class WorkflowType {
     task
 }
 
-open class WorkflowObj(val project: Any?, var asset: Asset, val type: WorkflowType, var obj: JSONObject) {
+open class WorkflowObj(val project: Project, var asset: Asset, val type: WorkflowType, var obj: JSONObject) {
 
     open var id: String
         get() = if (obj.has("id")) obj.getString("id") else "-1"

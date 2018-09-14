@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.draw.RoundedBorder
 import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.config.widgets.Editor
 import com.centurylink.mdw.studio.config.widgets.Label

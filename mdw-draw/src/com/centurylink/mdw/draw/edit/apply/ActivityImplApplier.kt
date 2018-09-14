@@ -1,10 +1,11 @@
 package com.centurylink.mdw.draw.edit.apply
 
-import com.centurylink.mdw.draw.Data
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.edit.url
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
+import java.io.File
 
 /**
  * TODO: support kotlin implementors
@@ -17,14 +18,19 @@ class ActivityImplApplier : ObjectApplier() {
         widget.valueString?.let {
             if (it.startsWith("com.centurylink.mdw.workflow.")) {
                 // mdw built-in (GitHub)
-                var filePath = it.replace('.', '/')
+                val filePath = it.replace('.', '/')
                 widget.url = Data.SOURCE_REPO_URL + "/blob/master/mdw-workflow/src/" + filePath + ".java"
             }
             else {
-                var lastDot = it.lastIndexOf('.')
-                var pkgName = it.substring(0, lastDot)
-                var assetName = it.substring(lastDot + 1)
-                widget.value = "$pkgName/$assetName.java"
+                val lastDot = it.lastIndexOf('.')
+                val pkgName = it.substring(0, lastDot)
+                val assetName = it.substring(lastDot + 1)
+                var ext = ".java"
+                if (File(workflowObj.project.assetRoot.path + "/" + it.replace('.', '/') + ".kt").exists()) {
+                    ext = ".kt"
+                }
+
+                widget.value = "$pkgName/$assetName$ext"
             }
         }
     }

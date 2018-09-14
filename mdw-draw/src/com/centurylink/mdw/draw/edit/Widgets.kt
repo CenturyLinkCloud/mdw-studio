@@ -1,8 +1,9 @@
 package com.centurylink.mdw.draw.edit
 
-import com.centurylink.mdw.draw.Data
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.edit.adapt.WidgetAdapter
 import com.centurylink.mdw.draw.edit.apply.*
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.workflow.Process
 import com.google.gson.GsonBuilder

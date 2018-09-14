@@ -1,6 +1,6 @@
 package com.centurylink.mdw.draw.edit.apply
 
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 
 @Suppress("unused")

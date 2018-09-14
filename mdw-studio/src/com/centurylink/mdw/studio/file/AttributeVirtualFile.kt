@@ -1,7 +1,7 @@
 package com.centurylink.mdw.studio.file
 
 import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.ext.JsonObject
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.script.ScriptNaming

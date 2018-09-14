@@ -1,6 +1,6 @@
 package com.centurylink.mdw.draw
 
-import com.centurylink.mdw.draw.edit.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowObj
 
 /**
  * Drawable, selectable item on canvas

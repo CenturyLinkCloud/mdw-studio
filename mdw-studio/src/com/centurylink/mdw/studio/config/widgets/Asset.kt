@@ -11,6 +11,9 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.OpenSourceUtil
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
@@ -92,6 +95,14 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
                 assetPath?.let { assetPath ->
                     if (assetPath.startsWith("http://") || assetPath.startsWith("https://")) {
                         BrowserUtil.browse(assetPath)
+                    }
+                    else if (assetPath.startsWith("class://")) {
+                        val scope = GlobalSearchScope.allScope(projectSetup.project)
+                        val psiFacade = JavaPsiFacade.getInstance(projectSetup.project)
+                        val psiClass = psiFacade.findClass(assetPath.substring(8), scope)
+                        psiClass?.let {
+                            OpenSourceUtil.navigate(psiClass)
+                        }
                     }
                     else {
                         assetFile = projectSetup.getAssetFile(assetPath)

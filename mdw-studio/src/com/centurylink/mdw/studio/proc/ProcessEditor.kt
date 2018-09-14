@@ -21,6 +21,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Divider
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
@@ -33,6 +34,7 @@ import java.awt.BorderLayout
 import java.awt.Cursor
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
+import javax.swing.BorderFactory
 import javax.swing.JComponent
 import javax.swing.JPanel
 
@@ -160,6 +162,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         })
 
         editPanel.add(splitter)
+        onHideShow(userData.getUserData(CONFIG_PANEL_IS_SHOWN) ?: true)
     }
 
     private fun handleChange() {
@@ -203,6 +206,8 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             editPanel.add(splitter)
         }
         else {
+            configPanel.titleBar.hideLabel.isOpaque = false
+            configPanel.titleBar.hideLabel.border = BorderFactory.createEmptyBorder(1, 1, 1, 1)
             editPanel.remove(splitter)
             editPanel.add(canvasScrollPane)
             editPanel.add(panelBar, BorderLayout.SOUTH)
@@ -215,6 +220,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         if (GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
             saveToFile()
         }
+        putUserData(CONFIG_PANEL_IS_SHOWN, show)
     }
 
     override fun getComponent() = editPanel
@@ -270,10 +276,15 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun <T : Any?> getUserData(key: Key<T>): T? {
-        return null
+        return userData.getUserData(key)
     }
 
     override fun <T : Any?> putUserData(key: Key<T>, value: T?) {
+        userData.putUserData(key, value);
     }
 
+    companion object {
+        val CONFIG_PANEL_IS_SHOWN = Key.create<Boolean>("configPanelIsShown")
+        private val userData = UserDataHolderBase()
+    }
 }

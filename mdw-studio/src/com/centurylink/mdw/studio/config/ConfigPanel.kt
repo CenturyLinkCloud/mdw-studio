@@ -1,10 +1,10 @@
 package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.Drawable
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.JsonObject
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonObject
@@ -58,9 +58,7 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         }
 
         if (activate) {
-            hideShowListener?.let {
-                it.onHideShow(true)
-            }
+            hideShowListener?.onHideShow(true)
         }
 
         // this is needed so that tab label MouseListener is active
@@ -194,11 +192,7 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
         hideLabel.preferredSize = iconSize
         hideLabel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                hideShowListener?.let {
-                    hideLabel.isOpaque = false
-                    hideLabel.border = iconEmptyBorder
-                    it.onHideShow(false)
-                }
+                hideShowListener?.onHideShow(false)
             }
             override fun mouseEntered(e: MouseEvent?) {
                 hideLabel.isOpaque = true
@@ -229,9 +223,7 @@ class PanelBar: JPanel(BorderLayout()) {
         titlePanel.add(Title())
         titlePanel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
-                hideShowListener?.let {
-                    it.onHideShow(true)
-                }
+                hideShowListener?.onHideShow(true)
             }
             override fun mouseEntered(e: MouseEvent) {
                 titlePanel.background = JBUI.CurrentTheme.ToolWindow.tabHoveredBackground()

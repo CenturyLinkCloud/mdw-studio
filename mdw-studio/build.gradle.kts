@@ -36,9 +36,9 @@ intellij {
 }
 
 tasks.withType<PublishTask> {
-    username(extra.properties["intellijPublishUsername"] ?: "")
-    password(extra.properties["intellijPublishPassword"] ?: "")
-    channels(extra.properties["intellijPublishChannel"] ?: "Beta")
+    username(project.properties["intellijPublishUsername"] ?: "")
+    password(project.properties["intellijPublishPassword"] ?: "")
+    channels(project.properties["intellijPublishChannel"] ?: "Beta")
 }
 
 tasks.withType<KotlinCompile> {

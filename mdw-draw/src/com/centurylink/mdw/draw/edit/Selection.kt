@@ -47,7 +47,7 @@ class Selection(selectObj: Drawable) {
 }
 
 interface SelectListener {
-    fun onSelect(selectObjs: List<Drawable>)
+    fun onSelect(selectObjs: List<Drawable>, activate: Boolean = false)
 }
 
 interface Selectable {

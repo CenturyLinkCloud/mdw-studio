@@ -17,6 +17,7 @@ import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 import javax.swing.UIManager
 
 class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonly: Boolean = false) :
@@ -79,7 +80,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonl
 
                 diagram?.selection?.selectObjs?.let {
                     for (listener in selectListeners) {
-                        listener.onSelect(it)
+                        listener.onSelect(it, !e.isPopupTrigger && SwingUtilities.isLeftMouseButton(e) && e.clickCount == 2)
                     }
                 }
             }

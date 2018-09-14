@@ -198,6 +198,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         configPanel.hideShowListener = null
         panelBar.hideShowListener = null
         if (show) {
+            panelBar.titlePanel.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
             editPanel.remove(panelBar)
             editPanel.add(splitter)
         }

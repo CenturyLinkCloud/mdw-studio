@@ -24,7 +24,7 @@ dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(kotlin("reflect"))
     compile(kotlin("stdlib-jdk8"))
-    compile("com.centurylink.mdw:mdw-common:6.1.09-SNAPSHOT") { isTransitive = false }
+    compile("com.centurylink.mdw:mdw-common:6.1.09") { isTransitive = false }
     // compile files("../../mdw/mdw/deploy/app/mdw-common-6.1.09-SNAPSHOT.jar")
     compile("io.limberest:limberest:1.2.4") { isTransitive = false }
     compile("org.json:json:20180130")

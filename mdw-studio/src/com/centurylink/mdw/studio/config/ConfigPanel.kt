@@ -36,7 +36,7 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
     init {
     }
 
-    override fun onSelect(selectObjs: List<Drawable>) {
+    override fun onSelect(selectObjs: List<Drawable>, activate: Boolean) {
         tabPanel?.let { remove(it) }
         blankPanel?.let { remove(it) }
 
@@ -56,6 +56,13 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
             blankPanel = JPanel()
             add(blankPanel, BorderLayout.CENTER)
         }
+
+        if (activate) {
+            hideShowListener?.let {
+                it.onHideShow(true)
+            }
+        }
+
         // this is needed so that tab label MouseListener is active
         revalidate()
         repaint()
@@ -211,18 +218,18 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
 class PanelBar: JPanel(BorderLayout()) {
 
     var hideShowListener: HideShowListener? = null
+    val titlePanel: JPanel
 
     init {
         background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
         border = BorderFactory.createMatteBorder(1, 0, 0, 0, JBColor.border())
 
-        val titlePanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+        titlePanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
         titlePanel.border = BorderFactory.createEmptyBorder(0, 2, 1, 5)
         titlePanel.add(Title())
         titlePanel.addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
                 hideShowListener?.let {
-                    titlePanel.background = JBUI.CurrentTheme.ToolWindow.headerBackground(false)
                     it.onHideShow(true)
                 }
             }

@@ -2,7 +2,7 @@ package com.centurylink.mdw.studio.task
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.model.Data
-import com.centurylink.mdw.draw.Impl
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.edit.apply.ObjectApplier
 import com.centurylink.mdw.draw.ext.toGson
@@ -151,9 +151,9 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
 
         taskTemplate = TaskTemplate(JSONObject(taskDoc.text))
         val taskPagelet = if (taskTemplate.isAutoformTask) {
-            Impl.BASE_PKG + "/AutoFormManualTask.pagelet"
+            Data.BASE_PKG + "/AutoFormManualTask.pagelet"
         } else {
-            Impl.BASE_PKG + "/CustomManualTask.pagelet"
+            Data.BASE_PKG + "/CustomManualTask.pagelet"
         }
         val pageletAsset = projectSetup.getAssetFile(taskPagelet)
         pageletAsset ?: throw IOException("Missing task pagelet: " + taskPagelet)

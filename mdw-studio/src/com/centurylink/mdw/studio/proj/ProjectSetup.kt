@@ -187,7 +187,9 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     override fun projectOpened() {
         if (isMdwProject) {
-            implementors = Implementors(this)
+            DumbService.getInstance(project).smartInvokeLater {
+                implementors = Implementors(this)
+            }
         }
     }
 

@@ -6,6 +6,7 @@ class Data {
         // TODO these values should not be static and should not be hardcoded
         const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
+        const val BASE_PKG = "com.centurylink.mdw.base"
 
         val documentTypes = mapOf(
                 "org.w3c.dom.Document" to "xml",

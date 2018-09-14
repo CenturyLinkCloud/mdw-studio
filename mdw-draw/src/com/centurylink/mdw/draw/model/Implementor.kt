@@ -1,10 +1,10 @@
-package com.centurylink.mdw.draw
+package com.centurylink.mdw.draw.model
 
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import org.json.JSONObject
 import javax.swing.ImageIcon
 
-class Impl(val assetPath: String?, json: JSONObject) : ActivityImplementor(json) {
+class Implementor(val assetPath: String?, json: JSONObject) : ActivityImplementor(json) {
     var icon: ImageIcon? = null
     val category: String
         get() = baseClassName
@@ -25,13 +25,12 @@ class Impl(val assetPath: String?, json: JSONObject) : ActivityImplementor(json)
     }
 
     companion object {
-        val DUMMY = Impl("com.centurylink.mdw.workflow.activity.DefaultActivityImpl")
-        const val BASE_PKG = "com.centurylink.mdw.base"
+        val DUMMY = Implementor("com.centurylink.mdw.workflow.activity.DefaultActivityImpl")
         val PSEUDO_IMPLS = listOf(
-                Impl("subflow", "Exception Handler Subflow", "$BASE_PKG/subflow.png", "Exception Handler"),
-                Impl("subflow", "Cancellation Handler Subflow", "$BASE_PKG/subflow.png", "Cancellation Handler"),
-                Impl("subflow", "Delay Handler Subflow", "$BASE_PKG/subflow.png", "Delay Handler"),
-                Impl("note", "Text Note", "$BASE_PKG/note.png", "TextNote")
+                Implementor("subflow", "Exception Handler Subflow", "${Data.BASE_PKG}/subflow.png", "Exception Handler"),
+                Implementor("subflow", "Cancellation Handler Subflow", "${Data.BASE_PKG}/subflow.png", "Cancellation Handler"),
+                Implementor("subflow", "Delay Handler Subflow", "${Data.BASE_PKG}/subflow.png", "Delay Handler"),
+                Implementor("note", "Text Note", "${Data.BASE_PKG}/note.png", "TextNote")
         )
         const val START_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessStartActivity"
         const val STOP_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessFinishActivity"

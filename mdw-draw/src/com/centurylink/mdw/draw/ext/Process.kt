@@ -5,7 +5,7 @@ import com.centurylink.mdw.constant.WorkAttributeConstant.LOGICAL_ID
 import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.draw.Display
-import com.centurylink.mdw.draw.Impl
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.LinkDisplay
 import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.workflow.Activity
@@ -32,12 +32,12 @@ fun Process.maxActivityId(): Long {
     return if (maxAct == null) 0 else maxAct!!.id
 }
 
-fun Process.addActivity(x: Int, y: Int, implementor: Impl, boxed: Boolean = true): Activity {
+fun Process.addActivity(x: Int, y: Int, implementor: Implementor, boxed: Boolean = true): Activity {
     val activity = Activity()
     activity.id = maxActivityId() + 1
     activity.name = when (implementor.implementorClassName) {
-        Impl.START_IMPL -> "Start"
-        Impl.STOP_IMPL -> "Stop"
+        Implementor.START_IMPL -> "Start"
+        Implementor.STOP_IMPL -> "Stop"
         else -> "New ${implementor.label}"
     }
     activity.implementor = implementor.implementorClassName

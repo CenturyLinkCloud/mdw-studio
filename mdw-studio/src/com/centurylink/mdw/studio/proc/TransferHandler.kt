@@ -4,7 +4,7 @@ import com.centurylink.mdw.constant.ProcessVisibilityConstant.*
 import com.centurylink.mdw.constant.WorkAttributeConstant.EMBEDDED_PROCESS_TYPE
 import com.centurylink.mdw.draw.Diagram
 import com.centurylink.mdw.draw.DiagramEvent
-import com.centurylink.mdw.draw.Impl
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.studio.proc.CanvasActions.Companion.DATA_FLAVOR_JSON
@@ -59,7 +59,7 @@ class TransferHandler(private val diagram: Diagram) : javax.swing.TransferHandle
         return false
     }
 
-    private fun getImplementor(json: JSONObject): Impl? {
+    private fun getImplementor(json: JSONObject): Implementor? {
         json.optString("mdw.implementor")?.let { impl ->
             return diagram.implementors[impl]
         }

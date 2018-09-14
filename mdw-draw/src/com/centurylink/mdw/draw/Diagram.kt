@@ -3,6 +3,7 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.*
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowType
@@ -12,7 +13,7 @@ import java.awt.Cursor
 import java.awt.Graphics2D
 
 class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, val process: Process,
-        val implementors: Map<String,Impl>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
+        val implementors: Map<String, Implementor>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {
         init {
@@ -41,7 +42,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
         // activities
         for (activity in process.activities) {
-            val impl = implementors[activity.implementor] ?: Impl(activity.implementor)
+            val impl = implementors[activity.implementor] ?: Implementor(activity.implementor)
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
         }
@@ -192,7 +193,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    private fun addStep(x: Int, y: Int, implementor: Impl): Step {
+    private fun addStep(x: Int, y: Int, implementor: Implementor): Step {
         for (subflow in subflows) {
             if (subflow.isHover(x, y)) {
                 return subflow.addStep(implementor, x, y)
@@ -388,7 +389,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    fun onDrop(de: DiagramEvent, implementor: Impl) {
+    fun onDrop(de: DiagramEvent, implementor: Implementor) {
         when (implementor.category) {
             "subflow" -> selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClassName)
             "note" -> selection.selectObj = addNote(de.x, de.y)

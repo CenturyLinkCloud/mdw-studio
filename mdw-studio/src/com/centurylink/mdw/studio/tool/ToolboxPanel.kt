@@ -4,7 +4,7 @@ import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.Display.Companion.ICON_HEIGHT
 import com.centurylink.mdw.draw.Display.Companion.ICON_PAD
 import com.centurylink.mdw.draw.Display.Companion.ICON_WIDTH
-import com.centurylink.mdw.draw.Impl
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.Shape
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
@@ -83,7 +83,7 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
     }
 }
 
-class ToolPanel(val projectSetup: ProjectSetup, val implementor: Impl) : JPanel(FlowLayout(FlowLayout.LEFT)) {
+class ToolPanel(val projectSetup: ProjectSetup, val implementor: Implementor) : JPanel(FlowLayout(FlowLayout.LEFT)) {
 
     val icon = ToolboxIcon(implementor)
 
@@ -156,14 +156,14 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: Impl) : JPanel(
         val jsonFlavor = DataFlavor("application/json")
     }
 
-    inner class ToolboxIcon(private val implementor: Impl) {
+    inner class ToolboxIcon(private val implementor: Implementor) {
         fun draw(g2d: Graphics2D) {
             val shape = IconShape(g2d, implementor)
             shape.draw()
         }
     }
 
-    inner class IconShape(private val g2d: Graphics2D, val implementor: Impl) :
+    inner class IconShape(private val g2d: Graphics2D, val implementor: Implementor) :
             Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
 
         override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json) {

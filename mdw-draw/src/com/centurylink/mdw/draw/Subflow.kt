@@ -6,12 +6,13 @@ import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.draw.ext.addActivity
 import com.centurylink.mdw.draw.ext.addTransition
+import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color
 import java.awt.Graphics2D
 
 class Subflow(private val g2d: Graphics2D, private val project: Project, private val process: Process,
-        val subprocess: Process, val implementors: Map<String,Impl>) :
+        val subprocess: Process, val implementors: Map<String, Implementor>) :
         Shape(g2d, Display(subprocess.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable  {
 
     override val workflowObj = object: WorkflowObj(project, process, WorkflowType.subprocess, subprocess.json) {
@@ -36,7 +37,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
         for (activity in subprocess.activities) {
             var impl = implementors.get(activity.implementor)
             if (impl == null) {
-                impl = Impl(activity.implementor)
+                impl = Implementor(activity.implementor)
             }
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
@@ -60,7 +61,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
         return null
     }
 
-    fun addStep(implementor: Impl, x: Int, y: Int): Step {
+    fun addStep(implementor: Implementor, x: Int, y: Int): Step {
         val activity = subprocess.addActivity(x, y, implementor)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn

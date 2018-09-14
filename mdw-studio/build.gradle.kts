@@ -1,0 +1,46 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.intellij.tasks.PublishTask
+
+plugins {
+    kotlin("jvm") version "1.2.61"
+    id("org.jetbrains.intellij") version "0.3.7"
+}
+
+group = "com.centurylink.mdw"
+version = "1.0.3-SNAPSHOT"
+
+java.sourceSets {
+    "main" {
+        java.srcDirs("src")
+        // kotlin.sourceDirs("src")
+        resources.srcDirs("resources")
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+}
+
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+    compile(project(":mdw-draw"))
+    compile("com.beust:jcommander:1.72")
+    compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { isTransitive = false }
+    compile("org.yaml:snakeyaml:1.18")
+}
+
+intellij {
+    version = "2018.2.3"
+}
+
+tasks.withType<PublishTask> {
+    username(extra.properties["intellijPublishUsername"] ?: "")
+    password(extra.properties["intellijPublishPassword"] ?: "")
+    channels(extra.properties["intellijPublishChannel"] ?: "Beta")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+}

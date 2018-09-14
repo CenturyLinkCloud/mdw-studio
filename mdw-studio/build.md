@@ -20,5 +20,5 @@
    intellijPublishUsername=myusername
    intellijPublishPassword=mypassword
    ```
-1. Update version in build.gradle and resources/META-INF/plugin.xml.
+1. Update version in build.gradle.kts (x2) and resources/META-INF/plugin.xml.
 2. Run Gradle task intellij/publishPlugin.

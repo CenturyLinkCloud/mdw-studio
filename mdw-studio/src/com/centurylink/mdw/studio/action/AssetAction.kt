@@ -1,10 +1,12 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.studio.file.Asset
+import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
 
 abstract class AssetAction : AnAction() {
@@ -28,6 +30,23 @@ abstract class AssetAction : AnAction() {
         }
         return null
     }
+
+    /**
+     * Returns a package based on directory chosen in project tree
+     */
+    protected fun getPackage(event: AnActionEvent): AssetPackage? {
+        getProjectSetup(event)?.let { projectSetup ->
+            val view = event.getData(LangDataKeys.IDE_VIEW)
+            view?.let {
+                if (it.directories.size == 1) {
+                    return projectSetup.getPackage(it.directories[0].virtualFile)
+                }
+            }
+        }
+        return null
+    }
+
+
 
     override fun update(event: AnActionEvent) {
         val presentation = event.presentation

@@ -57,12 +57,12 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
         <group id="mdwAssetActions" text="MDW">
-            <action id="mdwIncrementMajorVersion" text="Asset Version..." icon="/icons/mdw.png"
+            <action id="mdwAssetVersion" text="Asset Version..." icon="/icons/mdw.png"
                     description="Major version should be incremented to indicate possible breaking changes."
                     class="com.centurylink.mdw.studio.action.AssetVersion">
             </action>
             <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
-                    description="Run process through MDWHub"
+                    description="Run process via MDWHub"
                     class="com.centurylink.mdw.studio.action.RunProcess">
             </action>
             <action id="mdwProcessInstances" text="Process Instances" icon="/icons/list.gif"
@@ -75,6 +75,19 @@ that makes it easy for you to create workflow processes and other assets.<br>
             </action>
             <separator/>
             <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
+        </group>
+        <group id="mdwProcessContextActions" text="MDW" icon="/icons/process.gif">
+            <action id="mdwActivityOpenAction" text="Open " icon="AllIcons.Actions.Edit"
+                    class="com.centurylink.mdw.studio.action.ActivityDrillInAction">
+            </action>
+            <separator/>
+            <reference ref="$Cut"/>
+            <reference ref="$Copy"/>
+            <reference ref="$Paste"/>
+            <separator/>
+            <reference ref="mdwAssetVersion"/>
+            <reference ref="mdwRunProcess"/>
+            <reference ref="mdwProcessInstances"/>
         </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
                 description="Open MDWHub"

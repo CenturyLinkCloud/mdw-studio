@@ -28,8 +28,6 @@ class ToolboxWindowFactory : ToolWindowFactory {
         val contentManager = toolWindow.contentManager
         val content = contentManager.factory.createContent(panel, null, true)
         contentManager.addContent(content)
-        // toolWindow.setHelpId(HelpID.ANT);
-        // Disposer.register(project, (Disposable) panel);
     }
 }
 

@@ -1,26 +1,25 @@
 package com.centurylink.mdw.studio.proc
 
-import com.centurylink.mdw.draw.Diagram
-import com.centurylink.mdw.draw.DiagramEvent
-import com.centurylink.mdw.draw.Display
-import com.centurylink.mdw.draw.DragEvent
+import com.centurylink.mdw.draw.*
 import com.centurylink.mdw.draw.edit.SelectListener
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.model.workflow.Process
+import com.centurylink.mdw.studio.action.ActivityDrillInAction
 import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
-import com.intellij.openapi.actionSystem.DataProvider
-import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.ide.ui.customization.CustomActionsSchema
+import com.intellij.openapi.actionSystem.*
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
+import javax.swing.Icon
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 
-class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonly: Boolean = false) :
+class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val isReadonly: Boolean = false) :
         JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var zoom = 100
@@ -81,6 +80,47 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonl
                 diagram?.selection?.selectObjs?.let {
                     for (listener in selectListeners) {
                         listener.onSelect(it, !e.isPopupTrigger && SwingUtilities.isLeftMouseButton(e) && e.clickCount == 2)
+                    }
+                }
+
+                if (e.isPopupTrigger) {
+                    val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
+                    if (action is ActionGroup) {
+                        if (action is DefaultActionGroup) {
+                            val activityAssetAction = action.childActionsOrStubs.find { anAction ->
+                                val label = anAction.templatePresentation.text
+                                label != null && (label.startsWith("Open "))
+                            }
+                            activityAssetAction?.let { activityAction ->
+                                var label: String? = null
+                                var icon: Icon? = null
+                                diagram?.let { diagram ->
+                                    if (diagram.selection.selectObjs.size == 1 && diagram.selection.selectObj is Step) {
+                                        val step = diagram.selection.selectObj as Step
+                                        if (step.implementor.isSubProcessInvoke) {
+                                            label = ActivityDrillInAction.OPEN_SUBPROCESS
+                                            icon = Icons.PROCESS
+                                        }
+                                        else if (step.implementor.isScript) {
+                                            label = ActivityDrillInAction.OPEN_SCRIPT
+                                            // TODO other script flavors
+                                            icon = Icons.KOTLIN
+                                        }
+//                                        else if (step.implementor.isDynamicJava) {
+//                                            label =
+//                                        }
+                                    }
+                                }
+                                activityAction.templatePresentation.isEnabled = label != null
+                                activityAction.templatePresentation.isVisible = label != null
+                                activityAction.templatePresentation.text = label ?: "Open "
+                                if (icon != null) {
+                                    activityAction.templatePresentation.icon = icon
+                                }
+                            }
+                        }
+                        val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, action)
+                        popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
                     }
                 }
             }
@@ -204,9 +244,6 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonl
     }
 
     override fun getData(dataId: String): Any? {
-        if (PlatformDataKeys.HELP_ID.`is`(dataId)) {
-            return "help"
-        }
         if (PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.COPY_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.CUT_PROVIDER.`is`(dataId) ||
@@ -234,6 +271,7 @@ class ProcessCanvas(val setup: ProjectSetup, var process: Process, val isReadonl
     }
 
     companion object {
+        const val CONTEXT_MENU_GROUP_ID = "mdwProcessContextActions"
         init {
             Display.START_ICON = Icons.readIcon("/icons/start.png")
             Display.STOP_ICON = Icons.readIcon("/icons/stop.png")

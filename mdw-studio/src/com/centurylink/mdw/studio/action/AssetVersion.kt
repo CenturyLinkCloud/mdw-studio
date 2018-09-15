@@ -1,10 +1,8 @@
 package com.centurylink.mdw.studio.action
 
-import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.LangDataKeys
 import javax.swing.JOptionPane
 import javax.swing.JOptionPane.PLAIN_MESSAGE
 
@@ -39,7 +37,7 @@ class AssetVersion() : AssetAction() {
     }
 
     private fun showDialog(curVer: String): Any? {
-        return JOptionPane.showInputDialog(null, "$curVer", "MDW Asset Version", PLAIN_MESSAGE,
+        return JOptionPane.showInputDialog(null, curVer, "MDW Asset Version", PLAIN_MESSAGE,
                  null, arrayOf(INCREMENT_MAJOR_VERSION, INCREMENT_MINOR_VERSION), INCREMENT_MAJOR_VERSION)
     }
 
@@ -47,26 +45,10 @@ class AssetVersion() : AssetAction() {
         super.update(event)
         val presentation = event.getPresentation()
         if (presentation.isVisible && presentation.isEnabled) {
-            var applicable = getPackage(event) != null
+            val applicable = getPackage(event) != null || getAsset(event) != null
             presentation.isVisible = applicable
             presentation.isEnabled = applicable
         }
-    }
-
-    private fun getPackage(event: AnActionEvent): AssetPackage? {
-        event.getData(CommonDataKeys.PROJECT)?.let {
-            val projectSetup = it.getComponent(ProjectSetup::class.java)
-            if (projectSetup.isMdwProject) {
-                val view = event.getData(LangDataKeys.IDE_VIEW)
-                view?.let {
-                    val directories = view.directories
-                    if (directories.size == 1) {
-                        return projectSetup.getPackage(directories[0].virtualFile)
-                    }
-                }
-            }
-        }
-        return null
     }
 
     companion object {

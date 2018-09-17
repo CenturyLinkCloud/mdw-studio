@@ -1,5 +1,7 @@
 package com.centurylink.mdw.draw.model
 
+import com.centurylink.mdw.model.workflow.ActivityImplementor
+
 class Data {
 
     companion object {
@@ -45,5 +47,22 @@ class Data {
                 "Vacation Planning" to "VAC",
                 "Customer Contact" to "CNT"
         )
+    }
+
+    class Implementors {
+        companion object {
+            const val START_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessStartActivity"
+            const val STOP_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessFinishActivity"
+            val PSEUDO_IMPLS = listOf(
+                    ActivityImplementor("Exception Handler", "subflow", "" +
+                            "Exception Handler Subflow", "${Data.BASE_PKG}/subflow.png", null),
+                    ActivityImplementor("Cancellation Handler", "subflow",
+                            "Cancellation Handler Subflow", "${Data.BASE_PKG}/subflow.png", null),
+                    ActivityImplementor("Delay Handler", "subflow",
+                            "Delay Handler Subflow", "${Data.BASE_PKG}/subflow.png", null),
+                    ActivityImplementor("TextNote", "note",
+                            "Text Note", "$BASE_PKG/note.png", null)
+            )
+        }
     }
 }

@@ -5,13 +5,10 @@ import com.centurylink.mdw.constant.WorkAttributeConstant.LOGICAL_ID
 import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.draw.Display
-import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.LinkDisplay
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.event.EventType
-import com.centurylink.mdw.model.workflow.Activity
-import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.model.workflow.TextNote
-import com.centurylink.mdw.model.workflow.Transition
+import com.centurylink.mdw.model.workflow.*
 import org.json.JSONObject
 
 fun Process.maxActivityId(): Long {
@@ -32,20 +29,20 @@ fun Process.maxActivityId(): Long {
     return if (maxAct == null) 0 else maxAct!!.id
 }
 
-fun Process.addActivity(x: Int, y: Int, implementor: Implementor, boxed: Boolean = true): Activity {
+fun Process.addActivity(x: Int, y: Int, implementor: ActivityImplementor, boxed: Boolean = true): Activity {
     val activity = Activity()
     activity.id = maxActivityId() + 1
-    activity.name = when (implementor.implementorClassName) {
-        Implementor.START_IMPL -> "Start"
-        Implementor.STOP_IMPL -> "Stop"
+    activity.name = when (implementor.implementorClass) {
+        Data.Implementors.START_IMPL -> "Start"
+        Data.Implementors.STOP_IMPL -> "Stop"
         else -> "New ${implementor.label}"
     }
-    activity.implementor = implementor.implementorClassName
+    activity.implementor = implementor.implementorClass
     activity.setAttribute(LOGICAL_ID, "A${activity.id}")
     var w = 24
     var h = 24
     if (boxed) {
-        if (implementor.iconName?.startsWith("shape:") ?: false) {
+        if (implementor.icon?.startsWith("shape:") ?: false) {
             w = 60
             h = 40
         }
@@ -92,7 +89,7 @@ fun Process.maxSubprocessId(): Long {
     var maxSubprocId = 0L
     subprocesses?.let {
         if (!subprocesses.isEmpty()) {
-            var maxSubproc = subprocesses.reduce { acc, subproc ->
+            val maxSubproc = subprocesses.reduce { acc, subproc ->
                 if (acc.id > subproc.id) acc else subproc
             }
             maxSubprocId = maxOf(maxSubprocId, maxSubproc.id)
@@ -116,7 +113,7 @@ fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
     val subprocess = Process(subprocJson)
     subprocess.id = maxSubprocId + 1
 
-    var startActivityId = maxActivityId()
+    val startActivityId = maxActivityId()
     for (activity in subprocess.activities) {
         activity.id += startActivityId
         activity.setAttribute(LOGICAL_ID, "A${activity.id}")
@@ -125,7 +122,7 @@ fun Process.addSubprocess(x: Int, y: Int, type: String): Process {
         activityDisplay.y = activityDisplay.y + y
         activity.setAttribute(WORK_DISPLAY_INFO, activityDisplay.toString())
     }
-    var startTransitionId = maxTransitionId()
+    val startTransitionId = maxTransitionId()
     for (transition in subprocess.transitions) {
         transition.id += startTransitionId
         transition.setAttribute(LOGICAL_ID, "T${transition.id}")
@@ -204,8 +201,8 @@ fun Process.setActivity(logicalId: String, activity: Activity) {
         activities.replaceAt(i, activity)
     }
     else {
-        subprocesses?.let {
-            for (subprocess in subprocesses) {
+        subprocesses?.let { subprocs ->
+            for (subprocess in subprocs) {
                 val j = subprocess.activities.findIndex { it.logicalId == logicalId }
                 if (j >= 0) {
                     activity.setAttribute(WORK_DISPLAY_INFO, subprocess.activities[j].getAttribute(WORK_DISPLAY_INFO))
@@ -228,8 +225,8 @@ fun Process.setTransition(logicalId: String, transition: Transition) {
         transitions.replaceAt(i, transition)
     }
     else {
-        subprocesses?.let {
-            for (subprocess in subprocesses) {
+        subprocesses?.let { subprocs ->
+            for (subprocess in subprocs) {
                 val j = subprocess.transitions.findIndex { it.logicalId == logicalId }
                 if (j >= 0) {
                     transition.fromId = subprocess.transitions[j].fromId
@@ -254,9 +251,9 @@ fun Process.setSubprocess(logicalId: String, subprocess: Process) {
 }
 
 fun Process.deleteSubprocess(logicalId: String) {
-    subprocesses?.let {
-        val i = subprocesses.findIndex { it.id == logicalId.substring(1).toLong() }
-        if (i >= 0) subprocesses.removeAt(i)
+    subprocesses?.let { subprocs ->
+        val i = subprocs.findIndex { it.id == logicalId.substring(1).toLong() }
+        if (i >= 0) subprocs.removeAt(i)
     }
 }
 
@@ -269,8 +266,8 @@ fun Process.setTextNote(logicalId: String, textNote: TextNote) {
 }
 
 fun Process.deleteTextNote(logicalId: String) {
-    textNotes?.let {
-        val i = textNotes.findIndex { it.logicalId == logicalId }
-        if (i >= 0) textNotes.removeAt(i)
+    textNotes?.let { notes ->
+        val i = notes.findIndex { it.logicalId == logicalId }
+        if (i >= 0) notes.removeAt(i)
     }
 }

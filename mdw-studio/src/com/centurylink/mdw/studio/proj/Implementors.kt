@@ -1,8 +1,9 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.annotations.Activity
+import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.model.Data
-import com.centurylink.mdw.draw.model.Implementor
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.psi.*
 import com.intellij.psi.impl.PsiExpressionEvaluator
@@ -10,11 +11,11 @@ import com.intellij.psi.util.PsiTypesUtil
 import org.json.JSONObject
 import java.util.*
 
-class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Implementor>() {
+class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,ActivityImplementor>() {
 
     init {
         for (implAsset in projectSetup.findAssetsOfType("impl")) {
-            add(Implementor(implAsset.path, JSONObject(String(implAsset.contents))))
+            add(ActivityImplementor(JSONObject(String(implAsset.contents))))
         }
         for (javaAsset in projectSetup.findAssetsOfType("java")) {
             PsiManager.getInstance(projectSetup.project).findFile(javaAsset.file)?.let { psiFile ->
@@ -26,14 +27,14 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Impl
                 getImpl(psiFile)?.let { add(it) }
             }
         }
-        for (pseudoImpl in Implementor.PSEUDO_IMPLS) {
-            pseudoImpl.icon = projectSetup.getIconAsset(pseudoImpl.iconName)
+        for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
+            pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
             add(pseudoImpl)
         }
     }
 
-    private fun add(implementor: Implementor) {
-        var iconAsset = implementor.iconName
+    private fun add(implementor: ActivityImplementor) {
+        var iconAsset = implementor.icon
         if (iconAsset != null && !iconAsset.startsWith("shape:")) {
             var iconPkg = Data.BASE_PKG
             val slash = iconAsset.lastIndexOf('/')
@@ -43,22 +44,20 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Impl
             }
             else {
                 // find in implementor package, if present
-                implementor.assetPath?.let {
-                    val implAsset = projectSetup.getAsset(it)
-                    if (implAsset != null) {
-                        val pkgIconAsset = projectSetup.getAssetFile("${implAsset.pkg.name}/$iconAsset")
-                        if (pkgIconAsset != null) {
-                            iconPkg = implAsset.pkg.name
-                        }
+                val lastDot = implementor.implementorClass.lastIndexOf('.')
+                if (lastDot > 0) {
+                    val pkg = implementor.implementorClass.substring(0, lastDot)
+                    projectSetup.getAssetFile("$pkg/$iconAsset")?.let {
+                        iconPkg = pkg
                     }
                 }
             }
-            implementor.icon = projectSetup.getIconAsset("$iconPkg/$iconAsset")
+            implementor.imageIcon = projectSetup.getIconAsset("$iconPkg/$iconAsset")
         }
-        put(implementor.implementorClassName, implementor)
+        put(implementor.implementorClass, implementor)
     }
 
-    fun toSortedList(): List<Implementor> {
+    fun toSortedList(): List<ActivityImplementor> {
        return this.values.sortedBy { it.label }
     }
 
@@ -66,7 +65,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Impl
         /**
          * Find annotation-based implementors (return null if not found)
          */
-        fun getImpl(psiFile: PsiFile): Implementor? {
+        fun getImpl(psiFile: PsiFile): ActivityImplementor? {
             if (psiFile is PsiClassOwner) {
                 for (psiClass in psiFile.classes) {
                     AnnotationUtil.findAnnotation(psiClass, Activity::class.java.name)?.let { psiAnnotation ->
@@ -84,7 +83,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Impl
                                 PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
                             }
                             if (label != null && category != null && icon != null) {
-                                return Implementor(category, label, icon, implClass, pagelet)
+                                return ActivityImplementor(implClass, category, label, icon, pagelet)
                             }
                         }
                     }
@@ -98,3 +97,19 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String, Impl
 interface ImplementorChangeListener {
     fun onChange(implementors: Implementors)
 }
+
+/**
+ * For asset-driven activities
+ */
+class AssociatedAsset(type: String) {
+
+}
+
+val Step.asset: AssociatedAsset?
+    get() {
+        val attr: String? = null
+        if (implementor.category.endsWith("InvokeProcessActivity")) {
+
+        }
+        return null
+    }

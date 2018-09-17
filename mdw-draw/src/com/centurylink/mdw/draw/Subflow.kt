@@ -1,18 +1,18 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
-import com.centurylink.mdw.draw.model.WorkflowObj
-import com.centurylink.mdw.draw.model.Project
-import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.draw.ext.addActivity
 import com.centurylink.mdw.draw.ext.addTransition
-import com.centurylink.mdw.draw.model.Implementor
+import com.centurylink.mdw.draw.model.Project
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color
 import java.awt.Graphics2D
 
 class Subflow(private val g2d: Graphics2D, private val project: Project, private val process: Process,
-        val subprocess: Process, val implementors: Map<String, Implementor>) :
+        val subprocess: Process, val implementors: Map<String,ActivityImplementor>) :
         Shape(g2d, Display(subprocess.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable  {
 
     override val workflowObj = object: WorkflowObj(project, process, WorkflowType.subprocess, subprocess.json) {
@@ -35,9 +35,9 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
 
         // activities
         for (activity in subprocess.activities) {
-            var impl = implementors.get(activity.implementor)
+            var impl = implementors[activity.implementor]
             if (impl == null) {
-                impl = Implementor(activity.implementor)
+                impl = ActivityImplementor(activity.implementor)
             }
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
@@ -61,7 +61,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
         return null
     }
 
-    fun addStep(implementor: Implementor, x: Int, y: Int): Step {
+    fun addStep(implementor: ActivityImplementor, x: Int, y: Int): Step {
         val activity = subprocess.addActivity(x, y, implementor)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn
@@ -88,7 +88,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
 
     override fun draw(): Display {
 
-        var extents = Display(0, 0, display.x + display.w, display.y + display.h)
+        val extents = Display(0, 0, display.x + display.w, display.y + display.h)
         drawRect(border = Subflow.BOX_OUTLINE_COLOR)
 
         // label

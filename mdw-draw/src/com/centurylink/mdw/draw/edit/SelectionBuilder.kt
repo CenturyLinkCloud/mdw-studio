@@ -2,16 +2,12 @@ package com.centurylink.mdw.draw.edit
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.*
-import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.draw.ext.maxActivityId
 import com.centurylink.mdw.draw.ext.maxSubprocessId
 import com.centurylink.mdw.draw.ext.maxTextNoteId
 import com.centurylink.mdw.draw.ext.maxTransitionId
-import com.centurylink.mdw.draw.model.Implementor
-import com.centurylink.mdw.model.workflow.Activity
-import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.model.workflow.TextNote
-import com.centurylink.mdw.model.workflow.Transition
+import com.centurylink.mdw.drawio.MxGraphParser
+import com.centurylink.mdw.model.workflow.*
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -45,7 +41,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 val activityJson = activitiesArr.getJSONObject(i)
                 val activity = Activity(activityJson)
                 activityIds[activity.id] = activityId
-                val implementor = diagram.implementors[activity.implementor] ?: Implementor(activity.implementor)
+                val implementor = diagram.implementors[activity.implementor] ?: ActivityImplementor(activity.implementor)
                 activity.id = activityId
                 activity.setAttribute(WorkAttributeConstant.LOGICAL_ID, "A$activityId")
                 val step = Step(diagram.g2d, diagram.project, process, activity, implementor)

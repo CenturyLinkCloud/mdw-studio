@@ -14,6 +14,8 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
         get() = file.name
     val encodedName: String
         get() = file.name.replace(" ", "%20")  // URLEncoder uses '+' for spaces
+    val ext: String
+        get() = name.substring(name.lastIndexOf('.') + 1)
 
     val version: Int
         get() {

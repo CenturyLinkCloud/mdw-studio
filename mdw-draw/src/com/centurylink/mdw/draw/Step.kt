@@ -1,39 +1,39 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
-import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.Activity
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Graphics2D
 
-class Step(private val g2d: Graphics2D, project: Project, process: Process, val activity: Activity,
-        val implementor: Implementor, private val boxStyle: Boolean = true) :
+class Step(private val g2d: Graphics2D, val project: Project, process: Process, val activity: Activity,
+        val implementor: ActivityImplementor, private val boxStyle: Boolean = true) :
         Shape(g2d, Display(activity.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
     override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json)
 
     override fun draw(): Display {
 
-        var extents = Display(0, 0, display.x + display.w, display.y + display.h)
+        val extents = Display(0, 0, display.x + display.w, display.y + display.h)
 
-        var yAdjust = -3
+        val yAdjust = -3
         var textColor = Display.DEFAULT_COLOR
 
-        if (implementor.icon != null) {
+        if (implementor.imageIcon != null) {
             if (boxStyle) {
                 drawRect()
             }
-            var iconX = display.x + display.w / 2 - 12
-            var iconY = display.y + 5
-            extents.w = maxOf(extents.w, iconX + implementor.icon!!.iconWidth)
-            extents.h = maxOf(extents.h, iconY + implementor.icon!!.iconHeight)
-            drawIcon(implementor.icon!!, iconX, iconY)
+            val iconX = display.x + display.w / 2 - 12
+            val iconY = display.y + 5
+            extents.w = maxOf(extents.w, iconX + implementor.imageIcon.iconWidth)
+            extents.h = maxOf(extents.h, iconY + implementor.imageIcon.iconHeight)
+            drawIcon(implementor.imageIcon, iconX, iconY)
         }
-        else if (implementor.iconName != null && implementor.iconName.startsWith("shape:")) {
-            val shape = implementor.iconName.substring(6)
+        else if (implementor.icon != null && implementor.icon.startsWith("shape:")) {
+            val shape = implementor.icon.substring(6)
             when(shape) {
                 "start" -> {
                     if (display.w == 60 && display.h == 40) {
@@ -76,8 +76,8 @@ class Step(private val g2d: Graphics2D, project: Project, process: Process, val 
                 // center the one and only line
                 y += g2d.fontMetrics.height / 2
             }
-            if (implementor.icon != null) {
-                y += implementor.icon!!.iconHeight / 2
+            if (implementor.imageIcon != null) {
+                y += implementor.imageIcon.iconHeight / 2
             }
             if (y < 0) {
                 y = 0

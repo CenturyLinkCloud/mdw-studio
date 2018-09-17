@@ -3,17 +3,17 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.*
-import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.Graphics2D
 
 class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, val process: Process,
-        val implementors: Map<String, Implementor>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
+        val implementors: Map<String, ActivityImplementor>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
 
     override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {
         init {
@@ -42,7 +42,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
         // activities
         for (activity in process.activities) {
-            val impl = implementors[activity.implementor] ?: Implementor(activity.implementor)
+            val impl = implementors[activity.implementor] ?: ActivityImplementor(activity.implementor)
             val step = Step(g2d, project, process, activity, impl)
             steps.add(step)
         }
@@ -193,7 +193,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    private fun addStep(x: Int, y: Int, implementor: Implementor): Step {
+    private fun addStep(x: Int, y: Int, implementor: ActivityImplementor): Step {
         for (subflow in subflows) {
             if (subflow.isHover(x, y)) {
                 return subflow.addStep(implementor, x, y)
@@ -389,9 +389,9 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    fun onDrop(de: DiagramEvent, implementor: Implementor) {
+    fun onDrop(de: DiagramEvent, implementor: ActivityImplementor) {
         when (implementor.category) {
-            "subflow" -> selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClassName)
+            "subflow" -> selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClass)
             "note" -> selection.selectObj = addNote(de.x, de.y)
             else -> selection.selectObj = addStep(de.x, de.y, implementor)
         }

@@ -5,7 +5,7 @@ import com.centurylink.mdw.draw.edit.SelectListener
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.studio.action.ActivityDrillInAction
+import com.centurylink.mdw.studio.action.ActivityContextAction
 import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
@@ -14,7 +14,6 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
-import javax.swing.Icon
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
@@ -84,44 +83,23 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                 }
 
                 if (e.isPopupTrigger) {
-                    val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
-                    if (action is ActionGroup) {
-                        if (action is DefaultActionGroup) {
-                            val activityAssetAction = action.childActionsOrStubs.find { anAction ->
-                                val label = anAction.templatePresentation.text
-                                label != null && (label.startsWith("Open "))
-                            }
-                            activityAssetAction?.let { activityAction ->
-                                var label: String? = null
-                                var icon: Icon? = null
-                                diagram?.let { diagram ->
-                                    if (diagram.selection.selectObjs.size == 1 && diagram.selection.selectObj is Step) {
-                                        val step = diagram.selection.selectObj as Step
-                                        if (step.implementor.isSubProcessInvoke) {
-                                            label = ActivityDrillInAction.OPEN_SUBPROCESS
-                                            icon = Icons.PROCESS
-                                        }
-                                        else if (step.implementor.isScript) {
-                                            label = ActivityDrillInAction.OPEN_SCRIPT
-                                            // TODO other script flavors
-                                            icon = Icons.KOTLIN
-                                        }
-//                                        else if (step.implementor.isDynamicJava) {
-//                                            label =
-//                                        }
-                                    }
-                                }
-                                activityAction.templatePresentation.isEnabled = label != null
-                                activityAction.templatePresentation.isVisible = label != null
-                                activityAction.templatePresentation.text = label ?: "Open "
-                                if (icon != null) {
-                                    activityAction.templatePresentation.icon = icon
+                val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
+                if (action is DefaultActionGroup) {
+                        diagram?.let { diagram ->
+                            if (diagram.selection.selectObjs.size == 1 && diagram.selection.selectObj is Step) {
+                                (diagram.selection.selectObj as Step).associatedAsset?.let { asset ->
+                                    val actions = action.childActionsOrStubs.toMutableList()
+                                    actions.add(0, ActivityContextAction(asset))
+                                    val newAction = DefaultActionGroup(actions)
+                                    val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, newAction)
+                                    popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
+                                    return
                                 }
                             }
                         }
-                        val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, action)
-                        popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
                     }
+                    val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, action as ActionGroup)
+                    popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
                 }
             }
 

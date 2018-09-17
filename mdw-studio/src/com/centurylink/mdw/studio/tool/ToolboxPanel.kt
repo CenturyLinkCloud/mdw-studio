@@ -4,10 +4,10 @@ import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.Display.Companion.ICON_HEIGHT
 import com.centurylink.mdw.draw.Display.Companion.ICON_PAD
 import com.centurylink.mdw.draw.Display.Companion.ICON_WIDTH
-import com.centurylink.mdw.draw.model.Implementor
 import com.centurylink.mdw.draw.Shape
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.proj.ImplementorChangeListener
 import com.centurylink.mdw.studio.proj.Implementors
@@ -83,7 +83,7 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
     }
 }
 
-class ToolPanel(val projectSetup: ProjectSetup, val implementor: Implementor) : JPanel(FlowLayout(FlowLayout.LEFT)) {
+class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImplementor) : JPanel(FlowLayout(FlowLayout.LEFT)) {
 
     val icon = ToolboxIcon(implementor)
 
@@ -93,7 +93,7 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: Implementor) : 
 
         transferHandler = object : TransferHandler() {
 
-            val transferData = "{ \"mdw.implementor\": \"${implementor.implementorClassName}\" }"
+            val transferData = "{ \"mdw.implementor\": \"${implementor.implementorClass}\" }"
 
             override fun createTransferable(c: JComponent): Transferable {
                 return object : Transferable {
@@ -124,11 +124,10 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: Implementor) : 
             }
         }
 
-        if (implementor.icon != null) {
-            implementor.icon?.let {
-                transferHandler.dragImage = it.image
-                transferHandler.dragImageOffset = Point(-it.image.getWidth(null), -it.image.getHeight(null))
-            }
+        val imageIcon = implementor.imageIcon
+        if (imageIcon != null) {
+            transferHandler.dragImage = imageIcon.image
+            transferHandler.dragImageOffset = Point(-imageIcon.image.getWidth(null), -imageIcon.image.getHeight(null))
         }
         else {
             val w = ICON_WIDTH
@@ -156,27 +155,28 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: Implementor) : 
         val jsonFlavor = DataFlavor("application/json")
     }
 
-    inner class ToolboxIcon(private val implementor: Implementor) {
+    inner class ToolboxIcon(private val implementor: ActivityImplementor) {
         fun draw(g2d: Graphics2D) {
             val shape = IconShape(g2d, implementor)
             shape.draw()
         }
     }
 
-    inner class IconShape(private val g2d: Graphics2D, val implementor: Implementor) :
+    inner class IconShape(private val g2d: Graphics2D, val implementor: ActivityImplementor) :
             Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
 
         override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json) {
-            override var id = implementor.implementorClassName
+            override var id = implementor.implementorClass
             override var name = implementor.label
         }
 
         override fun draw(): Display {
-            if (implementor.icon != null) {
-                g2d.drawImage(implementor.icon!!.image, display.x, display.y, null)
+            val imageIcon = implementor.imageIcon
+            if (imageIcon != null) {
+                g2d.drawImage(imageIcon.image, display.x, display.y, null)
             }
-            else if (implementor.iconName != null && implementor.iconName.startsWith("shape:")) {
-                val shape = implementor.iconName.substring(6)
+            else if (implementor.icon != null && implementor.icon.startsWith("shape:")) {
+                val shape = implementor.icon.substring(6)
                 when(shape) {
                     "start" -> {
                         drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,

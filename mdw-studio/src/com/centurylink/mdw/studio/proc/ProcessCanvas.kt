@@ -5,7 +5,8 @@ import com.centurylink.mdw.draw.edit.SelectListener
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.studio.action.ActivityContextAction
+import com.centurylink.mdw.studio.action.ActivityAssetAction
+import com.centurylink.mdw.studio.action.ActivityEditAction
 import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
@@ -83,22 +84,31 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                 }
 
                 if (e.isPopupTrigger) {
-                val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
-                if (action is DefaultActionGroup) {
+                    val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
+                    var actionGroup = action as ActionGroup
+                    if (action is DefaultActionGroup) {
                         diagram?.let { diagram ->
                             if (diagram.selection.selectObjs.size == 1 && diagram.selection.selectObj is Step) {
-                                (diagram.selection.selectObj as Step).associatedAsset?.let { asset ->
+                                val step = diagram.selection.selectObj as Step
+                                step.associatedAsset?.let { asset ->
                                     val actions = action.childActionsOrStubs.toMutableList()
-                                    actions.add(0, ActivityContextAction(asset))
-                                    val newAction = DefaultActionGroup(actions)
-                                    val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, newAction)
-                                    popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
-                                    return
+                                    actions.add(0, ActivityAssetAction(asset))
+                                    actionGroup = DefaultActionGroup(actions)
+                                }
+                                step.associatedEdit?.let { edit ->
+                                    val actions = action.childActionsOrStubs.toMutableList()
+                                    val editAction = ActivityEditAction(step.workflowObj, edit)
+                                    editAction.addUpdateListener { obj ->
+                                        obj.updateAsset()
+                                        notifyUpdateListeners(obj)
+                                    }
+                                    actions.add(0, editAction)
+                                    actionGroup = DefaultActionGroup(actions)
                                 }
                             }
                         }
                     }
-                    val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, action as ActionGroup)
+                    val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, actionGroup)
                     popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
                 }
             }

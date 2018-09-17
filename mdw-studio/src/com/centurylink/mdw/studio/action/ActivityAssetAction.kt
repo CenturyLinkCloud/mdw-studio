@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.FileTypeManager
 
-class ActivityContextAction(private val asset: Asset) :
+class ActivityAssetAction(private val asset: Asset) :
         AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(asset.ext).name, null,
                 FileTypeManager.getInstance().getFileTypeByExtension(asset.ext).icon) {
 

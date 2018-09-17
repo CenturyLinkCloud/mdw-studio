@@ -59,7 +59,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
         }
     }
 
-    private fun getExt(): String {
+    fun getExt(): String {
         if (ext != null) {
             return ext // documentation, etc
         }

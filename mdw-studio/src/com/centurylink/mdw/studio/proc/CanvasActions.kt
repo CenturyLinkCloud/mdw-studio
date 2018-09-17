@@ -1,13 +1,16 @@
 package com.centurylink.mdw.studio.proc
 
+import com.centurylink.mdw.activity.types.GeneralActivity
+import com.centurylink.mdw.activity.types.ScriptActivity
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.Diagram
 import com.centurylink.mdw.draw.Step
-import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.draw.edit.SelectionBuilder
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.studio.file.Asset
+import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.CopyProvider
 import com.intellij.ide.CutProvider
@@ -15,8 +18,6 @@ import com.intellij.ide.DeleteProvider
 import com.intellij.ide.PasteProvider
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.FileTypeManager
 import org.json.JSONObject
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
@@ -155,11 +156,22 @@ class JsonTransferable(private val json: JSONObject?) : Transferable {
 
 val Step.associatedAsset: Asset?
     get() {
-        if (implementor.category.endsWith("InvokeProcessActivity")) {
-            activity.getAttribute(WorkAttributeConstant.PROCESS_NAME)?.let {
-                val assetPath = if (it.endsWith(".proc")) it else "$it.proc"
-                return (project as ProjectSetup).getAsset(assetPath)
-            }
+        activity.getAttribute(WorkAttributeConstant.PROCESS_NAME)?.let {
+            val assetPath = if (it.endsWith(".proc")) it else "$it.proc"
+            return (project as ProjectSetup).getAsset(assetPath)
+        }
+        return null
+    }
+
+val Step.associatedEdit: AttributeVirtualFile?
+    get() {
+        if (implementor.category == ScriptActivity::class.qualifiedName) {
+            val contents = activity.getAttribute("Rule") ?: ""
+            return AttributeVirtualFile(workflowObj, contents)
+        }
+        if (implementor.category == GeneralActivity::class.qualifiedName && activity.getAttribute("Java") != null) {
+            val contents = activity.getAttribute("Java") ?: ""
+            return AttributeVirtualFile(workflowObj, contents)
         }
         return null
     }

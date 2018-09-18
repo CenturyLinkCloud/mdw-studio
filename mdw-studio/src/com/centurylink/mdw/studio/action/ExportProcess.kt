@@ -16,14 +16,15 @@ import java.io.IOException
 class ExportProcess : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        val projectSetup = getProjectSetup(event)
+        val locator = Locator(event)
+        val projectSetup = locator.getProjectSetup()
         if (projectSetup != null) {
             val ext = when (templatePresentation.text) {
                 "PNG Image" -> "png"
                 "HTML Document" -> "html"
                 else -> "bpmn"
             }
-            getAsset(event)?.let { asset ->
+            locator.getAsset()?.let { asset ->
                 if (asset.ext == "proc") {
                     val process = Process(JSONObject(String(asset.file.contentsToByteArray())))
                     process.name = asset.rootName
@@ -60,11 +61,8 @@ class ExportProcess : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
-        if (event.presentation.isVisible) {
-            getAsset(event)?.let {
-                event.presentation.isVisible = it.ext == "proc"
-                event.presentation.isEnabled = it.ext == "proc"
-            }
-        }
+//        val applicable = getAsset(event)?.ext == "proc"
+//        event.presentation.isVisible = applicable
+//        event.presentation.isEnabled = applicable
     }
 }

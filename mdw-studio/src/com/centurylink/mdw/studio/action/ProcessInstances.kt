@@ -8,9 +8,10 @@ import javax.swing.JOptionPane
 class ProcessInstances : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        getAsset(event)?.let { asset ->
-            getProjectSetup(event)?.let { projectSetup ->
-                var hubUrl = projectSetup.hubRootUrl
+        val locator = Locator(event)
+        locator.getAsset()?.let { asset ->
+            locator.getProjectSetup()?.let { projectSetup ->
+                val hubUrl = projectSetup.hubRootUrl
                 if (hubUrl == null) {
                     JOptionPane.showMessageDialog(null, "No mdw.hub.url found",
                             "Process Instances", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
@@ -25,10 +26,11 @@ class ProcessInstances : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
+        val locator = Locator(event)
         if (event.presentation.isVisible) {
-            getAsset(event)?.let {
+            locator.getAsset()?.let {
                 event.presentation.isVisible = it.path.endsWith(".proc")
-                event.presentation.isEnabled = getProjectSetup(event)?.isServerRunning ?: false
+                event.presentation.isEnabled = locator.getProjectSetup()?.isServerRunning ?: false
             }
         }
     }

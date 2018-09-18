@@ -12,7 +12,7 @@ class AssetVersion() : AssetAction() {
         val project = event.getData(CommonDataKeys.PROJECT)
         val projectSetup = project?.getComponent(ProjectSetup::class.java)
         if (projectSetup != null) {
-            val asset = getAsset(event)
+            val asset = Locator(event).getAsset()
             if (asset != null) {
                 showDialog("${asset.name} v${asset.verString}")?.let {
                     when (it) {
@@ -23,7 +23,7 @@ class AssetVersion() : AssetAction() {
 
             }
             else {
-                val pkg = getPackage(event)
+                val pkg = Locator(event).getPackage()
                 pkg?.let {
                     showDialog("${pkg.name} v${pkg.verString}")?.let {
                         when (it) {
@@ -45,7 +45,8 @@ class AssetVersion() : AssetAction() {
         super.update(event)
         val presentation = event.getPresentation()
         if (presentation.isVisible && presentation.isEnabled) {
-            val applicable = getPackage(event) != null || getAsset(event) != null
+            val locator = Locator(event)
+            val applicable = locator.getPackage() != null || locator.getAsset() != null
             presentation.isVisible = applicable
             presentation.isEnabled = applicable
         }

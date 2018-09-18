@@ -10,8 +10,9 @@ import javax.swing.JOptionPane
 class TaskInstances : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        getAsset(event)?.let { asset ->
-            getProjectSetup(event)?.let { projectSetup ->
+        val locator = Locator(event)
+        locator.getAsset()?.let { asset ->
+            locator.getProjectSetup()?.let { projectSetup ->
                 var hubUrl = projectSetup.hubRootUrl
                 if (hubUrl == null) {
                     JOptionPane.showMessageDialog(null, "No mdw.hub.url found",
@@ -28,10 +29,11 @@ class TaskInstances : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
+        val locator = Locator(event)
         if (event.presentation.isVisible) {
-            getAsset(event)?.let {
+            locator.getAsset()?.let {
                 event.presentation.isVisible = it.path.endsWith(".task")
-                event.presentation.isEnabled = getProjectSetup(event)?.isServerRunning ?: false
+                event.presentation.isEnabled = locator.getProjectSetup()?.isServerRunning ?: false
             }
         }
     }

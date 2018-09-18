@@ -40,7 +40,6 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
     </extensions>
 
-
     <actions>
         <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
             <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"
@@ -73,6 +72,32 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Show task instances in MDWHub"
                     class="com.centurylink.mdw.studio.action.TaskInstances">
             </action>
+            <group id="mdwImport" text="Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
+                    description="Import an MDW process">
+                <action id="mdwImportDrawIo" text="From draw.io Diagram" icon="AllIcons.FileTypes.Xml"
+                        description="Import from draw.io diagram"
+                        class="com.centurylink.mdw.studio.action.ImportProcess">
+                </action>
+                <action id="mdwImportBpmn2" text="BPMN 2.0" icon="AllIcons.FileTypes.Xml"
+                        description="Import BPMN 2.0 format"
+                        class="com.centurylink.mdw.studio.action.ImportProcess">
+                </action>
+            </group>
+            <group id="mdwExport" text="Export As..." icon="AllIcons.ToolbarDecorator.Export" popup="true"
+                   description="Export an MDW process">
+                <action id="mdwExportPng" text="PNG Image" icon="/icons/image.svg"
+                        description="Export PNG format"
+                        class="com.centurylink.mdw.studio.action.ExportProcess">
+                </action>
+                <action id="mdwExportHtml" text="HTML Document" icon="AllIcons.FileTypes.Html"
+                        description="Export HTML documentation"
+                        class="com.centurylink.mdw.studio.action.ExportProcess">
+                </action>
+                <action id="mdwExportBpmn2" text="BPMN 2.0" icon="AllIcons.FileTypes.Html"
+                        description="Export BPMN 2.0 format"
+                        class="com.centurylink.mdw.studio.action.ExportProcess">
+                </action>
+            </group>
             <separator/>
             <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
         </group>
@@ -85,6 +110,8 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <reference ref="mdwAssetVersion"/>
             <reference ref="mdwRunProcess"/>
             <reference ref="mdwProcessInstances"/>
+            <reference ref="mdwImport"/>
+            <reference ref="mdwExport"/>
             <separator/>
             <reference ref="RevealGroup"/>
             <separator/>

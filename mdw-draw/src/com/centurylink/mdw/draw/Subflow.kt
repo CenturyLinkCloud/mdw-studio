@@ -3,9 +3,9 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.ext.addActivity
 import com.centurylink.mdw.draw.ext.addTransition
-import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color

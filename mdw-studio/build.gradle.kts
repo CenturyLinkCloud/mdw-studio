@@ -29,6 +29,7 @@ dependencies {
     compile("com.beust:jcommander:1.72")
     compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { isTransitive = false }
     compile("org.yaml:snakeyaml:1.18")
+    compile(files("lib/bpmn-schemas.jar"))
 }
 
 intellij {

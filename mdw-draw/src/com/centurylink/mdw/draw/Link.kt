@@ -1,9 +1,10 @@
 package com.centurylink.mdw.draw
 
-import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.edit.Select
+import com.centurylink.mdw.draw.edit.Selectable
 import com.centurylink.mdw.draw.model.WorkflowObj
-import com.centurylink.mdw.draw.model.Project
 import com.centurylink.mdw.draw.model.WorkflowType
+import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.Transition

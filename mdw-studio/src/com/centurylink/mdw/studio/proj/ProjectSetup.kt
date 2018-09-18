@@ -64,7 +64,7 @@ class Startup : StartupActivity {
     }
 }
 
-class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw.draw.model.Project {
+class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw.model.Project {
 
     // setup is null if not an mdw project
     private var setup: Setup? = null
@@ -73,13 +73,13 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     val isMdwProject: Boolean
         get() = setup != null
 
-    override val hubRootUrl: String?
-        get() {
-            return getMdwProp(PropertyNames.MDW_HUB_URL)
-        }
+    override fun getHubRootUrl(): String? {
+        return getMdwProp(PropertyNames.MDW_HUB_URL)
+    }
 
-    override val assetRoot: File
-      get() = File(assetDir.path)
+    override fun getAssetRoot(): File {
+        return File(assetDir.path)
+    }
 
     lateinit var implementors: Implementors
     private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()
@@ -87,9 +87,11 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         removeImplementorChangeListener(listener)
         implementorChangeListeners.add(listener)
     }
+
     fun removeImplementorChangeListener(listener: ImplementorChangeListener) {
         implementorChangeListeners.remove(listener)
     }
+
     fun reloadImplementors() {
         DumbService.getInstance(project).smartInvokeLater {
             implementors = Implementors(this)
@@ -101,15 +103,13 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     private val projectYaml = File(project.basePath + "/project.yaml")
 
-    override val mdwVersion: MdwVersion
-        get() {
-          return if (projectYaml.exists()) {
-              MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))
-          }
-          else {
-              MdwVersion(null)
-          }
+    override fun getMdwVersion(): MdwVersion {
+        return if (projectYaml.exists()) {
+            MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))
+        } else {
+            MdwVersion(null)
         }
+    }
 
     val git: VersionControlGit?
 

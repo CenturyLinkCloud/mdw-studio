@@ -8,6 +8,7 @@ import com.centurylink.mdw.studio.config.widgets.Editor
 import com.centurylink.mdw.studio.config.widgets.Label
 import com.centurylink.mdw.studio.config.widgets.SwingWidget
 import com.centurylink.mdw.studio.config.widgets.Table
+import com.google.gson.GsonBuilder
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import java.awt.*
@@ -31,7 +32,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
         containerPane.background = getBackgroundColor()
         allSwingWidgets.clear()
 
-        // println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
+        println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
 
         try {
             val widgets = template.filterWidgets(tabName)

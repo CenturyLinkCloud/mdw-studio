@@ -46,7 +46,7 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
         document ?: throw IOException("No document: " + virtualFile.path)
 
         WriteAction.run<Throwable> {
-            document.setText(workflowObj.getAttribute(attributeName) ?: "")
+            document.setText(workflowObj.getAttribute(attributeName)?.replace("\r", "") ?: "")
         }
 
         document.addDocumentListener(object : DocumentListener {

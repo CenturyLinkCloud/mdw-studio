@@ -12,6 +12,7 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*

@@ -85,6 +85,11 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <reference ref="mdwAssetVersion"/>
             <reference ref="mdwRunProcess"/>
             <reference ref="mdwProcessInstances"/>
+            <separator/>
+            <reference ref="RevealGroup"/>
+            <separator/>
+            <reference ref="LocalHistory"/>
+            <reference ref="VcsGlobalGroup"/>
         </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
                 description="Open MDWHub"

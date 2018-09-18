@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.activity.types.GeneralActivity
 import com.centurylink.mdw.activity.types.ScriptActivity
+import com.centurylink.mdw.activity.types.TaskActivity
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.Diagram
 import com.centurylink.mdw.draw.Step
@@ -9,6 +10,7 @@ import com.centurylink.mdw.draw.edit.SelectionBuilder
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.drawio.MxGraphParser
+import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.proj.ProjectSetup
@@ -156,9 +158,22 @@ class JsonTransferable(private val json: JSONObject?) : Transferable {
 
 val Step.associatedAsset: Asset?
     get() {
+        val projectSetup = project as ProjectSetup
         activity.getAttribute(WorkAttributeConstant.PROCESS_NAME)?.let {
             val assetPath = if (it.endsWith(".proc")) it else "$it.proc"
-            return (project as ProjectSetup).getAsset(assetPath)
+            return projectSetup.getAsset(assetPath)
+        }
+        activity.getAttribute(TaskActivity.ATTRIBUTE_TASK_TEMPLATE)?.let {
+            return projectSetup.getAsset(it)
+        }
+        // general lookup for asset-driven activities
+        if (!implementor.pagelet.isNullOrBlank()) {
+            val pagelet = Pagelet(implementor.pagelet)
+            pagelet.widgets.find { it.type == "asset" }?.let { widget ->
+                activity.getAttribute(widget.name)?.let { name ->
+                    return projectSetup.getAsset(name)
+                }
+            }
         }
         return null
     }

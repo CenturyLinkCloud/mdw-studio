@@ -237,9 +237,12 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     fun getAssetFile(assetPath: String): VirtualFile? {
+        if (assetPath.startsWith("\${")) {
+            return null
+        }
         val slash = assetPath.lastIndexOf('/')
         if (slash == -1 || slash > assetPath.length - 2)
-            throw IOException("Bad asset path: " + assetPath)
+            throw IOException("Bad asset path: $assetPath")
         val pkgPath = assetPath.substring(0, slash).replace('.', '/')
         return assetDir.findFileByRelativePath(pkgPath + "/" + assetPath.substring(slash + 1))
     }

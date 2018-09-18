@@ -20,10 +20,13 @@ import java.io.IOException
 /**
  * For activities whose main attribute can be opened in an inline editor.
  */
-class ActivityEditAction(val workflowObj: WorkflowObj, val virtualFile: AttributeVirtualFile) :
+class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
         AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).name, null,
                 FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).icon),
         UpdateListeners by UpdateListenersDelegate() {
+
+    val attributeName: String
+        get() = if (workflowObj.getAttribute("Java") != null) "Java" else "Rule"
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.let { project ->
@@ -38,18 +41,17 @@ class ActivityEditAction(val workflowObj: WorkflowObj, val virtualFile: Attribut
     }
 
     private fun showEditDialog(project: Project) {
-
-        val attrName = if (workflowObj.getAttribute("Java") != null) "Java" else "Rule"
-
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
+        document.setText(workflowObj.getAttribute(attributeName) ?: "")
+
+        println("doc: " + document.text)
 
         document.addDocumentListener(object : DocumentListener {
             override fun beforeDocumentChange(e: DocumentEvent) {
             }
             override fun documentChanged(e: DocumentEvent) {
-                println("setting: " + e.document.text)
-                workflowObj.setAttribute(attrName, e.document.text)
+                workflowObj.setAttribute(attributeName, e.document.text)
                 notifyUpdateListeners(workflowObj)
             }
         })

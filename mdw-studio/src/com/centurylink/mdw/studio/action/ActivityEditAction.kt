@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
@@ -43,9 +44,10 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
     private fun showEditDialog(project: Project) {
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
-        document.setText(workflowObj.getAttribute(attributeName) ?: "")
 
-        println("doc: " + document.text)
+        WriteAction.run<Throwable> {
+            document.setText(workflowObj.getAttribute(attributeName) ?: "")
+        }
 
         document.addDocumentListener(object : DocumentListener {
             override fun beforeDocumentChange(e: DocumentEvent) {

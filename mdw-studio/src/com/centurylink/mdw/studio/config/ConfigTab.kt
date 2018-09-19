@@ -32,7 +32,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
         containerPane.background = getBackgroundColor()
         allSwingWidgets.clear()
 
-        // println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
+        println("PAGELET: " + GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(template.pagelet))
 
         try {
             val widgets = template.filterWidgets(tabName)

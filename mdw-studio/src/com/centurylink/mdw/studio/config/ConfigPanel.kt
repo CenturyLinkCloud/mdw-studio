@@ -106,7 +106,7 @@ fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj:
         val implClass = workflowObj.get("implementor")
         val implementor = projectSetup.implementors[implClass]
         implementor?.let {
-            return Template(JsonObject(implementor.json.toString()))
+            return Template(JsonObject(implementor.json.toString()), implementor.category)
         }
     }
     else {

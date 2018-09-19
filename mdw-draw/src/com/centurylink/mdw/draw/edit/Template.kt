@@ -4,7 +4,7 @@ import com.centurylink.mdw.draw.ext.toJSONObject
 import com.centurylink.mdw.model.asset.Pagelet
 import com.google.gson.JsonObject
 
-class Template(json: JsonObject) {
+class Template(json: JsonObject, implCategory: String? = null) {
 
     val category: String
     val pagelet: Pagelet
@@ -14,7 +14,7 @@ class Template(json: JsonObject) {
 
         val pageletContent = json.get("pagelet")
         if (pageletContent.isJsonPrimitive) {
-            pagelet = Pagelet(pageletContent.asString)
+            pagelet = Pagelet(implCategory, pageletContent.asString)
         }
         else {
             pagelet = Pagelet(pageletContent.asJsonObject.toJSONObject())

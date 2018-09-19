@@ -49,7 +49,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             schemaVersion = loader.getRequired("schemaVersion", topMap, "")
         }
         catch (ex: YAMLException) {
-            throw IOException("Error parsing package meta: $metaFile");
+            throw IOException("Error parsing package meta: $metaFile", ex);
         }
     }
 

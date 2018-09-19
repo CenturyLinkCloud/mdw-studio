@@ -69,7 +69,14 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         set(value) {
             _process = value
             _process.name = procFile.nameWithoutExtension
-            asset = projectSetup.getAsset(procFile)!! // asset must be found
+            var procAsset = projectSetup.getAsset(procFile)
+            if (procAsset == null) {
+                // can happen if no pkg meta
+                asset = projectSetup.createAsset(procFile)
+            }
+            else {
+                asset = procAsset
+            }
             _process.id = asset.id
             _process.version = asset.version
             _process.packageName = asset.pkg.name

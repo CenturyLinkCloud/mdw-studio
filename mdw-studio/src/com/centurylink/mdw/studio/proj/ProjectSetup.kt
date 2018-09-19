@@ -11,6 +11,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
@@ -305,18 +306,18 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     private fun createPackage(packageName: String): AssetPackage {
         val pkgDir = assetDir.findFileByRelativePath(packageName.replace('.', '/'))
         pkgDir ?: throw IOException("Package directory not found: $packageName")
-        var metaDir = pkgDir.findFileByRelativePath(AssetPackage.META_DIR)
-        if (metaDir == null) {
-            metaDir = pkgDir.createChildDirectory(this, AssetPackage.META_DIR)
-        }
-        val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML) ?:
-                metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
-        DumbService.getInstance(project).smartInvokeLater {
-            WriteAction.run<IOException> {
+        return WriteAction.compute<AssetPackage,IOException> {
+            var metaDir = pkgDir.findFileByRelativePath(AssetPackage.META_DIR)
+            if (metaDir == null) {
+                metaDir = pkgDir.createChildDirectory(this, AssetPackage.META_DIR)
+            }
+            val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
+                    ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
+            ApplicationManager.getApplication().invokeAndWait {
                 packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
             }
+            AssetPackage(getPackageName(pkgDir), pkgDir)
         }
-        return AssetPackage(getPackageName(pkgDir), pkgDir)
     }
 
     private fun createVersionsFile(pkg: AssetPackage): VirtualFile {

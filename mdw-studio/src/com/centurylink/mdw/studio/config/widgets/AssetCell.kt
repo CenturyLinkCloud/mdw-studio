@@ -16,11 +16,22 @@ import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 
 class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSetup, source: String? = null,
-        callback: AssetSelectCallback? = null) : JPanel(FlowLayout(FlowLayout.LEFT, 5, 3)) {
+        callback: AssetSelectCallback? = null) : JPanel(FlowLayout(FlowLayout.LEFT, HGAP, VGAP)) {
 
     val assetLink = AssetLink(assetPath, projectSetup)
 
-    fun isHover(x: Int, y: Int): Boolean {
+    /**
+     * Coords are relative to cell origin.
+     * Returns whether the pointer cursor should be displayed.
+     */
+    fun onHover(x: Int, y: Int): Boolean {
+        if (x > HGAP && y > VGAP) {
+            val fontMetrics = assetLink.getFontMetrics(assetLink.font)
+            if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
+                    y < VGAP + fontMetrics.height) {
+                return true
+            }
+        }
         return false
     }
 
@@ -58,6 +69,11 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
                 border = EmptyBorder(1, 1, 1, 1)
             }
         }
+    }
+
+    companion object {
+        const val HGAP = 5
+        const val VGAP = 3
     }
 }
 

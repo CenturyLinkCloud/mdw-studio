@@ -14,7 +14,6 @@ import java.awt.BorderLayout
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Graphics
-import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.*
@@ -79,9 +78,11 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
 
         val table = object : JBTable(tableModel) {
             override fun isCellEditable(row: Int, column: Int): Boolean {
-                return if (widget.isReadonly) false else super.isCellEditable(row, column)
+                return if (widget.isReadonly || this@Table.widget.isReadonly) false else super.isCellEditable(row, column)
             }
         }
+
+        table.rowSelectionAllowed = withButtons
 
         val header = table.tableHeader
         val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
@@ -99,19 +100,20 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
 
         table.addMouseMotionListener(object: MouseMotionAdapter() {
             override fun mouseMoved(e: MouseEvent) {
-                val col = table.columnModel.getColumn(table.columnAtPoint(e.point))
+                val colIdx = table.columnAtPoint(e.point)
+                val col = table.columnModel.getColumn(colIdx)
                 val renderer = col.cellRenderer
                 if (renderer is AssetCellRenderer) {
-                    renderer.assetCell?.requestFocusInWindow()
-                    if (renderer.assetCell?.isHover(e.x, e.y) == true) {
-                        // table.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    val cellRect = table.getCellRect(table.rowAtPoint(e.point), colIdx, false)
+                    if (renderer.assetCell?.onHover(e.x - cellRect.x, e.y - cellRect.y) == true) {
+                        table.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     }
                     else {
-                        // table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                        table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
                     }
                 }
                 else {
-                    // table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                    table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
                 }
             }
         })

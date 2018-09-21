@@ -83,6 +83,16 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
 class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
 
+    val assetName: String
+      get() {
+          var name = assetPath ?: ""
+          val lastSlash = name.lastIndexOf('/')
+          if (lastSlash > 0) {
+              name = name.substring(lastSlash + 1, name.length)
+          }
+          return name
+      }
+
     init {
         var assetFile: VirtualFile?
 
@@ -122,11 +132,6 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
     }
 
     private fun getAssetLabel(): String {
-        var assetName = assetPath ?: ""
-        val lastSlash = assetName.lastIndexOf('/')
-        if (lastSlash > 0) {
-            assetName = assetName.substring(lastSlash + 1, assetName.length)
-        }
         return if (assetPath.isNullOrEmpty() || containsExpression(assetPath)) {
             assetName // contains expression
         } else {

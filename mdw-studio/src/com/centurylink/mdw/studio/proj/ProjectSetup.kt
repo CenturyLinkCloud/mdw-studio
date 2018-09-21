@@ -11,6 +11,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
+import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
@@ -25,6 +26,9 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiClassOwner
+import com.intellij.psi.PsiManager
 import org.json.JSONException
 import org.json.JSONObject
 import org.yaml.snakeyaml.error.YAMLException
@@ -290,6 +294,47 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
         }
         return assets
+    }
+
+    fun findAnnotatedAssets(annotation: String): Map<Asset,List<PsiAnnotation>> {
+        val annotatedAssets = mutableMapOf<Asset,MutableList<PsiAnnotation>>()
+        for (javaAsset in findAssetsOfType("java")) {
+            val psiFile = PsiManager.getInstance(project).findFile(javaAsset.file)
+            psiFile?.let { assetPsiFile ->
+                if (psiFile is PsiClassOwner) {
+                    for (psiClass in psiFile.classes) {
+                        AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->
+                            val annotations = annotatedAssets[javaAsset]
+                            if (annotations == null) {
+                                annotatedAssets[javaAsset] = mutableListOf(psiAnnotation)
+                            }
+                            else {
+                                annotations.add(psiAnnotation)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (ktAsset in findAssetsOfType("kt")) {
+            val psiFile = PsiManager.getInstance(project).findFile(ktAsset.file)
+            psiFile?.let { assetPsiFile ->
+                if (psiFile is PsiClassOwner) {
+                    for (psiClass in psiFile.classes) {
+                        AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->
+                            val annotations = annotatedAssets[ktAsset]
+                            if (annotations == null) {
+                                annotatedAssets[ktAsset] = mutableListOf(psiAnnotation)
+                            }
+                            else {
+                                annotations.add(psiAnnotation)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return annotatedAssets
     }
 
     fun createAsset(file: VirtualFile): Asset {

@@ -1,18 +1,30 @@
 package com.centurylink.mdw.studio.config
 
+import com.centurylink.mdw.activity.types.AdapterActivity
+import com.centurylink.mdw.activity.types.TaskActivity
+import com.centurylink.mdw.annotations.Monitor
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.Drawable
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.JsonObject
 import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.model.asset.Pagelet.Widget
+import com.centurylink.mdw.model.asset.PrePostWidgetProvider
+import com.centurylink.mdw.monitor.ActivityMonitor
+import com.centurylink.mdw.monitor.AdapterMonitor
+import com.centurylink.mdw.monitor.ProcessMonitor
+import com.centurylink.mdw.monitor.TaskMonitor
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
+import org.json.JSONArray
+import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Cursor
 import java.awt.Dimension
@@ -106,13 +118,62 @@ fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj:
         val implClass = workflowObj.get("implementor")
         val implementor = projectSetup.implementors[implClass]
         implementor?.let {
-            return Template(JsonObject(implementor.json.toString()), implementor.category)
+            val template = Template(JsonObject(implementor.json.toString()), implementor.category)
+            template.pagelet.addWidgetProvider(PrePostWidgetProvider())
+            if (!DumbService.getInstance(projectSetup.project).isDumb) {
+                template.pagelet.addWidgetProvider { implCategory ->
+                    val monitoringWidget = Widget(JSONObject(Templates.get("configurator/monitors.json")))
+                    val widgets = listOf(monitoringWidget)
+                    val rows = JSONArray()
+                    for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class.java.name)) {
+                        for (psiAnnotation in psiAnnotations) {
+                            val monitorAnnotation = MonitorAnnotation(psiAnnotation, asset)
+                            val applicable = when (monitorAnnotation.category) {
+                                ActivityMonitor::class.qualifiedName -> true
+                                AdapterMonitor::class.qualifiedName -> implCategory == AdapterActivity::class.qualifiedName
+                                TaskMonitor::class.qualifiedName -> implCategory == TaskActivity::class.qualifiedName
+                                else -> false
+                            }
+                            if (applicable) {
+                                rows.put(monitorAnnotation.defaultAttributeValue)
+                            }
+                        }
+                    }
+                    if (rows.length() > 0) {
+                        monitoringWidget.setAttribute("default", rows.toString())
+                    }
+                    widgets
+                }
+            }
+            return template
         }
     }
     else {
         val content = Templates.get("configurator/" + templ)
         content?.let {
-            return Template(JsonObject(content))
+            val template = Template(JsonObject(content))
+            if (templ == "processMonitoring.json") {
+                if (!DumbService.getInstance(projectSetup.project).isDumb) {
+                    template.pagelet.addWidgetProvider { _ ->
+                        val monitoringWidget = Widget(JSONObject(Templates.get("configurator/monitors.json")))
+                        val widgets = listOf(monitoringWidget)
+                        val rows = JSONArray()
+                        for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class.java.name)) {
+                            for (psiAnnotation in psiAnnotations) {
+                                val monitorAnnotation = MonitorAnnotation(psiAnnotation, asset)
+                                if (monitorAnnotation.category == ProcessMonitor::class.qualifiedName) {
+                                    rows.put(monitorAnnotation.defaultAttributeValue)
+                                }
+                            }
+                        }
+                        if (rows.length() > 0) {
+                            monitoringWidget.setAttribute("default", rows.toString())
+                        }
+                        widgets
+                    }
+                }
+            }
+            return template
         }
     }
     return null

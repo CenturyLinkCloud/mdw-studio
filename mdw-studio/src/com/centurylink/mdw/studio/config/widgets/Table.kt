@@ -11,8 +11,12 @@ import com.intellij.ui.table.JBTable
 import org.json.JSONArray
 import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
+import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 import javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
 import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS
@@ -93,6 +97,25 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
             }
         }
 
+        table.addMouseMotionListener(object: MouseMotionAdapter() {
+            override fun mouseMoved(e: MouseEvent) {
+                val col = table.columnModel.getColumn(table.columnAtPoint(e.point))
+                val renderer = col.cellRenderer
+                if (renderer is AssetCellRenderer) {
+                    renderer.assetCell?.requestFocusInWindow()
+                    if (renderer.assetCell?.isHover(e.x, e.y) == true) {
+                        // table.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    }
+                    else {
+                        // table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                    }
+                }
+                else {
+                    // table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                }
+            }
+        })
+
         table.rowHeight = 24
 
         if (scrolling) {
@@ -106,7 +129,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         tablePanel.revalidate()
         tablePanel.repaint()
 
-        if (!widget.isReadonly && withButtons) {
+        if (!widget.isReadonly && widget.attributes["noButtons"] != "true" && withButtons) {
             add(createButtonPanel(table), BorderLayout.EAST)
         }
     }
@@ -198,7 +221,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
     private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
         return when (widget.type) {
             "checkbox" -> CheckboxCellRenderer()
-            "asset" -> AssetCellRenderer(this@Table.widget.isReadonly, projectSetup)
+            "asset" -> AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
             else -> DefaultTableCellRenderer()
         }
     }
@@ -210,7 +233,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
-            "asset" -> AssetCellEditor(this@Table.widget.isReadonly, projectSetup, widget.source)
+            "asset" -> AssetCellEditor(this@Table.widget.isReadonly || widget.isReadonly, projectSetup, widget.source)
             "number" -> NumberCellEditor()
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }

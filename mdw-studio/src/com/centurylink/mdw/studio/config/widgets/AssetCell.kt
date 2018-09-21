@@ -1,9 +1,12 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.AbstractCellEditor
 import javax.swing.JPanel
 import javax.swing.JTable
@@ -13,11 +16,17 @@ import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 
 class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSetup, source: String? = null,
-        callback: AssetSelectCallback? = null) : JPanel(FlowLayout(FlowLayout.LEFT, 5, 0)) {
+        callback: AssetSelectCallback? = null) : JPanel(FlowLayout(FlowLayout.LEFT, 5, 3)) {
 
     val assetLink = AssetLink(assetPath, projectSetup)
 
+    fun isHover(x: Int, y: Int): Boolean {
+        return false
+    }
+
     init {
+        background = UIManager.getColor("EditorPane.background")
+
         add(assetLink)
 
         if (!isReadonly) {
@@ -54,10 +63,13 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
 
 class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer() {
 
+    var assetCell : AssetCell? = null
+
     override fun getTableCellRendererComponent(table: JTable, value: Any?, isSelected: Boolean, hasFocus: Boolean,
             row: Int, column: Int): Component {
         val assetCell = AssetCell(value.toString(), isReadonly, projectSetup)
         assetCell.init(table, isSelected, hasFocus)
+        this.assetCell = assetCell
         return assetCell
     }
 }

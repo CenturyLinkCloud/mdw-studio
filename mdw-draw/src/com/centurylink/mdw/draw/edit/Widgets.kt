@@ -64,7 +64,7 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
         // needed for at least templ placeholders
         attributes = mutableMapOf<String,String>()
     }
-    this.isReadonly = workflowObj.isReadonly
+    this.isReadonly = workflowObj.isReadonly || this.isReadonly
 
     // options source
     // TODO parameterized

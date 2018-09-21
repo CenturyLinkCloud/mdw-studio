@@ -74,7 +74,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
                                 (it as PsiLiteralExpression).value as String
                             }
                             val category = psiAnnotation.findAttributeValue("category")?.let {
-                                PsiTypesUtil.getPsiClass((it as PsiClassObjectAccessExpression).type)?.qualifiedName
+                                PsiTypesUtil.getPsiClass((it as PsiClassObjectAccessExpression).operand.type)?.qualifiedName
                             }
                             val icon = psiAnnotation.findAttributeValue("icon")?.let {
                                 (it as PsiLiteralExpression).value as String

@@ -12,6 +12,9 @@ import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
@@ -160,6 +163,10 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
             else {
                 git = null
+                val note = Notification("MDW", "MDW Project",
+                        "Git root not found: ${setup.gitRoot.absolutePath}.\nAsset version updates will not be applied.",
+                        NotificationType.ERROR)
+                Notifications.Bus.notify(note, project)
             }
         }
     }

@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
@@ -45,10 +46,6 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
 
-        WriteAction.run<Throwable> {
-            document.setText(workflowObj.getAttribute(attributeName)?.replace("\r", "") ?: "")
-        }
-
         document.addDocumentListener(object : DocumentListener {
             override fun beforeDocumentChange(e: DocumentEvent) {
             }
@@ -57,6 +54,18 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
                 notifyUpdateListeners(workflowObj)
             }
         })
+
+        WriteAction.compute<Boolean,Throwable> {
+            document.setText(workflowObj.getAttribute(attributeName)?.replace("\r", "") ?: "")
+            true
+        }
+
+        if (virtualFile.extension == "java") {
+            ApplicationManager.getApplication().invokeLater {
+                virtualFile.syncDynamicJavaClassName()
+            }
+        }
+
         val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         editor.component.preferredSize = Dimension(800, 600)
 

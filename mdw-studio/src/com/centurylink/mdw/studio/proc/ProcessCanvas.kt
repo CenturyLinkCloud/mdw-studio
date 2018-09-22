@@ -84,7 +84,7 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                     }
                 }
 
-                if (e.isPopupTrigger) {
+                if (e.isPopupTrigger || SwingUtilities.isRightMouseButton(e)) {
                     val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
                     var actionGroup = action as ActionGroup
                     if (action is DefaultActionGroup) {

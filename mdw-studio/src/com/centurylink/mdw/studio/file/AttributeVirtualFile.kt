@@ -1,19 +1,29 @@
 package com.centurylink.mdw.studio.file
 
 import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.ext.JsonObject
+import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.java.JavaNaming
+import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
+import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.FileTypes
 import com.intellij.openapi.fileTypes.UnknownFileType
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.MessageDialogBuilder
+import com.intellij.openapi.ui.Messages
+import com.intellij.psi.PsiClassOwner
+import com.intellij.psi.PsiElementFactory
+import com.intellij.psi.PsiJavaParserFacade
+import com.intellij.psi.PsiManager
+import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 
 /**
  * name and file type are determined based on workflowObj
@@ -29,7 +39,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
             "java" -> {
                 var templateContents = Templates.get("assets/code/dynamic_java")
                 templateContents = templateContents.replace("{{assetPackage}}", getJavaPackage())
-                templateContents = templateContents.replace("{{className}}", getJavaClassName())
+                templateContents = templateContents.replace("{{className}}", getDynamicJavaClassName())
                 return templateContents
             }
             else -> {
@@ -42,19 +52,15 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
         return JavaNaming.getValidPackageName(workflowObj.asset.packageName)
     }
 
-    private fun getJavaClassName(): String {
-        return JavaNaming.getValidClassName(workflowObj.name + "_" + workflowObj.id)
-    }
-
     override fun getName(): String {
         // eg: "PerformCriticalBusinessFunction_A5.java"
         val ext = getExt()
         return when (ext) {
             "java" -> {
-                getJavaClassName() + "." + ext
+                getDynamicJavaClassName() + "." + ext
             }
             else -> {
-                ScriptNaming.getValidName(workflowObj.name + "_" + workflowObj.id) + "." + ext
+                getScriptName() + "." + ext
             }
         }
     }
@@ -79,6 +85,60 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
             return "kts"
         }
         return "txt"
+    }
+
+    private fun getDynamicJavaClassName(): String {
+        val process = workflowObj.asset as Process
+        return JavaNaming.getValidClassName(process.name + "_" + workflowObj.id)
+    }
+
+    private fun getScriptName(): String {
+        val process = workflowObj.asset as Process
+        return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
+    }
+
+    fun syncDynamicJavaClassName() {
+        val project = (workflowObj.project as ProjectSetup).project
+        PsiManager.getInstance(project).findFile(this)?.let { psiFile ->
+            if (psiFile is PsiClassOwner) {
+                for (psiClass in psiFile.classes) {
+                    psiClass.modifierList?.let { modifierList ->
+                        if (PsiUtil.getAccessLevel(modifierList) == PsiUtil.ACCESS_LEVEL_PUBLIC) {
+                            val dynamicJavaClassName = getDynamicJavaClassName()
+                            if (psiClass.name != dynamicJavaClassName) {
+                                var sync = false
+                                val setting = "${MdwSettings.ID}.suppressPromptSyncDynamicJava"
+                                if (PropertiesComponent.getInstance().getBoolean(setting, false)) {
+                                    sync = MdwSettings.instance.isSyncDynamicJavaClassName
+                                }
+                                else {
+                                    val res = MessageDialogBuilder
+                                            .yesNo("Class Name Mismatch",
+                                                    "Dynamic Java class name does not match expected: $dynamicJavaClassName.  Fix?")
+                                            .doNotAsk(object : DialogWrapper.DoNotAskOption.Adapter() {
+                                                override fun rememberChoice(isSelected: Boolean, res: Int) {
+                                                    if (isSelected) {
+                                                        sync = res == Messages.YES
+                                                        MdwSettings.instance.isSyncDynamicJavaClassName = sync
+                                                        PropertiesComponent.getInstance().setValue(setting, true)
+                                                    }
+                                                }
+                                            })
+                                            .show()
+                                    sync = res == Messages.YES
+                                }
+                                if (sync) {
+                                    val fixedClass = PsiElementFactory.SERVICE.getInstance(project).createClass(dynamicJavaClassName)
+                                    WriteCommandAction.writeCommandAction(project, psiFile).run<Exception> {
+                                        psiClass.nameIdentifier?.replace(fixedClass.nameIdentifier!!)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun getFileType(): FileType {

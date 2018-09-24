@@ -10,11 +10,8 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileChooser.FileChooserFactory
 import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.util.lang.UrlClassLoader
 import org.json.JSONObject
 import java.io.IOException
-import java.lang.reflect.Constructor
-import java.net.URLClassLoader
 
 class ExportProcess : AssetAction() {
 

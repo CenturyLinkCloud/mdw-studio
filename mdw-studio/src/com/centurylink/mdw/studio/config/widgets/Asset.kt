@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.OpenSourceUtil
+import com.intellij.util.ui.UIUtil
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
@@ -83,6 +84,13 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
 class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
 
+    private var _linkColor: String? = null
+    var linkColor: String? = null
+        set(value) {
+            _linkColor = value
+            text = getAssetLabel()
+        }
+
     val assetName: String
       get() {
           var name = assetPath ?: ""
@@ -135,7 +143,17 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
         return if (assetPath.isNullOrEmpty() || containsExpression(assetPath)) {
             assetName // contains expression
         } else {
-            "<html><a href='.'>${assetName}</a></html>"
+            val color = if (_linkColor == null && UIUtil.isUnderDarcula()) {
+                "white"
+            }
+            else {
+                _linkColor
+            }
+            if (color == null) {
+                "<html><a href='.'>${assetName}</a></html>"
+            } else {
+                "<html><a href='.' style='color:$color;'>${assetName}</a></html>"
+            }
         }
     }
 

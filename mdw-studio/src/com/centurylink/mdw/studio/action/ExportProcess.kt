@@ -42,15 +42,24 @@ class ExportProcess : AssetAction() {
                                 exp
                             }
                             else -> {
-                                Thread.currentThread().setContextClassLoader(this.javaClass.classLoader)
                                 BpmnProcessExporter()
                             }
                         }
 
                         WriteAction.run<IOException> {
                             fileWrapper.getVirtualFile(true)?.let {
-                                it.setBinaryContent(exporter.export(process))
-                                FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                                val theExporter = exporter
+                                val originalLoader = Thread.currentThread().contextClassLoader
+                                try {
+                                    if (theExporter is BpmnProcessExporter) {
+                                        Thread.currentThread().contextClassLoader = this.javaClass.classLoader
+                                    }
+                                    it.setBinaryContent(theExporter.export(process))
+                                    FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                                }
+                                finally {
+                                    Thread.currentThread().contextClassLoader = originalLoader
+                                }
                             }
                         }
 

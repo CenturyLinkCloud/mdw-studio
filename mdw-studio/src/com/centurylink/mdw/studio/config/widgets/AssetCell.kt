@@ -1,12 +1,9 @@
 package com.centurylink.mdw.studio.config.widgets
 
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.AbstractCellEditor
 import javax.swing.JPanel
 import javax.swing.JTable
@@ -56,10 +53,12 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
             if (isSelected) {
                 foreground = table.selectionForeground
                 background = table.selectionBackground
+                assetLink.linkColor = "white"
             }
             else {
                 foreground = table.foreground
                 background = table.background
+                assetLink.linkColor = null
             }
 
             if (hasFocus) {

@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileEditor.FileEditorManager
 import java.io.File
 import java.io.IOException
 
@@ -31,10 +32,11 @@ class ImportProcess  : AssetAction() {
                     }
                     val process = importer.importProcess(File(file.path))
                     WriteAction.run<IOException> {
-                        val procFileName = process.name + ".proc"
+                        val procFileName =  file.name.substring(0, file.name.lastIndexOf('.')) + ".proc"
                         val procFile = pkg.dir.findFileByRelativePath(procFileName) ?:
                                 pkg.dir.createChildData(this, procFileName)
                         procFile.setBinaryContent(process.json.toString(2).toByteArray())
+                        FileEditorManager.getInstance(projectSetup.project).openFile(procFile, true)
                     }
                 }
             }

@@ -25,10 +25,9 @@ abstract class NewActivity(title: String, icon: Icon) : NewAssetAction(title, DE
 
         val implFileName = "$baseName.impl"
         val implTemplatePath = "assets/" + templatePath.substring(21, templatePath.lastIndexOf("_")) + ".impl"
-        val pkg = assetPackage ?: return null
         val values = mutableMapOf<String,Any?>(
                 "className" to baseName,
-                "packageName" to pkg.name
+                "packageName" to assetPackageName
         )
         val implContent = substitute(loadTemplate(implFileName, implTemplatePath), values)
 
@@ -59,7 +58,7 @@ abstract class NewActivity(title: String, icon: Icon) : NewAssetAction(title, DE
         val defaultIcon = "shape:activity"
         val defaultPagelet = "<PAGELET></PAGELET>"
 
-        var imports = "import com.centurylink.mdw.annotations.Activity;\n"
+        var imports = "import com.centurylink.mdw.annotations.Activity${if (fileExtension == "kt") "" else ";"}\n"
         var annotations = "@Activity("
         if (category == defaultCategory && icon == defaultIcon && pageletXml == defaultPagelet) {
             annotations += "\"$name\")\n"

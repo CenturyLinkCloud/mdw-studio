@@ -10,7 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import java.io.File
 import java.io.IOException
 
-class ImportProcess  : AssetAction() {
+class ImportProcess : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val ext = when (templatePresentation.text) {

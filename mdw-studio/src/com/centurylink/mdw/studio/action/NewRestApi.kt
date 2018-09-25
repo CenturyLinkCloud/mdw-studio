@@ -2,18 +2,16 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.studio.file.Icons
-import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.CreateFileFromTemplateDialog
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 import java.io.IOException
 import javax.swing.Icon
 
-abstract class NewRestApi(title: String, description: String, icon: Icon) : NewAssetAction(title, description, icon) {
-    override val fileExtension = "java"
-    override val fileType = JavaFileType.INSTANCE
+abstract class NewRestApi(title: String, icon: Icon) : NewAssetAction(title, DESCRIPTION, icon) {
 
     /**
      * Uses MDW templates.  Does not do swagger codegen.
@@ -25,10 +23,9 @@ abstract class NewRestApi(title: String, description: String, icon: Icon) : NewA
             throw IOException("Bad asset name")
         }
 
-        val pkg = assetPackage ?: return null
         val values = mutableMapOf<String,Any?>(
                 "className" to baseName,
-                "packageName" to pkg.name
+                "packageName" to assetPackageName
         )
         var path = "/"
         if (baseName != null) {
@@ -44,13 +41,21 @@ abstract class NewRestApi(title: String, description: String, icon: Icon) : NewA
     /**
      * Returns a pair.  First element is annotations content, and second is any needed imports.
      */
-    protected fun getAnnotations(path: String): Pair<String,String> {
-        return Pair<String,String>("@Path(\"$path\")\n", "import javax.ws.rs.Path;\n")
-    }
+    abstract fun getAnnotations(path: String): Pair<String,String>
 
+    companion object {
+        const val DESCRIPTION = "Create a REST API implementation"
+    }
 }
 
-class NewRestApiSkeletal() : NewRestApi("From Scratch", "Create a REST API implementation", Icons.JAVA) {
+class NewRestApiJava : NewRestApi("Java Service", Icons.JAVA) {
+
+    override val fileExtension = "java"
+    override val fileType = JavaFileType.INSTANCE
+
+    override fun getAnnotations(path: String): Pair<String,String> {
+        return Pair<String,String>("@Path(\"$path\")\n", "import javax.ws.rs.Path;\n")
+    }
 
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
         builder
@@ -59,11 +64,18 @@ class NewRestApiSkeletal() : NewRestApi("From Scratch", "Create a REST API imple
     }
 }
 
-class NewRestApiSwagger() : NewRestApi("From Swagger", "Create a REST API implementation from Swagger", AllIcons.FileTypes.JsonSchema) {
+class NewRestApiKotlin : NewRestApi("Kotlin Service", Icons.KOTLIN) {
+
+    override val fileExtension = "kt"
+    override val fileType = FileTypeManager.getInstance().getFileTypeByExtension("kt")
+
+    override fun getAnnotations(path: String): Pair<String,String> {
+        return Pair<String,String>("@Path(\"$path\")\n", "import javax.ws.rs.Path\n")
+    }
+
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
         builder
             .setTitle(title)
-            .addKind("Swagger Codegen", Icons.JAVA, "assets/code/rest/skeletal_java")
+            .addKind("Kotlin Skeleton", Icons.KOTLIN, "assets/code/rest/skeletal_kt")
     }
-
 }

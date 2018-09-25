@@ -269,7 +269,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         }
     }
 
-    private fun getPackageName(packageDir: VirtualFile): String {
+    fun getPackageName(packageDir: VirtualFile): String {
         return packageDir.toString().substring(assetDir.toString().length + 1)
                 .replace('/', '.').replace('\\', '.')
     }

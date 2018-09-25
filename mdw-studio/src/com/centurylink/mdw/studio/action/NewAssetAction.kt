@@ -1,7 +1,6 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.app.Templates
-import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.actions.CreateFileFromTemplateAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -22,14 +21,14 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
     abstract val fileType: FileType
 
     var projectSetup: ProjectSetup? = null
-    var assetPackage: AssetPackage? = null
+    var assetPackageName: String? = null
 
     override fun beforeActionPerformedUpdate(event: AnActionEvent) {
         super.beforeActionPerformedUpdate(event)
         projectSetup = event.getData(CommonDataKeys.PROJECT)?.getComponent(ProjectSetup::class.java) ?: return
         val view = LangDataKeys.IDE_VIEW.getData(event.dataContext) ?: return
         val dir = view.getOrChooseDirectory() ?: return
-        assetPackage = projectSetup?.getPackage(dir.virtualFile)
+        assetPackageName = projectSetup?.getPackageName(dir.virtualFile)
     }
 
     override fun createFile(name: String, templatePath: String, dir: PsiDirectory): PsiFile? {

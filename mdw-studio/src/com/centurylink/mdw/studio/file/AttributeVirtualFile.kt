@@ -19,11 +19,13 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFactory
-import com.intellij.psi.PsiJavaParserFacade
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * name and file type are determined based on workflowObj

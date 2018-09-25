@@ -11,7 +11,6 @@ class MdwConfig : SearchableConfigurable {
     var modified = false
 
     private val settingsPanel = JPanel(BorderLayout())
-    private var isSyncDynamicJavaCheckboxDirty = false
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name on edit")
 
     init {
@@ -20,7 +19,6 @@ class MdwConfig : SearchableConfigurable {
 
         syncDynamicJavaCheckbox.isSelected = MdwSettings.instance.isSyncDynamicJavaClassName
         syncDynamicJavaCheckbox.addActionListener {
-            isSyncDynamicJavaCheckboxDirty = true
             modified = true
         }
         panel.add(syncDynamicJavaCheckbox)
@@ -43,8 +41,6 @@ class MdwConfig : SearchableConfigurable {
 
     override fun apply() {
         val mdwSettings = MdwSettings.instance
-        if (isSyncDynamicJavaCheckboxDirty) {
-            mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
-        }
+        mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
     }
 }

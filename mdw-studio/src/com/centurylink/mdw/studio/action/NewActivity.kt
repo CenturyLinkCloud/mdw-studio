@@ -47,7 +47,7 @@ abstract class NewActivity(title: String, icon: Icon) : NewAssetAction(title, DE
     }
 
     /**
-     * Returns a list of pairs.  First element is annotations content, and second is any needed imports.
+     * Returns a pair.  First element is annotations content, and second is any needed imports.
      */
     private fun getAnnotations(implJson: JSONObject): Pair<String,String> {
         val name = implJson.getString("label")

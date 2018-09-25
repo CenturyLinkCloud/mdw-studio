@@ -56,6 +56,15 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.NewActivityKotlin" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
+        <group id="mdwNewRestApi" text="MDW REST API" icon="/icons/impl.gif" popup="true">
+            <action id="mdwNewRestBlank" text="From Scratch" icon="AllIcons.FileTypes.Java"
+                    description="Create a REST API implementation"
+                    class="com.centurylink.mdw.studio.action.NewRestApiSkeletal" />
+            <action id="mdwNewRestFromSwagger" text="From Swagger" icon="AllIcons.FileTypes.JsonSchema"
+                    description="Create a REST API implementation from Swagger"
+                    class="com.centurylink.mdw.studio.action.NewRestApiSwagger"  />
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
+        </group>
         <group id="mdwAssetActions" text="MDW">
             <action id="mdwAssetVersion" text="Asset Version..." icon="/icons/mdw.png"
                     description="Major version should be incremented to indicate possible breaking changes."

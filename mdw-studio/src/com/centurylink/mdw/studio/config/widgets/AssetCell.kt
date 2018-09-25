@@ -71,7 +71,7 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
     }
 
     companion object {
-        const val HGAP = 5
+        const val HGAP = 3
         const val VGAP = 3
     }
 }

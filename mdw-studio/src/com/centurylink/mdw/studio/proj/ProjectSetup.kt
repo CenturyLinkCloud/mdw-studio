@@ -164,7 +164,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             else {
                 git = null
                 val note = Notification("MDW", "MDW Project",
-                        "Git root not found: ${setup.gitRoot.absolutePath}.\nAsset version updates will not be applied.",
+                        """Git root not found: ${setup.gitRoot.absolutePath}.
+                            Asset version updates will not be applied.  If you're using Git, fix git.local.path in mdw.yaml and restart IntelliJ.""",
                         NotificationType.ERROR)
                 Notifications.Bus.notify(note, project)
             }

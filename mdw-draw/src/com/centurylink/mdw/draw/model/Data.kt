@@ -53,6 +53,7 @@ class Data {
         companion object {
             const val START_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessStartActivity"
             const val STOP_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessFinishActivity"
+            const val DYNAMIC_JAVA = "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity"
             val PSEUDO_IMPLS = listOf(
                     ActivityImplementor("Exception Handler", "subflow", "" +
                             "Exception Handler Subflow", "${Data.BASE_PKG}/subflow.png", null),

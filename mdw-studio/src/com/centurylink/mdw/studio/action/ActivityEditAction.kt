@@ -16,13 +16,14 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
+import java.awt.Component
 import java.awt.Dimension
 import java.io.IOException
 
 /**
  * For activities whose main attribute can be opened in an inline editor.
  */
-class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
+class ActivityEditAction(private val parent: Component, var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
         AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).name, null,
                 FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).icon),
         UpdateListeners by UpdateListenersDelegate() {
@@ -55,9 +56,11 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
             }
         })
 
-        WriteAction.compute<Boolean,Throwable> {
-            document.setText(workflowObj.getAttribute(attributeName)?.replace("\r", "") ?: "")
-            true
+        workflowObj.getAttribute(attributeName)?.let { attr ->
+            WriteAction.compute<Boolean,Throwable> {
+                document.setText(attr.replace("\r", ""))
+                true
+            }
         }
 
         if (virtualFile.extension == "java") {
@@ -69,7 +72,7 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
         val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         editor.component.preferredSize = Dimension(800, 600)
 
-        val dialogBuilder = DialogBuilder(project)
+        val dialogBuilder = DialogBuilder(parent)
         dialogBuilder.setTitle(workflowObj.titlePath)
         dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
 

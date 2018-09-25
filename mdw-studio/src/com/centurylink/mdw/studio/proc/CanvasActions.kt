@@ -9,6 +9,7 @@ import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.edit.SelectionBuilder
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.file.Asset
@@ -184,8 +185,10 @@ val Step.associatedEdit: AttributeVirtualFile?
             val contents = activity.getAttribute("Rule") ?: ""
             return AttributeVirtualFile(workflowObj, contents)
         }
-        if (implementor.category == GeneralActivity::class.qualifiedName && activity.getAttribute("Java") != null) {
-            val contents = activity.getAttribute("Java") ?: ""
+        if (implementor.category == GeneralActivity::class.qualifiedName &&
+                (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA ||
+                        activity.getAttribute("Java") != null)) {
+            val contents = activity.getAttribute("Java")
             return AttributeVirtualFile(workflowObj, contents)
         }
         return null

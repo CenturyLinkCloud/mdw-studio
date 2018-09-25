@@ -84,7 +84,7 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                     }
                 }
 
-                if (e.isPopupTrigger || SwingUtilities.isRightMouseButton(e)) {
+                if (SwingUtilities.isRightMouseButton(e)) {
                     val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
                     var actionGroup = action as ActionGroup
                     if (action is DefaultActionGroup) {
@@ -98,7 +98,7 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                                 }
                                 step.associatedEdit?.let { edit ->
                                     val actions = action.childActionsOrStubs.toMutableList()
-                                    val editAction = ActivityEditAction(step.workflowObj, edit)
+                                    val editAction = ActivityEditAction(this@ProcessCanvas, step.workflowObj, edit)
                                     editAction.addUpdateListener { obj ->
                                         obj.updateAsset()
                                         notifyUpdateListeners(obj)

@@ -107,7 +107,7 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
         text = getAssetLabel()
         toolTipText = assetPath
         cursor = getAssetCursor()
-        border = BorderFactory.createEmptyBorder(0, 0, 2, 0)
+        border = BorderFactory.createEmptyBorder(0, 2, 2, 0)
         addMouseListener(object : MouseAdapter() {
             override fun mouseReleased(e: MouseEvent) {
                 assetPath?.let { assetPath ->

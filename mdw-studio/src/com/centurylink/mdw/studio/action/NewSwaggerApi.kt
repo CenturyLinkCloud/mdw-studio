@@ -6,6 +6,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.progress.ProgressManager
@@ -72,13 +73,14 @@ class NewSwaggerApi : AssetAction() {
                         try {
                             ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
                             codeGen.run()
-                            projectSetup.syncPackage(codegenPkg)
                         } catch (ex: Exception) {
+                            LOG.error(ex)
                             Notifications.Bus.notify(Notification("MDW", "Swagger Codegen Error", ex.toString(),
                                     NotificationType.ERROR), projectSetup.project)
                         }
                     }, "Generating", false, projectSetup.project)
 
+                    projectSetup.syncPackage(codegenPkg)
                 }
             }
         }
@@ -88,6 +90,11 @@ class NewSwaggerApi : AssetAction() {
         val applicable = Locator(event).getPotentialPackageDir() != null
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
+    }
+
+    companion object {
+        val LOG = Logger.getInstance(NewSwaggerApi::class.java)
+
     }
 }
 

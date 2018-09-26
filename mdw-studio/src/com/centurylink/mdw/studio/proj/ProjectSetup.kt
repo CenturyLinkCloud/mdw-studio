@@ -8,6 +8,7 @@ import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
 import com.centurylink.mdw.model.system.MdwVersion
+import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
@@ -69,6 +70,7 @@ class Startup : StartupActivity {
                 }
             }
         }
+        MdwSettings.instance.getOrMakeMdwHome()
     }
 }
 

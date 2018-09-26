@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 
 class Locator(private val event: AnActionEvent) {
 
@@ -15,7 +16,12 @@ class Locator(private val event: AnActionEvent) {
     }
 
     fun getProjectSetup(): ProjectSetup? {
-        return getProject()?.getComponent(ProjectSetup::class.java)
+        val projectSetup = getProject()?.getComponent(ProjectSetup::class.java)
+        return if (projectSetup != null) {
+            return if (projectSetup.isMdwProject) projectSetup else null
+        } else {
+            null
+        }
     }
 
     fun getPackage(): AssetPackage? {
@@ -24,6 +30,22 @@ class Locator(private val event: AnActionEvent) {
             view?.let {
                 if (it.directories.size == 1) {
                     return projectSetup.getPackage(it.directories[0].virtualFile)
+                }
+            }
+        }
+        return null
+    }
+
+    fun getPotentialPackageDir(): VirtualFile? {
+        val projectSetup = getProjectSetup()
+        if (projectSetup != null) {
+            val view = event.getData(LangDataKeys.IDE_VIEW)
+            if (view != null) {
+                val directories = view.directories
+                for (directory in directories) {
+                    if (projectSetup.isAssetSubdir(directory.virtualFile)) {
+                        return directory.virtualFile
+                    }
                 }
             }
         }

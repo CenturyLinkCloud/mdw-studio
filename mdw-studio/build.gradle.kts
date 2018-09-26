@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.0.3-SNAPSHOT"
+version = "2018.1.3-SNAPSHOT"
 
 java.sourceSets {
     "main" {
@@ -30,6 +30,7 @@ dependencies {
     compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { isTransitive = false }
     compile("org.yaml:snakeyaml:1.18")
     compile(files("lib/bpmn-schemas.jar"))
+    compile("io.swagger:swagger-codegen-cli:2.3.1") { exclude(group = "org.slf4j") }
 }
 
 intellij {

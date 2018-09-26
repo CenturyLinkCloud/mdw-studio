@@ -1,6 +1,10 @@
 package com.centurylink.mdw.studio.action
 
+import com.centurylink.mdw.cli.Codegen
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -14,6 +18,7 @@ import java.awt.FlowLayout
 import java.io.File
 import javax.swing.*
 import javax.swing.event.DocumentEvent
+import kotlin.concurrent.thread
 
 class NewSwaggerApi : AssetAction() {
 
@@ -21,17 +26,67 @@ class NewSwaggerApi : AssetAction() {
         val locator = Locator(event)
         val projectSetup = locator.getProjectSetup()
         if (projectSetup != null) {
-            locator.getPackage()?.let { pkg ->
+            var pkg = locator.getPackage()
+            if (pkg == null) {
+                locator.getPotentialPackageDir()?.let { pkgDir ->
+                    pkg = projectSetup.createPackage(pkgDir)
+                }
+            }
+            pkg?.let { codegenPkg ->
                 val codegenDialog = CodegenDialog(projectSetup)
                 if (codegenDialog.showAndGet()) {
-                    println("INPUT: " + codegenDialog.inputSpec )
+                    val codeGen = Codegen()
+                    codeGen.basePackage = codegenPkg.name
+                    codeGen.apiPackage = codegenPkg.name
+                    codeGen.codeType = "swagger"
+                    codeGen.configLoc = projectSetup.configLoc
+                    codegenDialog.codegenConfig?.let {
+                        codeGen.config = it.path
+                    }
+                    codeGen.assetLoc = projectSetup.assetRoot.path
+                    codeGen.mdwVersion = projectSetup.mdwVersion.toString()
+                    if (projectSetup.mdwVersion.isSnapshot) {
+                        codeGen.isSnapshots = true
+                    }
+                    // TODO handle unset MDW_HOME env var -- or templates not present
+                    // codeGen.templateDir = "${projectSetup.tempDir}/templates"
+                    codeGen.inputSpec = codegenDialog.inputSpec
+                    val sysProps = mutableListOf<String>()
+                    if (!codegenDialog.genModels) {
+                        sysProps.add("-Dapis=")
+                    }
+                    else if (!codegenDialog.genApis) {
+                        sysProps.add("-Dmodels=")
+                    }
+                    if (!codegenDialog.genDocs) {
+                        sysProps.add("-DapiDocs=false")
+                        sysProps.add("-DmodelDocs=false")
+                    }
+                    if (!sysProps.isEmpty()) {
+                        codeGen.setVmArgs(sysProps)
+                    }
+                    codeGen.isGenerateOrchestrationFlows = codegenDialog.genWorkflows
+                    thread {
+                        try {
+                            codeGen.run()
+                            projectSetup.syncPackage(codegenPkg)
+                            val note = Notification("MDW", "Swagger Codegen Success",
+                                    "Service API code successfully generated", NotificationType.INFORMATION)
+                            Notifications.Bus.notify(note, projectSetup.project)
+                            Thread.sleep(2000)
+                            note.expire()
+                        } catch (ex: Exception) {
+                            Notifications.Bus.notify(Notification("MDW", "Swagger Codegen Error", ex.toString(),
+                                    NotificationType.ERROR), projectSetup.project)
+                        }
+                    }
                 }
             }
         }
     }
 
     override fun update(event: AnActionEvent) {
-        val applicable = Locator(event).getPackage() != null
+        val applicable = Locator(event).getPotentialPackageDir() != null
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
     }

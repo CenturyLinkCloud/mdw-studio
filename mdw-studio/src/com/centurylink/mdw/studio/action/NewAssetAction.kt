@@ -91,27 +91,10 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
 
     override fun update(event: AnActionEvent) {
         super.update(event)
-        val presentation = event.getPresentation()
-        if (presentation.isVisible && presentation.isEnabled) {
-            var applicable = false
-            val project = event.getData(CommonDataKeys.PROJECT)
-            if (project != null) {
-                val projectSetup = project.getComponent(ProjectSetup::class.java)
-                if (projectSetup.isMdwProject) {
-                    val view = event.getData(LangDataKeys.IDE_VIEW)
-                    if (view != null) {
-                        val directories = view.directories
-                        for (directory in directories) {
-                            if (projectSetup.isAssetSubdir(directory.virtualFile)) {
-                                applicable = true
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-            presentation.isVisible = applicable
-            presentation.isEnabled = applicable
+        if (event.presentation.isVisible && event.presentation.isEnabled) {
+            val applicable = Locator(event).getPotentialPackageDir() != null
+            event.presentation.isVisible = applicable
+            event.presentation.isEnabled = applicable
         }
     }
 }

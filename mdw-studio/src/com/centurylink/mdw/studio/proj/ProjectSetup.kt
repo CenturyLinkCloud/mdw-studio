@@ -121,6 +121,10 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     val git: VersionControlGit?
 
+    // pass-through properties
+    val configLoc: String?
+        get() = setup?.configLoc
+
     var isServerRunning = false
 
     val packages: List<AssetPackage>
@@ -353,33 +357,49 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return asset
     }
 
+
     /**
      * Expects the directory to be already there, and creates .mdw/package.yaml metafile.
      */
-    private fun createPackage(packageName: String): AssetPackage {
+    fun createPackage(packageName: String): AssetPackage {
         val pkgDir = assetDir.findFileByRelativePath(packageName.replace('.', '/'))
         pkgDir ?: throw IOException("Package directory not found: $packageName")
+        return createPackage(pkgDir)
+    }
+
+    fun createPackage(packageDir: VirtualFile): AssetPackage {
         return WriteAction.compute<AssetPackage,IOException> {
-            var metaDir = pkgDir.findFileByRelativePath(AssetPackage.META_DIR)
+            var metaDir = packageDir.findFileByRelativePath(AssetPackage.META_DIR)
             if (metaDir == null) {
-                metaDir = pkgDir.createChildDirectory(this, AssetPackage.META_DIR)
+                metaDir = packageDir.createChildDirectory(this, AssetPackage.META_DIR)
             }
             val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
                     ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
             ApplicationManager.getApplication().invokeAndWait {
+                val packageName = packageDir.path.substring(assetDir.path.length + 1).replace('/', '.')
                 packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
             }
-            AssetPackage(getPackageName(pkgDir), pkgDir)
+            AssetPackage(getPackageName(packageDir), packageDir)
         }
     }
 
     private fun createVersionsFile(pkg: AssetPackage): VirtualFile {
         return WriteAction.compute<VirtualFile,IOException> {
-            pkg.metaDir.createChildData(this, AssetPackage.VERSIONS)
+            ApplicationManager.getApplication().invokeAndWait {
+                pkg.metaDir.createChildData(this, AssetPackage.VERSIONS)
+            }
+            pkg.metaDir.findFileByRelativePath(AssetPackage.VERSIONS)
         }
     }
 
     fun setVersion(asset: Asset, version: Int) {
+        if (version == 0) {
+            // don't create the versions file just to remove the version
+            if (asset.pkg.dir.findFileByRelativePath(AssetPackage.VERSIONS_FILE) == null) {
+                return
+            }
+        }
+
         val verFile = asset.pkg.dir.findFileByRelativePath(AssetPackage.VERSIONS_FILE) ?: createVersionsFile(asset.pkg)
         val versionProps = asset.pkg.versionProps
         if (version > 0) {
@@ -409,6 +429,10 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 }
             }
         }
+    }
+
+    fun syncPackage(pkg: AssetPackage) {
+        pkg.dir.refresh(true, true)
     }
 
     private val iconAssets = mutableMapOf<String,ImageIcon>()

@@ -69,7 +69,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                         }
                     }
                     EventType.Delete -> {
-                       projectSetup.setVersion(asset, 0)
+                        projectSetup.setVersion(asset, 0)
                     }
                     EventType.Unknown -> {
                     }

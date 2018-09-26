@@ -8,6 +8,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.components.CheckBox
@@ -18,7 +19,6 @@ import java.awt.FlowLayout
 import java.io.File
 import javax.swing.*
 import javax.swing.event.DocumentEvent
-import kotlin.concurrent.thread
 
 class NewSwaggerApi : AssetAction() {
 
@@ -66,20 +66,19 @@ class NewSwaggerApi : AssetAction() {
                         codeGen.setVmArgs(sysProps)
                     }
                     codeGen.isGenerateOrchestrationFlows = codegenDialog.genWorkflows
-                    thread {
+
+                    // run codegen
+                    ProgressManager.getInstance().runProcessWithProgressSynchronously({
                         try {
+                            ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
                             codeGen.run()
                             projectSetup.syncPackage(codegenPkg)
-                            val note = Notification("MDW", "Swagger Codegen Success",
-                                    "Service API code successfully generated", NotificationType.INFORMATION)
-                            Notifications.Bus.notify(note, projectSetup.project)
-                            Thread.sleep(2000)
-                            note.expire()
                         } catch (ex: Exception) {
                             Notifications.Bus.notify(Notification("MDW", "Swagger Codegen Error", ex.toString(),
                                     NotificationType.ERROR), projectSetup.project)
                         }
-                    }
+                    }, "Generating", false, projectSetup.project)
+
                 }
             }
         }
@@ -107,7 +106,7 @@ class CodegenDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.pro
     var codegenConfig: File? = null
     var genApis = true
     var genModels = true
-    var genWorkflows = false
+    var genWorkflows = true
     var genDocs = false
 
     init {
@@ -213,7 +212,7 @@ class CodegenDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.pro
         cbPanel.add(workflowsCheckbox)
 
         val docsCheckbox = CheckBox("Documentation")
-        docsCheckbox.isSelected = genWorkflows
+        docsCheckbox.isSelected = genDocs
         docsCheckbox.addActionListener {
             genDocs = docsCheckbox.isSelected
         }

@@ -145,11 +145,13 @@ class Link(val g2d: Graphics2D, project: Project, process: Process, val transiti
     fun calc(points: Int? = null) {
         calcs.calc(points, from, to)
         transition.setAttribute("TRANSITION_DISPLAY_INFO", display.toString())
+        workflowObj.obj = transition.json // reflect programmatic update
     }
 
     fun recalc(step: Step) {
         calcs.recalc(step, from, to)
         transition.setAttribute("TRANSITION_DISPLAY_INFO", display.toString())
+        workflowObj.obj = transition.json // reflect programmatic update
     }
 
     override fun isHover(x: Int, y: Int): Boolean {

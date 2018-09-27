@@ -33,10 +33,10 @@ class ObjectTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
      * Convert from JSONArray of JSONArrays to JSONObject
      */
     override fun willUpdate(widget: Widget) {
-        widget.value?.let {
-            widget.value = withoutEmptyRows(it as JSONArray)
-            widget.value?.let {
-                widget.value = toObject(widget, it as JSONArray)
+        widget.value?.let { rawVal ->
+            widget.value = withoutEmptyRows(rawVal as JSONArray)
+            widget.value?.let { value ->
+                widget.value = toObject(widget, value as JSONArray)
             }
         }
     }
@@ -68,7 +68,10 @@ class ObjectTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
             for (j in tableWidget.widgets.indices) {
                 val columnWidget = tableWidget.widgets[j]
                 if (columnWidget.name == "_key") {
-                    jsonObject.put(row.getString(j), rowObj)
+                    // disregard empty key values
+                    if (!row.getString(j).isNullOrBlank()) {
+                        jsonObject.put(row.getString(j), rowObj)
+                    }
                 }
                 else {
                     val value = row.getString(j)

@@ -50,7 +50,7 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
         return if (nonEmptyRows.length() == 0) null else nonEmptyRows
     }
 
-    private fun isEmpty(row: JSONArray): Boolean {
+    open protected fun isEmpty(row: JSONArray): Boolean {
         for (i in 0 until row.length()) {
             if (row.getString(i).isNotEmpty()) {
                 return false

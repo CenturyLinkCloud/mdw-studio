@@ -8,6 +8,7 @@ import com.centurylink.mdw.studio.config.widgets.Editor
 import com.centurylink.mdw.studio.config.widgets.Label
 import com.centurylink.mdw.studio.config.widgets.SwingWidget
 import com.centurylink.mdw.studio.config.widgets.Table
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import java.awt.*
@@ -31,7 +32,9 @@ class ConfigTab(private val tabName: String, private val template: Template, val
         containerPane.background = getBackgroundColor()
         allSwingWidgets.clear()
 
-        // println("PAGELET: " + template.pagelet.json.toString(2))
+        if (LOG.isDebugEnabled) {
+            LOG.debug("Pagelet: ${template.pagelet.json.toString(2)}")
+        }
 
         try {
             val widgets = template.filterWidgets(tabName)
@@ -206,5 +209,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
         return UIManager.getColor("EditorPane.background")
     }
 
-
+    companion object {
+        val LOG = Logger.getInstance(ConfigTab::class.java)
+    }
 }

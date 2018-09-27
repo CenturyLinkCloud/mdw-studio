@@ -375,9 +375,9 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             if (metaDir == null) {
                 metaDir = packageDir.createChildDirectory(this, AssetPackage.META_DIR)
             }
-            val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
-                    ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
             ApplicationManager.getApplication().invokeAndWait {
+                val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
+                        ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
                 val packageName = packageDir.path.substring(assetDir.path.length + 1).replace('/', '.')
                 packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
             }

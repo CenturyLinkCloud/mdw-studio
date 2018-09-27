@@ -24,7 +24,6 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
 
     override fun after(events: MutableList<out VFileEvent>) {
         for (event in events) {
-            System.out.println("EVENT FILE: " + event)
             getAssetEvent(event)?.let { assetEvent ->
                 LOG.debug("Asset event: $assetEvent")
                 val asset = assetEvent.asset

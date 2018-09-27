@@ -1,15 +1,14 @@
 package com.centurylink.mdw.studio.file
 
-import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
-import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent
-import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import com.intellij.openapi.vfs.newvfs.events.*
 
 class AssetEvent(fileEvent: VFileEvent, val asset: Asset) {
 
     enum class EventType {
         Create,
+        Copy,
         Update,
+        Move,
         Delete,
         Unknown
     }
@@ -19,7 +18,9 @@ class AssetEvent(fileEvent: VFileEvent, val asset: Asset) {
     init {
         type = when(fileEvent) {
             is VFileCreateEvent -> EventType.Create
+            is VFileCopyEvent -> EventType.Copy
             is VFileContentChangeEvent -> EventType.Update
+            is VFileMoveEvent -> EventType.Move
             is VFileDeleteEvent -> EventType.Delete
             else -> EventType.Unknown
         }

@@ -8,8 +8,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.vfs.newvfs.events.VFileCopyEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent
 import com.intellij.psi.PsiManager
+import com.intellij.testFramework.LightVirtualFile
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.util.*
@@ -21,28 +24,29 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
 
     override fun after(events: MutableList<out VFileEvent>) {
         for (event in events) {
+            System.out.println("EVENT FILE: " + event)
             getAssetEvent(event)?.let { assetEvent ->
+                LOG.debug("Asset event: $assetEvent")
                 val asset = assetEvent.asset
                 when (assetEvent.type) {
                     EventType.Create -> {
                         projectSetup.setVersion(asset, 1)
                     }
-                    EventType.Update -> {
+                    EventType.Update, EventType.Copy, EventType.Move -> {
                         // TODO handle large files
                         val increment = projectSetup.git?.let { git ->
                             if (asset.name.endsWith(".impl")) {
                                 projectSetup.reloadImplementors()
                             }
-                            else if (FileUtilRt.isTooLarge(asset.file.length)) {
-                                LOG.info("Skip vercheck for large asset: $asset")
-                            }
                             else if (asset.version == 0) {
                                 projectSetup.setVersion(asset, 1)
                             }
+                            else if (FileUtilRt.isTooLarge(asset.file.length)) {
+                                LOG.info("Skip vercheck for large asset: $asset")
+                            }
                             else {
                                 LOG.debug("Performing vercheck: $asset")
-                                // println("VERCHECK: $asset")
-                                val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)));
+                                val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)))
                                 if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
                                     val gitVerFileBytes = git.readFromHead(git.getRelativePath(
                                             File(asset.pkg.dir.path + "/" + AssetPackage.VERSIONS_FILE)))
@@ -67,6 +71,12 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                 }
                             }
                         }
+                        if (event is VFileMoveEvent) {
+                            projectSetup.getPackage(event.oldParent)?.let { oldPkg ->
+                                val oldAsset = Asset(oldPkg, LightVirtualFile(event.file.name))
+                                projectSetup.setVersion(oldAsset, 0)
+                            }
+                        }
                     }
                     EventType.Delete -> {
                         projectSetup.setVersion(asset, 0)
@@ -79,12 +89,18 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
     }
 
     private fun getAssetEvent(event: VFileEvent): AssetEvent? {
-        event.file?.let {
+        val eventFile = if (event is VFileCopyEvent) {
+            event.newParent.findFileByRelativePath(event.newChildName)
+        }
+        else {
+            event.file
+        }
+        eventFile?.let {
             if (!it.isDirectory) {
                 if (projectSetup.isAssetSubdir(it.parent)) {
                     if (!AssetPackage.isIgnore(it) && !Asset.isIgnore(it)) {
                         // we care about this file
-                        var asset = projectSetup.getAsset(it) ?: projectSetup.createAsset(it)
+                        val asset = projectSetup.getAsset(it) ?: projectSetup.createAsset(it)
                         return AssetEvent(event, asset)
                     }
                 }

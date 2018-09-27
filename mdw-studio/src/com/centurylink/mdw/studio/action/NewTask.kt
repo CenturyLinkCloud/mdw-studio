@@ -14,9 +14,9 @@ class NewTask : NewAssetAction("New MDW Task", "Create a task template", Icons.T
 
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
         builder
-                .setTitle(title)
-                .addKind("Autoform Task", Icons.TASK, "assets/autoform.task")
-                .addKind("Custom Task", Icons.TASK, "assets/custom.task")
+            .setTitle(title)
+            .addKind("Autoform Task", Icons.TASK, "assets/autoform.task")
+            .addKind("Custom Task", Icons.TASK, "assets/custom.task")
     }
 
     override fun loadTemplate(fileName: String, path: String): String {

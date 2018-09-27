@@ -137,7 +137,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     /**
      * reselect objects based on id (since new g2d instance)
      */
-    fun doSelect() {
+    private fun doSelect() {
         val selectObjs = mutableListOf<Drawable>()
         for (selectObj in selection.selectObjs) {
             if (selectObj is Label && selectObj.owner.workflowObj.id == this.workflowObj.id) {
@@ -391,11 +391,11 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    fun onDrop(de: DiagramEvent, implementor: ActivityImplementor) {
+    fun onDrop(de: DiagramEvent, implementor: ActivityImplementor): Drawable {
         when (implementor.category) {
-            "subflow" -> selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClass)
-            "note" -> selection.selectObj = addNote(de.x, de.y)
-            else -> selection.selectObj = addStep(de.x, de.y, implementor)
+            "subflow" -> selection.selectObj = return addSubflow(de.x, de.y, implementor.implementorClass)
+            "note" -> selection.selectObj = return addNote(de.x, de.y)
+            else -> selection.selectObj = return addStep(de.x, de.y, implementor)
         }
     }
 

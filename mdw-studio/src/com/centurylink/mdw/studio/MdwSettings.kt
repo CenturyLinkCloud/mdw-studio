@@ -32,10 +32,17 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(SYNC_DYNAMIC_JAVA_CLASS_NAME, value)
         }
 
+    var isCreateAndAssociateTaskTemplate: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
+        }
+
     companion object {
         val instance = MdwSettings()
         const val ID = "com.centurylink.mdw.studio"
         private const val MDW_HOME = "$ID.mdwHome"
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
+        private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
     }
 }

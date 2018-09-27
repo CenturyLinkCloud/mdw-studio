@@ -22,6 +22,7 @@ class MdwConfig : SearchableConfigurable {
         }
     }
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
+    private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
 
     init {
         settingsPanel.layout = GridBagLayout()
@@ -72,11 +73,21 @@ class MdwConfig : SearchableConfigurable {
 
         // sync dynamic java classname
         syncDynamicJavaCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        syncDynamicJavaCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
         syncDynamicJavaCheckbox.isSelected = MdwSettings.instance.isSyncDynamicJavaClassName
         syncDynamicJavaCheckbox.addActionListener {
             modified = true
         }
         editPanel.add(syncDynamicJavaCheckbox)
+
+        // create and associate task template
+        createAndAssociateTaskCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        createAndAssociateTaskCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        createAndAssociateTaskCheckbox.isSelected = MdwSettings.instance.isCreateAndAssociateTaskTemplate
+        createAndAssociateTaskCheckbox.addActionListener {
+            modified = true
+        }
+        editPanel.add(createAndAssociateTaskCheckbox)
 
 
         // leftover vertical space

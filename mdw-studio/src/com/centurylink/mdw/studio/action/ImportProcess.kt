@@ -23,9 +23,8 @@ class ImportProcess : AssetAction() {
         if (projectSetup != null) {
             locator.getPackage()?.let { pkg ->
                 val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                        .withRoots(pkg.dir)
                         .withFileFilter { it.extension == ext }
-                FileChooser.chooseFile(descriptor, projectSetup.project, null) { file ->
+                FileChooser.chooseFile(descriptor, projectSetup.project, pkg.dir) { file ->
                     val importer = when(ext) {
                         "xml" -> DrawIoProcessImporter()
                         else -> BpmnProcessImporter()

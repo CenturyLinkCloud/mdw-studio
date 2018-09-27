@@ -143,7 +143,6 @@ class CodegenDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.pro
         val inputSpecButton = JButton("File...")
         inputSpecButton.addActionListener { _ ->
             val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                    .withRoots(projectSetup.assetDir)
                     .withFileFilter { it.extension == "json" }
             FileChooser.chooseFile(descriptor, projectSetup.project, null) { file ->
                 inputSpecText.text = file.path
@@ -173,7 +172,6 @@ class CodegenDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.pro
         val configFileButton = JButton("File...")
         configFileButton.addActionListener { _ ->
             val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                    .withRoots(projectSetup.assetDir)
                     .withFileFilter { it.extension == "json" }
             FileChooser.chooseFile(descriptor, projectSetup.project, null) { file ->
                 codegenConfig = File(file.path)

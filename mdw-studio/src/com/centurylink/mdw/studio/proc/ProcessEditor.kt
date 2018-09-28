@@ -62,7 +62,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     private val splitter: JBSplitter
     private val configPanel: ConfigPanel
     private val panelBar: PanelBar
-    private val canvas: ProcessCanvas
+    val canvas: ProcessCanvas
     private var _process: Process
     private var process: Process
         get() = _process

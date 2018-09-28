@@ -34,6 +34,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorIndexesProvider"/>
         <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorVariablesProvider"/>
         <fileEditorProvider implementation="com.centurylink.mdw.studio.task.TaskEditorSourceProvider"/>
+        <refactoring.elementListenerProvider implementation="com.centurylink.mdw.studio.proc.RefactorListenerProvider"/>
         <toolWindow anchor="right" icon="/icons/toolbox.png" id="Toolbox"
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>

@@ -4,7 +4,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
 
-class Label(private val g2d: Graphics2D, override var display: Display, val text: String, val owner: Drawable, val font: Font = Display.DEFAULT_FONT)
+class Label(private val g2d: Graphics2D, override var display: Display, var text: String, val owner: Drawable, val font: Font = Display.DEFAULT_FONT)
     : Shape(g2d, display), Drawable {
 
     override val workflowObj = owner.workflowObj

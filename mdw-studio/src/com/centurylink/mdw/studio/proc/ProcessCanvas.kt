@@ -263,6 +263,13 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
         super.paint(g)
     }
 
+    fun rename(newName: String) {
+        process.name = newName
+        diagram?.rename(newName)
+        revalidate()
+        repaint()
+    }
+
     companion object {
         const val CONTEXT_MENU_GROUP_ID = "mdwProcessContextActions"
         init {

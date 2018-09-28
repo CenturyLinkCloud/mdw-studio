@@ -31,7 +31,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     var hoverObj: Drawable? = null
     var selection: Selection
 
-    val label = Label(g2d, Display(process.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO)), process.name, this, Display.TITLE_FONT)
+    var label = Label(g2d, Display(process.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO)), process.name, this, Display.TITLE_FONT)
     val steps = mutableListOf<Step>()
     val links = mutableListOf<Link>()
     val subflows = mutableListOf<Subflow>()
@@ -676,6 +676,10 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                 }
             }
         }
+    }
+
+    fun rename(newName: String) {
+        label = Label(g2d, Display(process.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO)), newName, this, Display.TITLE_FONT)
     }
 
     companion object {

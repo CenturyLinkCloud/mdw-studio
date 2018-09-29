@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "2018.1.3-SNAPSHOT"
+version = "1.0.4"
 
 java.sourceSets {
     "main" {

@@ -1,8 +1,8 @@
 package com.centurylink.mdw.draw.edit
 
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.edit.adapt.WidgetAdapter
 import com.centurylink.mdw.draw.edit.apply.*
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.workflow.Process
@@ -30,6 +30,9 @@ var Pagelet.Widget.url: String?
 var Pagelet.Widget.units: String?
     get() = attributes[name + "_UNITS"]
     set(value) { attributes[name + "_UNITS"] = value }
+var Pagelet.Widget.version: Int?
+    get() = attributes["version"]?.toInt()
+    set(value) { attributes["version"] = value?.toString() }
 val Pagelet.Widget.isMultiline: Boolean
     get() = "true" == attributes["multiline"]
 val Pagelet.Widget.valueString: String?

@@ -42,6 +42,9 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
         if (!widget.isReadonly) {
             val assetSelectButton = AssetSelectButton("Select...", widget.valueString, projectSetup, widget.source) { assetPath ->
                 widget.value = assetPath
+                widget.version = assetPath?.let {
+                    projectSetup.getAsset(assetPath)?.version
+                }
                 assetLink.update(assetPath)
                 remove(assetLink)
                 if (!assetLink.text.isNullOrEmpty()) {

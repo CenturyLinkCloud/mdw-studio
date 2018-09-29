@@ -1,5 +1,8 @@
 package com.centurylink.mdw.studio.config.widgets
 
+import com.centurylink.mdw.draw.edit.source
+import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.asset.AssetVersionSpec
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import java.awt.Component
 import java.awt.Dimension
@@ -99,6 +102,22 @@ class AssetCellEditor(val isReadonly: Boolean, val projectSetup: ProjectSetup, v
         assetPath = value.toString()
         return AssetCell(assetPath, isReadonly, projectSetup, source) {
             assetPath = it ?: ""
+            if (source == "proc" && !assetPath.isBlank() && !assetPath.endsWith(".proc")) {
+                assetPath += ".proc"
+            }
+            if (table.model.columnCount > column + 1) {
+                if (assetPath.isBlank()) {
+                    table.model.setValueAt("", row, column + 1)
+                }
+                else {
+                    val asset = projectSetup.getAsset(assetPath)
+                    if (asset != null) {
+                        // auto-set smart version
+                        val ver = AssetVersionSpec.getDefaultSmartVersionSpec(Asset.formatVersion(asset.version))
+                        table.model.setValueAt(ver, row, column + 1)
+                    }
+                }
+            }
             fireEditingStopped()
         }
     }

@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.intellij.tasks.PublishTask
 
 plugins {
-    kotlin("jvm") version "1.2.61"
+    kotlin("jvm") version "1.2.71"
     id("org.jetbrains.intellij") version "0.3.7"
 }
 
 group = "com.centurylink.mdw"
-version = "1.0.4"
+version = "1.0.5-SNAPSHOT"
 
 java.sourceSets {
     "main" {
@@ -23,8 +23,9 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
+//    implementation(kotlin("stdlib-jdk8"))
+//    implementation(kotlin("reflect"))
+//    implementation(kotlin("compiler"))
     compile(project(":mdw-draw"))
     compile("com.beust:jcommander:1.72")
     compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { isTransitive = false }
@@ -35,6 +36,7 @@ dependencies {
 
 intellij {
     version = "2018.2.3"
+    setPlugins("Kotlin")
 }
 
 tasks.withType<PublishTask> {

@@ -24,4 +24,7 @@
    ```
 1. Update version in build.gradle.kts (x2) and resources/META-INF/plugin.xml.
 2. (Release build only) - Comment out the PublishTask Channels entry (but do not commit)
-2. Run Gradle task intellij/publishPlugin.
+3. Run Gradle task intellij/publishPlugin.
+4. After success:
+   - Revert PublishTask comment-out
+   - Set next SNAPSHOT in build.gradle.kts x2, and commit

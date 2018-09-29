@@ -314,7 +314,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         val annotatedAssets = mutableMapOf<Asset,MutableList<PsiAnnotation>>()
         for (javaAsset in findAssetsOfType("java")) {
             val psiFile = PsiManager.getInstance(project).findFile(javaAsset.file)
-            psiFile?.let { assetPsiFile ->
+            psiFile?.let { _ ->
                 if (psiFile is PsiClassOwner) {
                     for (psiClass in psiFile.classes) {
                         AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->
@@ -332,7 +332,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         }
         for (ktAsset in findAssetsOfType("kt")) {
             val psiFile = PsiManager.getInstance(project).findFile(ktAsset.file)
-            psiFile?.let { assetPsiFile ->
+            psiFile?.let { _ ->
                 if (psiFile is PsiClassOwner) {
                     for (psiClass in psiFile.classes) {
                         AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->

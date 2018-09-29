@@ -15,6 +15,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
     <idea-version since-build="182.4129" />
 
     <depends>com.intellij.modules.lang</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
     <project-components>
         <component>

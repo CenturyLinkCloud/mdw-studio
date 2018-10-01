@@ -23,9 +23,6 @@ repositories {
 }
 
 dependencies {
-//    implementation(kotlin("stdlib-jdk8"))
-//    implementation(kotlin("reflect"))
-//    implementation(kotlin("compiler"))
     compile(project(":mdw-draw"))
     compile("com.beust:jcommander:1.72")
     compile("org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r") { isTransitive = false }

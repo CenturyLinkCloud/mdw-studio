@@ -393,10 +393,17 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
     fun onDrop(de: DiagramEvent, implementor: ActivityImplementor): Drawable {
         when (implementor.category) {
-            "subflow" -> selection.selectObj = return addSubflow(de.x, de.y, implementor.implementorClass)
-            "note" -> selection.selectObj = return addNote(de.x, de.y)
-            else -> selection.selectObj = return addStep(de.x, de.y, implementor)
+            "subflow" -> {
+                selection.selectObj = addSubflow(de.x, de.y, implementor.implementorClass)
+            }
+            "note" -> {
+                selection.selectObj = addNote(de.x, de.y)
+            }
+            else -> {
+                selection.selectObj = addStep(de.x, de.y, implementor)
+            }
         }
+        return selection.selectObj
     }
 
     fun onPaste(pasted: Selection) {

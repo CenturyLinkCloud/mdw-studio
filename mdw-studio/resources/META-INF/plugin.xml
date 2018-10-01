@@ -41,6 +41,9 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig"/>
+        <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType" />
+        <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>
+        <webHelpProvider id="mdwHelp" implementation="com.centurylink.mdw.studio.MdwHelp" order="first"/>
     </extensions>
 
     <actions>

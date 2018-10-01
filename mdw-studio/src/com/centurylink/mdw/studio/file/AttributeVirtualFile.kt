@@ -17,16 +17,26 @@ import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFactory
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import org.jetbrains.kotlin.idea.core.util.FileAttributeProperty
+import java.io.*
 
+inline fun <T : Any> cachedFileAttribute(
+        name: String,
+        version: Int,
+        crossinline read: DataInputStream.() -> T,
+        crossinline write: DataOutputStream.(T) -> Unit
+): FileAttributeProperty<T> {
+    return object : FileAttributeProperty<T>(name, version) {
+        override fun readValue(input: DataInputStream): T = read(input)
+        override fun writeValue(output: DataOutputStream, value: T) = write(output, value)
+    }
+}
 /**
  * name and file type are determined based on workflowObj
  */
@@ -141,6 +151,10 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
                 }
             }
         }
+    }
+
+    override fun getParent(): VirtualFile? {
+        return (workflowObj.project as ProjectSetup).getPackage(workflowObj.asset.packageName)?.dir
     }
 
     override fun getFileType(): FileType {

@@ -41,6 +41,14 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig"/>
+        <resolveScopeEnlarger implementation="com.centurylink.mdw.studio.file.kotlin.KtsResolveScopeEnlarger"/>
+        <!--
+        <useScopeEnlarger implementation="com.centurylink.mdw.studio.file.kotlin.KtsUseScopeEnlarger"/>
+        -->
+    </extensions>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <scriptDefinitionContributor implementation="com.centurylink.mdw.studio.file.kotlin.KtsDefinitionContributor" order="first"/>
     </extensions>
 
     <actions>

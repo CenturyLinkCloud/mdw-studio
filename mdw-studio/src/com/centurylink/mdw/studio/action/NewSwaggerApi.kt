@@ -94,7 +94,6 @@ class NewSwaggerApi : AssetAction() {
 
     companion object {
         val LOG = Logger.getInstance(NewSwaggerApi::class.java)
-
     }
 }
 

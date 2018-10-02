@@ -1,5 +1,7 @@
 package com.centurylink.mdw.studio.proj
 
+import com.centurylink.mdw.cli.Init
+import com.centurylink.mdw.cli.Props
 import com.centurylink.mdw.studio.MdwHelp
 import com.centurylink.mdw.studio.file.Icons
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder
@@ -14,14 +16,13 @@ import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.components.JBTextField
 import java.awt.*
+import java.io.File
 import javax.swing.*
-
 
 class MdwModuleType : JavaModuleType(ID) {
 
     override fun getName() = "MDW"
     override fun getDescription() = "MDW Project"
-    override fun getNodeIcon(isOpened: Boolean)  = Icons.MDW
 
     override fun createModuleBuilder(): MdwModuleBuilder {
         return MdwModuleBuilder()
@@ -41,7 +42,10 @@ class MdwModuleBuilder : JavaModuleBuilder() {
         Maven
     }
 
-    var initialUserId = System.getProperty("user.name")
+    override fun getNodeIcon() = Icons.MDW
+
+    var wizardContext: WizardContext? = null
+    var initialUserId: String = System.getProperty("user.name")
     var buildType = BuildType.Gradle
     var groupId = "com.example"
     var isSpringBoot = true
@@ -49,17 +53,28 @@ class MdwModuleBuilder : JavaModuleBuilder() {
     override fun getModuleType() = MdwModuleType.instance
 
     override fun setupRootModel(modifiableRootModel: ModifiableRootModel) {
-        return setupRootModel(modifiableRootModel);
+        super.setupRootModel(modifiableRootModel)
+        wizardContext?.let { context ->
+            val init = Init(File(context.projectFileDirectory))
+            Props.init("mdw.yaml")
+            // init.isRunUpdate = false
+            init.user = initialUserId
+            init.isMaven = buildType == BuildType.Maven
+            init.sourceGroup = groupId
+            init.isSpringBoot = isSpringBoot
+            init.run()
+        }
     }
 
     override fun createWizardSteps(wizardContext: WizardContext, modulesProvider: ModulesProvider): Array<ModuleWizardStep> {
+        this.wizardContext = wizardContext
         val steps = super.createWizardSteps(wizardContext, modulesProvider).toMutableList()
         steps.add(MdwModuleWizardStep(this))
         return steps.toTypedArray()
     }
 }
 
-class MdwModuleWizardStep(val moduleBuilder: MdwModuleBuilder) : ModuleWizardStep() {
+class MdwModuleWizardStep(private val moduleBuilder: MdwModuleBuilder) : ModuleWizardStep() {
 
     private val mainPanel = JPanel(BorderLayout())
 
@@ -161,7 +176,6 @@ class MdwModuleWizardStep(val moduleBuilder: MdwModuleBuilder) : ModuleWizardSte
         springBootPanel.add(springBootLabel)
         springBootCheckbox.isSelected = moduleBuilder.isSpringBoot
         springBootPanel.add(springBootCheckbox)
-
     }
 
     override fun updateDataModel() {

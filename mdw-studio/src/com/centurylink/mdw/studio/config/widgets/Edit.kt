@@ -6,6 +6,7 @@ import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
@@ -63,6 +64,13 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
                 applyUpdate()
             }
         })
+
+        if (virtualFile.extension == "java") {
+            ApplicationManager.getApplication().invokeLater {
+                virtualFile.syncDynamicJavaClassName()
+            }
+        }
+
         val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         editor.component.preferredSize = Dimension(800, 600)
 

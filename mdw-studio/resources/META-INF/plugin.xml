@@ -61,12 +61,12 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.NewActivityKotlin" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
-        <group id="mdwNewRestApi" text="MDW REST API" icon="AllIcons.FileTypes.JsonSchema" popup="true">
+        <group id="mdwNewRestApi" text="MDW REST" icon="AllIcons.FileTypes.JsonSchema" popup="true">
             <action id="mdwNewRestApiJava" text="Java Service" icon="AllIcons.FileTypes.Java"
                     class="com.centurylink.mdw.studio.action.NewRestApiJava" />
             <action id="mdwNewRestApiKotlin" text="Kotlin Service" icon="/icons/kotlin_file.png"
                     class="com.centurylink.mdw.studio.action.NewRestApiKotlin" />
-            <action id="mdwNewRestFromSwagger" text="From Swagger" icon="/icons/swagger.png"
+            <action id="mdwNewRestFromSwagger" text="Swagger API(s)" icon="/icons/swagger.png"
                     class="com.centurylink.mdw.studio.action.NewSwaggerApi"  />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>

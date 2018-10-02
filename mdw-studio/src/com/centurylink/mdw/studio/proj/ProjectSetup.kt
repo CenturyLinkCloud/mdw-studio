@@ -47,13 +47,17 @@ import kotlin.concurrent.thread
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
+        // check assets
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
+
+
+        // associate .test files with groovy
         FileTypeManager.getInstance().getFileTypeByExtension("groovy").let {
             WriteAction.run<RuntimeException> {
                 FileTypeManager.getInstance().associateExtension(it, "test")
             }
         }
         // start the server detection background thread
-        val projectSetup = project.getComponent(ProjectSetup::class.java)
         projectSetup.hubRootUrl?.let {
             val serverCheckUrl = URL(it + "/services/AppSummary")
             thread(true, true, name = "mdwServerDetection") {
@@ -129,7 +133,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     var isServerRunning = false
 
-    val packages: List<AssetPackage>
+    private val packages: List<AssetPackage>
         get() {
             val pkgs = mutableListOf<AssetPackage>()
             VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory}, {

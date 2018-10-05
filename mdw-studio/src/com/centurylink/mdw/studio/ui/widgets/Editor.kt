@@ -1,4 +1,4 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.valueString

@@ -1,4 +1,4 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.draw.ext.Json
 import com.centurylink.mdw.draw.ext.toStrings

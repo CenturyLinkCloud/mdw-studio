@@ -82,7 +82,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
                 }
             }
             catch (e: Exception) {
-                LOG.error(e)
+                LOG.warn(e)
             }
         }
         if (clipboard.isDataFlavorAvailable(DATA_FLAVOR_TEXT)) {
@@ -98,7 +98,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
                 }
             }
             catch (e: Exception) {
-                LOG.error(e)
+                LOG.warn(e)
             }
         }
 

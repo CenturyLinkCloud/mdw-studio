@@ -74,7 +74,7 @@ class NewSwaggerApi : AssetAction() {
                             ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
                             codeGen.run()
                         } catch (ex: Exception) {
-                            LOG.error(ex)
+                            LOG.warn(ex)
                             Notifications.Bus.notify(Notification("MDW", "Swagger Codegen Error", ex.toString(),
                                     NotificationType.ERROR), projectSetup.project)
                         }

@@ -1,4 +1,4 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
 import java.awt.Component
 import java.lang.Boolean.parseBoolean

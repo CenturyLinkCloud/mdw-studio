@@ -1,13 +1,8 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.model.asset.Pagelet
-import com.google.gson.JsonObject
-import java.awt.FlowLayout
-import java.awt.event.ItemEvent
-import java.awt.event.ItemListener
 import javax.swing.BorderFactory
 import javax.swing.JCheckBox
-import javax.swing.JPanel
 
 @Suppress("unused")
 class Checkbox (widget: Pagelet.Widget) : SwingWidget(widget) {

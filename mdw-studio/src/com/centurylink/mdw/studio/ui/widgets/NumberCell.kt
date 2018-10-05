@@ -1,8 +1,7 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
 import com.intellij.ui.JBIntSpinner
 import java.awt.Component
-import java.util.*
 import javax.swing.AbstractCellEditor
 import javax.swing.JTable
 import javax.swing.UIManager

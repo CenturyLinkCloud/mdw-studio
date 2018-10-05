@@ -4,10 +4,10 @@ import com.centurylink.mdw.draw.RoundedBorder
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.config.widgets.Editor
-import com.centurylink.mdw.studio.config.widgets.Label
-import com.centurylink.mdw.studio.config.widgets.SwingWidget
-import com.centurylink.mdw.studio.config.widgets.Table
+import com.centurylink.mdw.studio.ui.widgets.Editor
+import com.centurylink.mdw.studio.ui.widgets.Label
+import com.centurylink.mdw.studio.ui.widgets.SwingWidget
+import com.centurylink.mdw.studio.ui.widgets.Table
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane

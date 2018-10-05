@@ -1,6 +1,5 @@
-package com.centurylink.mdw.studio.config.widgets
+package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.source
 import com.centurylink.mdw.model.asset.Asset
 import com.centurylink.mdw.model.asset.AssetVersionSpec
 import com.centurylink.mdw.studio.proj.ProjectSetup

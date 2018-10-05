@@ -33,7 +33,7 @@ class SyncServer : ServerAction() {
                     note.expire()
                 }
                 catch (e: IOException) {
-                    LOG.error(e)
+                    LOG.warn(e)
                     JOptionPane.showMessageDialog(null, "MDW server not reachable at:\n$url",
                             "Sync Server", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
                 }

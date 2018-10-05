@@ -75,6 +75,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Major version should be incremented to indicate possible breaking changes."
                     class="com.centurylink.mdw.studio.action.AssetVersion">
             </action>
+            <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
+                    description="Update MDW asset packages"
+                    class="com.centurylink.mdw.studio.action.UpdateAssets">
+            </action>
             <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
                     description="Run process via MDWHub"
                     class="com.centurylink.mdw.studio.action.RunProcess">

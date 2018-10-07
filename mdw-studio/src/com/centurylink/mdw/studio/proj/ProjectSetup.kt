@@ -53,8 +53,8 @@ class Startup : StartupActivity {
         val projectSetup = project.getComponent(ProjectSetup::class.java)
         if (!projectSetup.isMdwProject) {
             // one more try in case new project
-            projectSetup.initialize()
-            projectSetup.reloadImplementors()
+            projectSetup.assetDir = projectSetup.initialize()
+            projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
             // check mdw assets
@@ -72,7 +72,7 @@ class Startup : StartupActivity {
             }
             // start the server detection background thread
             projectSetup.hubRootUrl?.let {
-                val serverCheckUrl = URL(it + "/services/AppSummary")
+                val serverCheckUrl = URL("$it/services/AppSummary")
                 thread(true, true, name = "mdwServerDetection") {
                     while (true) {
                         sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
@@ -96,7 +96,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     // setup is null if not an mdw project
     private var setup: Setup? = null
-    val assetDir: VirtualFile
+    internal var assetDir: VirtualFile
 
     val isMdwProject: Boolean
         get() = setup != null
@@ -108,6 +108,47 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     override fun getAssetRoot(): File {
         return File(assetDir.path)
     }
+
+    private val projectYaml = File(project.basePath + "/project.yaml")
+
+    override fun getMdwVersion(): MdwVersion {
+        return if (projectYaml.exists()) {
+            MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))
+        } else {
+            MdwVersion(null)
+        }
+    }
+
+    var git: VersionControlGit? = null
+
+    var isServerRunning = false
+
+    // pass-through properties
+    val configLoc: String?
+        get() = setup?.configLoc
+
+    val packages: List<AssetPackage>
+        get() {
+            val pkgs = mutableListOf<AssetPackage>()
+            VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory}, {
+                if (it.isDirectory && it.findFileByRelativePath(AssetPackage.META_FILE) != null) {
+                    try {
+                        pkgs.add(AssetPackage(getPackageName(it), it))
+                    }
+                    catch (e: Exception) {
+                        when(e) {
+                            is FileNotFoundException -> { LOG.warn(e)}
+                            is YAMLException -> { LOG.warn("Bad meta (YAMLException): $it", e)}
+                            else -> throw e
+                        }
+                    }
+                }
+                true
+            })
+            return pkgs
+        }
+
+    private val iconAssets = mutableMapOf<String,ImageIcon>()
 
     private var _implementors: Implementors? = null
     val implementors: Implementors
@@ -137,54 +178,19 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         }
     }
 
-    private val projectYaml = File(project.basePath + "/project.yaml")
-
-    override fun getMdwVersion(): MdwVersion {
-        return if (projectYaml.exists()) {
-            MdwVersion(YamlProperties(projectYaml).getString(Props.MDW_VERSION.prop))
-        } else {
-            MdwVersion(null)
-        }
-    }
-
-    var git: VersionControlGit? = null
-
-    // pass-through properties
-    val configLoc: String?
-        get() = setup?.configLoc
-
-    var isServerRunning = false
-
-    val packages: List<AssetPackage>
-        get() {
-            val pkgs = mutableListOf<AssetPackage>()
-            VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory}, {
-                if (it.isDirectory && it.findFileByRelativePath(AssetPackage.META_FILE) != null) {
-                    try {
-                        pkgs.add(AssetPackage(getPackageName(it), it))
-                    }
-                    catch (e: Exception) {
-                        when(e) {
-                            is FileNotFoundException -> { LOG.warn(e)}
-                            is YAMLException -> { LOG.warn("Bad meta (YAMLException): $it", e)}
-                            else -> throw e
-                        }
-                    }
-                }
-                true
-            })
-            return pkgs
-        }
-
-    private val iconAssets = mutableMapOf<String,ImageIcon>()
-
     init {
         assetDir = initialize()
-        DumbService.getInstance(project).smartInvokeLater {
-            implementors // trigger implementor load
+        configure()
+        if (isMdwProject) {
+            DumbService.getInstance(project).smartInvokeLater {
+                implementors // trigger implementor load
+            }
         }
     }
 
+    /**
+     * Creates a setup instance reflecting project.yaml asset and config locations.
+     */
     internal fun initialize(): VirtualFile {
         if (projectYaml.exists()) {
             val yamlProps = YamlProperties(projectYaml)
@@ -199,8 +205,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                         return this
                     }
                 }
-                mySetup.configLoc = projectYaml.parentFile.absolutePath + "/" + configLoc
                 mySetup.assetLoc = projectYaml.parentFile.absolutePath + "/" + assetLoc
+                mySetup.configLoc = projectYaml.parentFile.absolutePath + "/" + configLoc
                 setup = mySetup
                 return LocalFileSystem.getInstance().findFileByIoFile(mySetup.assetRoot)!!
             }
@@ -208,6 +214,13 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 throw PropertyException("Missing: ${mdwYaml.absolutePath}")
             }
         }
+        return project.baseDir
+    }
+
+    /**
+     * Initializes file listening and git.
+     */
+    internal fun configure(warnGitNotFound: Boolean = true) {
         if (isMdwProject) {
             packages // trigger iterate children to load vfs
             val connection = project.messageBus.connect(project)
@@ -225,15 +238,15 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
             else {
                 git = null
-                val msg = """Git root not found: ${setup.gitRoot.absolutePath}.
-                        Asset version updates will not be applied.  If you're using Git, fix git.local.path in mdw.yaml and restart IntelliJ."""
-                LOG.warn(msg)
-                val note = Notification("MDW", "MDW Project", msg, NotificationType.ERROR)
-                Notifications.Bus.notify(note, project)
+                if (warnGitNotFound) {
+                    val msg = """Git root not found: ${setup.gitRoot.absolutePath}.
+                            Asset version updates will not be applied.  If you're using Git, fix git.local.path in mdw.yaml and restart IntelliJ."""
+                    LOG.warn(msg)
+                    val note = Notification("MDW", "MDW Project", msg, NotificationType.INFORMATION)
+                    Notifications.Bus.notify(note, project)
+                }
             }
         }
-
-        return project.baseDir
     }
 
     override fun projectOpened() {

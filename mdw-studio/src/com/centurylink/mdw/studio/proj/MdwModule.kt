@@ -57,7 +57,7 @@ class MdwModuleBuilder : JavaModuleBuilder() {
         wizardContext?.let { context ->
             val init = Init(File(context.projectFileDirectory))
             Props.init("mdw.yaml")
-            init.isRunUpdate = false
+            init.isNoUpdate = true
             init.user = initialUserId
             init.isMaven = buildType == BuildType.Maven
             init.sourceGroup = groupId

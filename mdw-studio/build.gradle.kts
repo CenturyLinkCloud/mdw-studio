@@ -12,7 +12,6 @@ version = "1.0.5-SNAPSHOT"
 java.sourceSets {
     "main" {
         java.srcDirs("src")
-        // kotlin.sourceDirs("src")
         resources.srcDirs("resources")
     }
 }

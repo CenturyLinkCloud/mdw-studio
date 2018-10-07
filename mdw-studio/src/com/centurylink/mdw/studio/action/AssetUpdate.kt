@@ -3,6 +3,7 @@ package com.centurylink.mdw.studio.action
 import com.centurylink.mdw.cli.Update
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.tool.ToolboxWindowFactory
 import com.centurylink.mdw.studio.ui.MessageDialog
 import com.centurylink.mdw.util.file.Packages
 import com.intellij.notification.Notification
@@ -12,6 +13,8 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.wm.ToolWindowAnchor
+import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
 
 class UpdateAssets : AnAction() {
@@ -77,7 +80,15 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
             Notifications.Bus.notify(note, projectSetup.project)
             if (backgroundOp.status.isSuccess) {
                 note.expire()
+                projectSetup.reloadImplementors()
+                val toolWindowManager = ToolWindowManager.getInstance(projectSetup.project)
+                if (toolWindowManager.getToolWindow(ToolboxWindowFactory.ID) == null) {
+                    val toolbox = toolWindowManager.registerToolWindow(ToolboxWindowFactory.ID, false, ToolWindowAnchor.RIGHT)
+                    toolbox.icon = ToolboxWindowFactory.ICON
+                    ToolboxWindowFactory.instance.createToolWindowContent(projectSetup.project, toolbox)
+                }
             }
+            projectSetup.assetDir.refresh(true, true)
         }
     }
 

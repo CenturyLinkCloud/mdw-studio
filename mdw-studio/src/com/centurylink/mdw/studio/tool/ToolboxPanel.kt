@@ -13,7 +13,12 @@ import com.centurylink.mdw.studio.proj.ImplementorChangeListener
 import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
+import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.datatransfer.DataFlavor
@@ -23,6 +28,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.image.BufferedImage
 import javax.swing.*
+import javax.swing.border.Border
 import javax.swing.border.EmptyBorder
 
 
@@ -43,12 +49,17 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
             val toolPanel = ToolPanel(projectSetup, implementor)
             toolPanel.border = BORDER_NOT
             toolPanel.addMouseListener(object: MouseAdapter() {
-                override fun mousePressed(e: MouseEvent?) {
+                override fun mousePressed(e: MouseEvent) {
                     selected?.let {
                         it.border = BORDER_NOT
                     }
                     toolPanel.border = BORDER_SELECTED
                     selected = toolPanel
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        val action = CustomActionsSchema.getInstance().getCorrectedAction(ToolPanel.CONTEXT_MENU_GROUP_ID)
+                        val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, action as ActionGroup)
+                        popupMenu.component.show(toolPanel, e.x, e.y)
+                    }
                 }
             })
             val iconPanel = IconPanel(toolPanel.icon)
@@ -72,24 +83,23 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
     }
 
     override fun dispose() {
-
     }
 
     companion object {
         const val TOOL_WIDTH = 200
         const val TOOL_HEIGHT = 35
-        val BORDER_SELECTED = BorderFactory.createLineBorder(Color(0x0b93d5), 2 )
-        val BORDER_NOT = BorderFactory.createEmptyBorder(2, 2, 2, 2)
+        val BORDER_SELECTED: Border = BorderFactory.createLineBorder(Color(0x0b93d5), 2 )
+        val BORDER_NOT: Border = BorderFactory.createEmptyBorder(2, 2, 2, 2)
     }
 }
 
-class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImplementor) : JPanel(FlowLayout(FlowLayout.LEFT)) {
+class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImplementor) :
+        JPanel(FlowLayout(FlowLayout.LEFT)), DataProvider {
 
     val icon = ToolboxIcon(implementor)
 
     init {
         preferredSize = Dimension(ToolboxPanel.TOOL_WIDTH, ToolboxPanel.TOOL_HEIGHT)
-
 
         transferHandler = object : TransferHandler() {
 
@@ -153,6 +163,14 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
 
     companion object {
         val jsonFlavor = DataFlavor("application/json")
+        const val CONTEXT_MENU_GROUP_ID = "mdwToolboxContextActions"
+    }
+
+    override fun getData(dataId: String): Any? {
+        if (dataId == Implementors.ACTIVITY_IMPLEMENTOR) {
+            return implementor
+        }
+        return null
     }
 
     inner class ToolboxIcon(private val implementor: ActivityImplementor) {

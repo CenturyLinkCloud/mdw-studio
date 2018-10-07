@@ -5,6 +5,7 @@ import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.psi.*
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import com.intellij.psi.util.PsiTypesUtil
@@ -62,6 +63,10 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
     }
 
     companion object {
+
+        const val ACTIVITY_IMPLEMENTOR = "mdwActivityImplementor"
+        val IMPLEMENTOR_DATA_KEY = DataKey.create<ActivityImplementor>(ACTIVITY_IMPLEMENTOR)
+
         /**
          * Find annotation-based implementors (return null if not found)
          */
@@ -97,19 +102,3 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
 interface ImplementorChangeListener {
     fun onChange(implementors: Implementors)
 }
-
-/**
- * For asset-driven activities
- */
-class AssociatedAsset(type: String) {
-
-}
-
-val Step.asset: AssociatedAsset?
-    get() {
-        val attr: String? = null
-        if (implementor.category.endsWith("InvokeProcessActivity")) {
-
-        }
-        return null
-    }

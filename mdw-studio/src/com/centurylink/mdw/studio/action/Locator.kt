@@ -63,5 +63,4 @@ class Locator(private val event: AnActionEvent) {
         }
         return null
     }
-
 }

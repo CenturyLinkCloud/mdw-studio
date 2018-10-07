@@ -85,7 +85,7 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                 }
 
                 if (SwingUtilities.isRightMouseButton(e)) {
-                    val action = CustomActionsSchema.getInstance().getCorrectedAction(CONTEXT_MENU_GROUP_ID)
+                    val action = CustomActionsSchema.getInstance().getCorrectedAction(CanvasActions.CONTEXT_MENU_GROUP_ID)
                     var actionGroup = action as ActionGroup
                     if (action is DefaultActionGroup) {
                         diagram?.let { diagram ->
@@ -271,7 +271,6 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
     }
 
     companion object {
-        const val CONTEXT_MENU_GROUP_ID = "mdwProcessContextActions"
         init {
             Display.START_ICON = Icons.readIcon("/icons/start.png")
             Display.STOP_ICON = Icons.readIcon("/icons/stop.png")

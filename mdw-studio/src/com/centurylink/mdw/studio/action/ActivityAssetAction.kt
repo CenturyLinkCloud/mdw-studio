@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.fileTypes.INativeFileType
+import com.intellij.openapi.fileTypes.NativeFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 
 class ActivityAssetAction(private val asset: Asset) :
@@ -14,7 +16,16 @@ class ActivityAssetAction(private val asset: Asset) :
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.let { project ->
-            FileEditorManager.getInstance(project).openFile(asset.file, true)
+            val editors = FileEditorManager.getInstance(project).openFile(asset.file, true)
+            if (editors.isEmpty()) {
+                asset.file.extension?.let { ext ->
+                    FileTypeManager.getInstance().getFileTypeByExtension(ext).let { fileType ->
+                       if (fileType is INativeFileType) {
+                           fileType.openFileInAssociatedApplication(project, asset.file)
+                       }
+                    }
+                }
+            }
         }
     }
 

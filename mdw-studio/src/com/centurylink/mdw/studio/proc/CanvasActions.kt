@@ -138,7 +138,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
 
     companion object {
         val LOG = Logger.getInstance(CanvasActions::class.java)
-
+        const val CONTEXT_MENU_GROUP_ID = "mdwProcessContextActions"
         val DATA_FLAVOR_JSON = DataFlavor("application/json")
         val DATA_FLAVOR_TEXT = DataFlavor("text/plain")
     }

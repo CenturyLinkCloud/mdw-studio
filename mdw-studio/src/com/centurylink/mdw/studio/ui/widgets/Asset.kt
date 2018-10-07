@@ -3,13 +3,11 @@ package com.centurylink.mdw.studio.ui.widgets
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.file.AssetOpener
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.fileTypes.INativeFileType
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
@@ -135,17 +133,8 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
                             procFile?.let { assetFile = procFile }
                         }
                         assetFile ?: throw IOException("Asset not found: ${assetPath}")
-                        assetFile?.let { file ->
-                            val editors = FileEditorManager.getInstance(projectSetup.project).openFile(file, true)
-                            if (editors.isEmpty()) {
-                                file.extension?.let { ext ->
-                                    FileTypeManager.getInstance().getFileTypeByExtension(ext).let { fileType ->
-                                        if (fileType is INativeFileType) {
-                                            fileType.openFileInAssociatedApplication(projectSetup.project, file)
-                                        }
-                                    }
-                                }
-                            }
+                        projectSetup.getAsset(assetFile as VirtualFile)?.let { asset ->
+                            AssetOpener(projectSetup, asset).doOpen()
                         }
                     }
                 }

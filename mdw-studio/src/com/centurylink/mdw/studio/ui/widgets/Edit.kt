@@ -67,7 +67,9 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
 
         if (virtualFile.extension == "java") {
             ApplicationManager.getApplication().invokeLater {
-                virtualFile.syncDynamicJavaClassName()
+                val className = virtualFile.syncDynamicJavaClassName()
+                workflowObj.setAttribute("ClassName", className)
+                notifyUpdateListeners(workflowObj)
             }
         }
 

@@ -91,6 +91,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Show task instances in MDWHub"
                     class="com.centurylink.mdw.studio.action.TaskInstances">
             </action>
+            <action id="mdwRunAutotest" text="Run Test" icon="AllIcons.General.Run"
+                    description="Run MDW automated test case"
+                    class="com.centurylink.mdw.studio.action.RunAutotest">
+            </action>
             <group id="mdwImport" text="Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
                     description="Import an MDW process" class="com.centurylink.mdw.studio.action.AssetActionGroup">
                 <action id="mdwImportDrawIo" text="From draw.io Diagram" icon="AllIcons.FileTypes.Xml"

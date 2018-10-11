@@ -65,7 +65,9 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
 
         if (virtualFile.extension == "java") {
             ApplicationManager.getApplication().invokeLater {
-                virtualFile.syncDynamicJavaClassName()
+                val className = virtualFile.syncDynamicJavaClassName()
+                workflowObj.setAttribute("ClassName", className)
+                notifyUpdateListeners(workflowObj)
             }
         }
 

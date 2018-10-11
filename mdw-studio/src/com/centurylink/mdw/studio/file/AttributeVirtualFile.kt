@@ -30,7 +30,7 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val value: String?, private val ext: String? = null) :
+class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?, private val ext: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
     val contents = value ?: getTemplateContents() ?: ""
@@ -99,7 +99,10 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
         return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
     }
 
-    fun syncDynamicJavaClassName() {
+    /**
+     * Returns the resulting class name (not qualified).
+     */
+    fun syncDynamicJavaClassName(): String? {
         val project = (workflowObj.project as ProjectSetup).project
         PsiManager.getInstance(project).findFile(this)?.let { psiFile ->
             if (psiFile is PsiClassOwner) {
@@ -129,18 +132,24 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, private val val
                                             .show()
                                     sync = res == Messages.YES
                                 }
-                                if (sync) {
+                                return if (sync) {
                                     val fixedClass = PsiElementFactory.SERVICE.getInstance(project).createClass(dynamicJavaClassName)
                                     WriteCommandAction.writeCommandAction(project, psiFile).run<Exception> {
                                         psiClass.nameIdentifier?.replace(fixedClass.nameIdentifier!!)
                                     }
+                                    dynamicJavaClassName
+                                }
+                                else {
+                                    psiClass.name
                                 }
                             }
+                            return dynamicJavaClassName
                         }
                     }
                 }
             }
         }
+        return null
     }
 
     override fun getFileType(): FileType {

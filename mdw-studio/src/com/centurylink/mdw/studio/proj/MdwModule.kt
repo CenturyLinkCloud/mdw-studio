@@ -49,6 +49,7 @@ class MdwModuleBuilder : JavaModuleBuilder() {
     var buildType = BuildType.Gradle
     var groupId = "com.example"
     var isSpringBoot = true
+    var isSnapshots = false
 
     override fun getModuleType() = MdwModuleType.instance
 
@@ -57,11 +58,14 @@ class MdwModuleBuilder : JavaModuleBuilder() {
         wizardContext?.let { context ->
             val init = Init(File(context.projectFileDirectory))
             Props.init("mdw.yaml")
+            init.configLoc = "config"
+            init.assetLoc = "assets"
             init.isNoUpdate = true
             init.user = initialUserId
             init.isMaven = buildType == BuildType.Maven
             init.sourceGroup = groupId
             init.isSpringBoot = isSpringBoot
+            init.isSnapshots = isSnapshots
             init.run()
         }
     }
@@ -90,6 +94,7 @@ class MdwModuleWizardStep(private val moduleBuilder: MdwModuleBuilder) : ModuleW
     }
     private val buildTypeButtonGroup = ButtonGroup()
     private val springBootCheckbox = JBCheckBox("Generate Spring Boot artifacts")
+    private val snapshotsCheckbox = JBCheckBox("Use the latest (experimental) MDW snapshot build")
 
     override fun getHelpId(): String {
         return MdwHelp.CREATE_PROJECT
@@ -176,6 +181,18 @@ class MdwModuleWizardStep(private val moduleBuilder: MdwModuleBuilder) : ModuleW
         springBootPanel.add(springBootLabel)
         springBootCheckbox.isSelected = moduleBuilder.isSpringBoot
         springBootPanel.add(springBootCheckbox)
+
+        val snapshotsPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
+        snapshotsPanel.alignmentX = Component.LEFT_ALIGNMENT
+        panel.add(snapshotsPanel)
+        val snapshotsLabel = object : JLabel("") {
+            override fun getPreferredSize(): Dimension {
+                return Dimension(150, super.getPreferredSize().height)
+            }
+        }
+        snapshotsPanel.add(snapshotsLabel)
+        snapshotsCheckbox.isSelected = moduleBuilder.isSnapshots
+        snapshotsPanel.add(snapshotsCheckbox)
     }
 
     override fun updateDataModel() {
@@ -183,6 +200,7 @@ class MdwModuleWizardStep(private val moduleBuilder: MdwModuleBuilder) : ModuleW
         moduleBuilder.buildType = MdwModuleBuilder.BuildType.valueOf(buildTypeButtonGroup.selection.actionCommand)
         moduleBuilder.groupId = groupIdText.text
         moduleBuilder.isSpringBoot = springBootCheckbox.isSelected
+        moduleBuilder.isSnapshots = snapshotsCheckbox.isSelected
     }
 
     override fun validate(): Boolean {

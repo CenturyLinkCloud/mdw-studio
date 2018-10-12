@@ -68,7 +68,7 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
                     return Status(true, "Asset update needed: $mdwVersion")
                 }
             }
-            return Status(false, "Base assets already up-to-date with MDW $mdwVersion")
+            return Status(false, "Base assets already up-to-date with MDW $mdwVersion.")
         }
 
     fun doUpdate() {

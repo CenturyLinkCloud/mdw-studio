@@ -16,6 +16,7 @@ import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
 import com.centurylink.mdw.util.file.Packages
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
@@ -23,6 +24,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
@@ -50,6 +52,7 @@ import kotlin.concurrent.thread
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
+
         val projectSetup = project.getComponent(ProjectSetup::class.java)
         if (!projectSetup.isMdwProject) {
             // one more try in case new project
@@ -57,6 +60,15 @@ class Startup : StartupActivity {
             projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
+            val pluginVer = PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.getVersion()
+            try {
+                LOG.info("MDW Studio: $pluginVer (${MdwVersion.getRuntimeVersion()})")
+            }
+            catch (ex: Exception) {
+                LOG.info("MDW Studio: $pluginVer")
+                LOG.warn(ex)
+            }
+
             // check mdw assets
             val updateStatus = AssetUpdate(projectSetup).status
             if (updateStatus.isUpdateNeeded) {
@@ -89,6 +101,9 @@ class Startup : StartupActivity {
             }
             MdwSettings.instance.getOrMakeMdwHome()
         }
+    }
+    companion object {
+        val LOG = Logger.getInstance(Startup::class.java)
     }
 }
 
@@ -411,11 +426,11 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     fun createPackage(packageDir: VirtualFile): AssetPackage {
         return WriteAction.compute<AssetPackage,IOException> {
-            var metaDir = packageDir.findFileByRelativePath(AssetPackage.META_DIR)
-            if (metaDir == null) {
-                metaDir = packageDir.createChildDirectory(this, AssetPackage.META_DIR)
-            }
             ApplicationManager.getApplication().invokeAndWait {
+                var metaDir = packageDir.findFileByRelativePath(AssetPackage.META_DIR)
+                if (metaDir == null) {
+                    metaDir = packageDir.createChildDirectory(this, AssetPackage.META_DIR)
+                }
                 val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
                         ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
                 val packageName = packageDir.path.substring(assetDir.path.length + 1).replace('/', '.')
@@ -491,6 +506,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     companion object {
+        const val PLUGIN_ID = "com.centurylink.mdw.studio"
         val LOG = Logger.getInstance(ProjectSetup::class.java)
         const val SERVER_DETECT_INTERVAL = 3000L
 

@@ -46,9 +46,6 @@ class NewSwaggerApi : AssetAction() {
                     }
                     codeGen.assetLoc = projectSetup.assetRoot.path
                     codeGen.mdwVersion = projectSetup.mdwVersion.toString()
-                    if (projectSetup.mdwVersion.isSnapshot) {
-                        codeGen.isSnapshots = true
-                    }
                     // TODO handle unset MDW_HOME env var -- or templates not present
                     // codeGen.templateDir = "${projectSetup.tempDir}/templates"
                     codeGen.inputSpec = codegenDialog.inputSpec

@@ -19,11 +19,9 @@ class BackgroundOp(title: String, projectSetup: ProjectSetup, val operation: Ope
 
     init {
         if (operation is Setup) {
+            // set non-relative locations
             operation.configLoc = projectSetup.configLoc
             operation.assetLoc = projectSetup.assetRoot.path
-            val mdwVersion = projectSetup.mdwVersion
-            operation.mdwVersion = mdwVersion.toString()
-            operation.isSnapshots = mdwVersion.isSnapshot
         }
     }
 

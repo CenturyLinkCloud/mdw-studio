@@ -67,6 +67,10 @@ class MdwModuleBuilder : JavaModuleBuilder() {
             init.isSpringBoot = isSpringBoot
             init.isSnapshots = isSnapshots
             init.run()
+            val assetDir = File("${context.projectFileDirectory}/assets")
+            if (!assetDir.exists()) {
+                assetDir.mkdirs()
+            }
         }
     }
 

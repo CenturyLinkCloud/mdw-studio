@@ -125,7 +125,7 @@ fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj:
                     val monitoringWidget = Widget(JSONObject(Templates.get("configurator/monitors.json")))
                     val widgets = listOf(monitoringWidget)
                     val rows = JSONArray()
-                    for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class.java.name)) {
+                    for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class)) {
                         for (psiAnnotation in psiAnnotations) {
                             val monitorAnnotation = MonitorAnnotation(psiAnnotation, asset)
                             val applicable = when (monitorAnnotation.category) {
@@ -158,7 +158,7 @@ fun getTabTemplate(projectSetup: ProjectSetup, tabJson: JsonObject, workflowObj:
                         val monitoringWidget = Widget(JSONObject(Templates.get("configurator/monitors.json")))
                         val widgets = listOf(monitoringWidget)
                         val rows = JSONArray()
-                        for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class.java.name)) {
+                        for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Monitor::class)) {
                             for (psiAnnotation in psiAnnotations) {
                                 val monitorAnnotation = MonitorAnnotation(psiAnnotation, asset)
                                 if (monitorAnnotation.category == ProcessMonitor::class.qualifiedName) {

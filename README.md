@@ -1,9 +1,7 @@
-# mdw-studio
+MDW Studio - Design Tool for MDW
+================================
 
-## Dev Setup
-1. Clone this project
-2. Launch [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download)
-3. Import Project > Browse to mdw-studio/mdw-studio > Import as Gradle
-   (Uncheck 'Create separate module per source set')
-4. Build > Rebuild Project
-5. (In Gradle tool window) Run mdw-studio/Tasks/intellij/runIde
+MDW Studio is the official design tool built on the IntelliJ platform that makes it easy for you to create workflow processes and other assets.
+  - Installation and usage: http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/
+  - MDW Main site: https://centurylinkcloud.github.io/mdw/
+  - IntelliJ plugin: https://plugins.jetbrains.com/plugin/11095-mdw-studio

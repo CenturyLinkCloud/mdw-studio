@@ -49,6 +49,7 @@ import java.lang.Thread.sleep
 import java.net.URL
 import javax.swing.ImageIcon
 import kotlin.concurrent.thread
+import kotlin.reflect.KClass
 
 class Startup : StartupActivity {
     override fun runActivity(project: Project) {
@@ -365,45 +366,45 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return assets
     }
 
-    fun findAnnotatedAssets(annotation: String): Map<Asset,List<PsiAnnotation>> {
+    fun findAnnotatedAssets(annotation: KClass<*>): Map<Asset,List<PsiAnnotation>> {
+
         val annotatedAssets = mutableMapOf<Asset,MutableList<PsiAnnotation>>()
         for (javaAsset in findAssetsOfType("java")) {
-            val psiFile = PsiManager.getInstance(project).findFile(javaAsset.file)
-            psiFile?.let { _ ->
-                if (psiFile is PsiClassOwner) {
-                    for (psiClass in psiFile.classes) {
-                        AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->
-                            val annotations = annotatedAssets[javaAsset]
-                            if (annotations == null) {
-                                annotatedAssets[javaAsset] = mutableListOf(psiAnnotation)
-                            }
-                            else {
-                                annotations.add(psiAnnotation)
-                            }
-                        }
-                    }
+            findPsiAnnotation(javaAsset, annotation)?.let { psiAnnotation ->
+                val annotations = annotatedAssets[javaAsset]
+                if (annotations == null) {
+                    annotatedAssets[javaAsset] = mutableListOf(psiAnnotation)
+                } else {
+                    annotations.add(psiAnnotation)
                 }
             }
         }
         for (ktAsset in findAssetsOfType("kt")) {
-            val psiFile = PsiManager.getInstance(project).findFile(ktAsset.file)
-            psiFile?.let { _ ->
-                if (psiFile is PsiClassOwner) {
-                    for (psiClass in psiFile.classes) {
-                        AnnotationUtil.findAnnotation(psiClass, annotation)?.let { psiAnnotation ->
-                            val annotations = annotatedAssets[ktAsset]
-                            if (annotations == null) {
-                                annotatedAssets[ktAsset] = mutableListOf(psiAnnotation)
-                            }
-                            else {
-                                annotations.add(psiAnnotation)
-                            }
-                        }
-                    }
+            findPsiAnnotation(ktAsset, annotation)?.let { psiAnnotation ->
+                val annotations = annotatedAssets[ktAsset]
+                if (annotations == null) {
+                    annotatedAssets[ktAsset] = mutableListOf(psiAnnotation)
+                } else {
+                    annotations.add(psiAnnotation)
                 }
             }
         }
         return annotatedAssets
+    }
+
+    /**
+     * Important: Doesn't work when running through runIde task during development.
+     */
+    fun findPsiAnnotation(asset: Asset, annotation: KClass<*>): PsiAnnotation? {
+        val psiFile = PsiManager.getInstance(project).findFile(asset.file)
+        psiFile?.let { _ ->
+            if (psiFile is PsiClassOwner) {
+                for (psiClass in psiFile.classes) {
+                    return AnnotationUtil.findAnnotation(psiClass, true, annotation.qualifiedName)
+                }
+            }
+        }
+        return null
     }
 
     fun createAsset(file: VirtualFile): Asset {
@@ -413,7 +414,6 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         setVersion(asset, 1)
         return asset
     }
-
 
     /**
      * Expects the directory to be already there, and creates .mdw/package.yaml metafile.

@@ -1,9 +1,9 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.annotations.Activity
-import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
+import com.centurylink.mdw.studio.file.Asset
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.psi.*
@@ -18,15 +18,8 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         for (implAsset in projectSetup.findAssetsOfType("impl")) {
             add(ActivityImplementor(JSONObject(String(implAsset.contents))))
         }
-        for (javaAsset in projectSetup.findAssetsOfType("java")) {
-            PsiManager.getInstance(projectSetup.project).findFile(javaAsset.file)?.let { psiFile ->
-                getImpl(psiFile)?.let { add(it) }
-            }
-        }
-        for (ktAsset in projectSetup.findAssetsOfType("kt")) {
-            PsiManager.getInstance(projectSetup.project).findFile(ktAsset.file)?.let { psiFile ->
-                getImpl(psiFile)?.let { add(it) }
-            }
+        for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Activity::class)) {
+            getImpl(asset, psiAnnotations[0])?.let { add(it) }
         }
         for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
             pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
@@ -68,31 +61,24 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         val IMPLEMENTOR_DATA_KEY = DataKey.create<ActivityImplementor>(ACTIVITY_IMPLEMENTOR)
 
         /**
-         * Find annotation-based implementors (return null if not found)
+         * Get implementor from annotated asset (null if not found or missing attributes)
          */
-        fun getImpl(psiFile: PsiFile): ActivityImplementor? {
-            if (psiFile is PsiClassOwner) {
-                for (psiClass in psiFile.classes) {
-                    AnnotationUtil.findAnnotation(psiClass, Activity::class.java.name)?.let { psiAnnotation ->
-                        psiClass.qualifiedName?.let { implClass ->
-                            val label = psiAnnotation.findAttributeValue("value")?.let {
-                                (it as PsiLiteralExpression).value as String
-                            }
-                            val category = psiAnnotation.findAttributeValue("category")?.let {
-                                PsiTypesUtil.getPsiClass((it as PsiClassObjectAccessExpression).operand.type)?.qualifiedName
-                            }
-                            val icon = psiAnnotation.findAttributeValue("icon")?.let {
-                                (it as PsiLiteralExpression).value as String
-                            }
-                            val pagelet = psiAnnotation.findAttributeValue("pagelet")?.let {
-                                PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
-                            }
-                            if (label != null && category != null && icon != null) {
-                                return ActivityImplementor(implClass, category, label, icon, pagelet)
-                            }
-                        }
-                    }
-                }
+        fun getImpl(asset: Asset, psiAnnotation: PsiAnnotation): ActivityImplementor? {
+            val label = psiAnnotation.findAttributeValue("value")?.let {
+                (it as PsiLiteralExpression).value as String
+            }
+            val category = psiAnnotation.findAttributeValue("category")?.let {
+                PsiTypesUtil.getPsiClass((it as PsiClassObjectAccessExpression).operand.type)?.qualifiedName
+            }
+            val icon = psiAnnotation.findAttributeValue("icon")?.let {
+                (it as PsiLiteralExpression).value as String
+            }
+            val pagelet = psiAnnotation.findAttributeValue("pagelet")?.let {
+                PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
+            }
+            if (label != null) {
+                val implClass = "${asset.pkg.name}.${asset.file.nameWithoutExtension}"
+                return ActivityImplementor(implClass, category, label, icon, pagelet)
             }
             return null
         }

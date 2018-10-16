@@ -44,6 +44,14 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
         return path
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is Asset && other.path == path
+    }
+
+    override fun hashCode(): Int {
+        return path.hashCode()
+    }
+
     companion object {
         private val IGNORED_FILES = arrayOf(".DS_Store")
 

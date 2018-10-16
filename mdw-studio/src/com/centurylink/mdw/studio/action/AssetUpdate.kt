@@ -4,7 +4,6 @@ import com.centurylink.mdw.cli.Update
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.tool.ToolboxWindowFactory
-import com.centurylink.mdw.studio.ui.MessageDialog
 import com.centurylink.mdw.util.file.Packages
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
@@ -21,14 +20,7 @@ class UpdateAssets : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).getProjectSetup()?.let { projectSetup ->
-            val updater = AssetUpdate(projectSetup)
-            val updateStatus = updater.status
-            if (updateStatus.isUpdateNeeded) {
-                updater.doUpdate()
-            }
-            else {
-                MessageDialog(projectSetup.project, "MDW Asset Update", updateStatus.reason).show()
-            }
+            AssetUpdate(projectSetup).doUpdate()
         }
     }
 

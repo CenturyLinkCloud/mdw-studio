@@ -1,9 +1,7 @@
 package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.draw.*
-import com.centurylink.mdw.draw.edit.SelectListener
-import com.centurylink.mdw.draw.edit.UpdateListeners
-import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.action.ActivityAssetAction
 import com.centurylink.mdw.studio.action.ActivityEditAction
@@ -12,7 +10,6 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.*
@@ -183,6 +180,8 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
         })
     }
 
+    var preSelectedId: String? = null
+
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         val g2d = g as Graphics2D
@@ -196,6 +195,28 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
         var prevSelect = diagram?.selection
         val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, isReadonly)
         diagram = d
+        preSelectedId?.let { selectId ->
+            val drawable = d.findObj(selectId)
+            if (drawable == null) {
+                for (subflow in d.subflows) {
+                    val subdrawable = subflow.findObj(selectId)
+                    if (subdrawable != null) {
+                        d.selection = Selection(subdrawable)
+                        for (listener in selectListeners) {
+                            listener.onSelect(d.selection.selectObjs)
+                        }
+                    }
+                }
+            }
+            else {
+                d.selection = Selection(drawable)
+                for (listener in selectListeners) {
+                    listener.onSelect(d.selection.selectObjs)
+                }
+            }
+            prevSelect = d.selection
+            preSelectedId = null
+        }
         if (prevSelect == null) {
             // first time
             prevSelect = d.selection
@@ -204,7 +225,7 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
             }
         }
         else {
-            d.selection = prevSelect
+            d.selection = prevSelect as Selection
         }
 
         actionProvider = CanvasActions(d)

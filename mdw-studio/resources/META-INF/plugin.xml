@@ -39,11 +39,12 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <toolWindow id="Toolbox" anchor="right" icon="/icons/toolbox.png"
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
-        <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup" />
+        <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup"/>
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig"/>
-        <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType" />
+        <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>
         <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>
         <webHelpProvider id="mdwHelp" implementation="com.centurylink.mdw.studio.MdwHelp" order="first"/>
+        <usageGroupingRuleProvider id="mdwActivityGrouping" implementation="com.centurylink.mdw.studio.file.AssetUsageGroupingProvider"/>
     </extensions>
 
     <actions>

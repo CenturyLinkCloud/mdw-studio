@@ -178,7 +178,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    private fun findObj(id: String): Drawable? {
+    fun findObj(id: String): Drawable? {
         for (subflow in subflows) {
             val subflowObj = subflow.findObj(id)
             if (subflowObj != null) {

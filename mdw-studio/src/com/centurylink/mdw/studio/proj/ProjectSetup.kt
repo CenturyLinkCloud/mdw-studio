@@ -363,6 +363,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 }
             }
         }
+        assets.sort()
         return assets
     }
 

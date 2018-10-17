@@ -70,6 +70,9 @@ class Startup : StartupActivity {
                 LOG.warn(ex)
             }
 
+            // reload implementors (after dumb) to pick up annotation-driven impls
+            projectSetup.reloadImplementors()
+
             // check mdw assets
             val updateStatus = AssetUpdate(projectSetup).status
             if (updateStatus.isUpdateNeeded) {
@@ -393,9 +396,6 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return annotatedAssets
     }
 
-    /**
-     * Important: Doesn't work when running through runIde task during development.
-     */
     fun findPsiAnnotation(asset: Asset, annotation: KClass<*>): PsiAnnotation? {
         val psiFile = PsiManager.getInstance(project).findFile(asset.file)
         psiFile?.let { _ ->

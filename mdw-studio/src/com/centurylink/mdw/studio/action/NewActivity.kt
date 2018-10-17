@@ -42,7 +42,9 @@ abstract class NewActivity(title: String, icon: Icon) : NewAssetAction(title, DE
         }
 
         val content = substitute(loadTemplate(assetName, templatePath), values)
-        return createAndOpen(dir, assetName, content)
+        val psiFile = createAndOpen(dir, assetName, content)
+        projectSetup?.reloadImplementors()
+        return psiFile
     }
 
     /**

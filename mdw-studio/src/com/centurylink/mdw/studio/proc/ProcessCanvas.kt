@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.draw.*
+import com.centurylink.mdw.draw.Shape
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.action.ActivityAssetAction
@@ -181,6 +182,23 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
     }
 
     var preSelectedId: String? = null
+    fun preSelect(id: String) {
+        preSelectedId = id
+        revalidate()
+        repaint()
+    }
+
+    private fun select(drawable: Drawable) {
+        diagram?.let { d ->
+            d.selection = Selection(drawable)
+            if (drawable is Shape) {
+                scrollRectToVisible(drawable.display.toRect())
+            }
+            for (listener in selectListeners) {
+                listener.onSelect(d.selection.selectObjs)
+            }
+        }
+    }
 
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
@@ -201,18 +219,12 @@ class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val i
                 for (subflow in d.subflows) {
                     val subdrawable = subflow.findObj(selectId)
                     if (subdrawable != null) {
-                        d.selection = Selection(subdrawable)
-                        for (listener in selectListeners) {
-                            listener.onSelect(d.selection.selectObjs)
-                        }
+                        select(subdrawable)
                     }
                 }
             }
             else {
-                d.selection = Selection(drawable)
-                for (listener in selectListeners) {
-                    listener.onSelect(d.selection.selectObjs)
-                }
+                select(drawable)
             }
             prevSelect = d.selection
             preSelectedId = null

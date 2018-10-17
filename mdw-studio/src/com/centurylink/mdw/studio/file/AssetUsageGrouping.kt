@@ -65,7 +65,7 @@ class AssetGroupingRule(project: Project) : UsageGroupingRule {
     private fun getAssetGroup(usage: AssetUsage): UsageGroup {
         var assetGroup = assetGroups[usage.asset.path]
         if (assetGroup == null) {
-            assetGroup = object : UsageGroupBase(1) {
+            assetGroup = object : UsageGroupBase(2) {
                 override fun getText(view: UsageView?): String {
                     return usage.asset.name
                 }

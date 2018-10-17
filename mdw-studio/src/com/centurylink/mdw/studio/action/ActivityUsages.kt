@@ -54,14 +54,12 @@ class ActivityUsages : AnAction() {
                         }
                     }
                 }
-                usages.sortBy { it.activity.logicalId }
                 UsageViewManager.getInstance(projectSetup.project).showUsages(targets, usages.toTypedArray(), presentation)
             }
         }
     }
 
     override fun update(event: AnActionEvent) {
-
         val applicable = getImplementor(event) != null && Locator(event).getProjectSetup() != null
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
@@ -165,9 +163,7 @@ class ActivityUsage(private val projectSetup: ProjectSetup, private val processA
     override fun navigate(requestFocus: Boolean) {
         for (ed in FileEditorManager.getInstance(projectSetup.project).openFile(processAsset.file, requestFocus)) {
             if (ed is ProcessEditor) {
-                ed.canvas.preSelectedId = activity.logicalId
-                ed.canvas.revalidate()
-                ed.canvas.repaint()
+                ed.canvas.preSelect(activity.logicalId)
             }
         }
     }
@@ -215,7 +211,7 @@ class ActivityUsage(private val projectSetup: ProjectSetup, private val processA
         }
         override fun compareTo(other: FileEditorLocation): Int {
             return if (other is ActivityEditorLocation) {
-                logicalId.compareTo(other.logicalId)
+                logicalId.substring(1).toInt() - other.logicalId.substring(1).toInt()
             }
             else {
                 0

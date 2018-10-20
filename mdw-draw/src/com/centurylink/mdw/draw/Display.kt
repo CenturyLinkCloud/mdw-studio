@@ -68,6 +68,10 @@ class Display {
         return attr
     }
 
+    fun toRect(): Rectangle {
+        return Rectangle(x, y, w, h)
+    }
+
     companion object {
         val DEFAULT_FONT = Font("SansSerif", Font.PLAIN, 12)
         val TITLE_FONT = Font("SansSerif", Font.BOLD, 18)

@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.proj
 
+import com.centurylink.mdw.annotations.Activity
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
@@ -11,7 +12,6 @@ import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events.VFileCopyEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent
-import com.intellij.psi.PsiManager
 import com.intellij.testFramework.LightVirtualFile
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -63,8 +63,8 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                 }
                                 if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
                                     DumbService.getInstance(projectSetup.project).smartInvokeLater {
-                                        PsiManager.getInstance(projectSetup.project).findFile(asset.file)?.let { psiFile ->
-                                            Implementors.getImpl(psiFile)?.let { projectSetup.reloadImplementors() }
+                                        projectSetup.findPsiAnnotation(asset, Activity::class)?.let { psiAnnotation ->
+                                            Implementors.getImpl(asset, psiAnnotation)?.let { projectSetup.reloadImplementors() }
                                         }
                                     }
                                 }

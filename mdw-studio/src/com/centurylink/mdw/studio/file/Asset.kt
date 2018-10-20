@@ -3,7 +3,7 @@ package com.centurylink.mdw.studio.file
 import com.intellij.openapi.vfs.VirtualFile
 import java.security.MessageDigest
 
-class Asset(val pkg: AssetPackage, val file: VirtualFile) {
+class Asset(val pkg: AssetPackage, val file: VirtualFile) : Comparable<Asset> {
 
     val id: Long
         get() = hexId.toLong(16)
@@ -42,6 +42,18 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) {
 
     override fun toString(): String {
         return path
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is Asset && other.path == path
+    }
+
+    override fun hashCode(): Int {
+        return path.hashCode()
+    }
+
+    override fun compareTo(other: Asset): Int {
+        return path.compareTo(other.path)
     }
 
     companion object {

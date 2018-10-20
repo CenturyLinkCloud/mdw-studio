@@ -67,6 +67,10 @@ class MdwModuleBuilder : JavaModuleBuilder() {
             init.isSpringBoot = isSpringBoot
             init.isSnapshots = isSnapshots
             init.run()
+            val assetDir = File("${context.projectFileDirectory}/assets")
+            if (!assetDir.exists()) {
+                assetDir.mkdirs()
+            }
         }
     }
 
@@ -153,7 +157,7 @@ class MdwModuleWizardStep(private val moduleBuilder: MdwModuleBuilder) : ModuleW
         buildTypeButtonPanel.add(gradleButton)
         buildTypeButtonGroup.add(gradleButton)
         val mavenButton = JBRadioButton("Maven")
-        mavenButton.actionCommand = MdwModuleBuilder.BuildType.Gradle.toString()
+        mavenButton.actionCommand = MdwModuleBuilder.BuildType.Maven.toString()
         mavenButton.isSelected = moduleBuilder.buildType == MdwModuleBuilder.BuildType.Maven
         buildTypeButtonPanel.add(mavenButton)
         buildTypeButtonGroup.add(mavenButton)

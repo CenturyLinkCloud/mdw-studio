@@ -41,7 +41,6 @@ class Step(private val g2d: Graphics2D, val project: Project, process: Process, 
                         drawIcon(Display.START_ICON, display.x, display.y, 0.8f)
                     }
                     else {
-                        // use image for better quality via feathering
                         drawOval(fill = Display.START_COLOR)
                     }
                     textColor = Display.SHAPE_TEXT_COLOR
@@ -52,6 +51,15 @@ class Step(private val g2d: Graphics2D, val project: Project, process: Process, 
                     }
                     else {
                         drawOval(fill = Display.STOP_COLOR)
+                    }
+                    textColor = Display.SHAPE_TEXT_COLOR
+                }
+                "pause" -> {
+                    if (display.w == 60 && display.h == 40) {
+                        drawIcon(Display.PAUSE_ICON, display.x, display.y, 0.8f)
+                    }
+                    else {
+                        drawOval(fill = Display.PAUSE_COLOR)
                     }
                     textColor = Display.SHAPE_TEXT_COLOR
                 }

@@ -204,6 +204,10 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
                         drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
                                 fill = Display.STOP_COLOR)
                     }
+                    "pause" -> {
+                        drawOval(display.x, display.y + 1, display.w + 2, display.h - 1,
+                                fill = Display.PAUSE_COLOR)
+                    }
                     "decision" -> {
                         drawDiamond()
                     }

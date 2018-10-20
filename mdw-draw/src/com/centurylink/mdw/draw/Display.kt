@@ -85,8 +85,9 @@ class Display {
         var META_COLOR = Color.GRAY
         var BACKGROUND_COLOR = Color.WHITE
 
-        val START_COLOR = Color(0x98fb98)
-        val STOP_COLOR = Color(0xff8c86)
+        val START_COLOR = Color(0xadfcad)
+        val STOP_COLOR = Color(0xffa39e)
+        val PAUSE_COLOR = Color(0xfefc9e)
 
         val BLANK_ICON = object : Icon {
             override fun getIconWidth() = 24
@@ -98,6 +99,7 @@ class Display {
         }
         var START_ICON = ImageIcon(this::class.java.getResource("/icons/start.png"))
         var STOP_ICON = ImageIcon(this::class.java.getResource("/icons/stop.png"))
+        var PAUSE_ICON = ImageIcon(this::class.java.getResource("/icons/pause.png"))
 
         var SHAPE_TEXT_COLOR = Color.BLACK
 

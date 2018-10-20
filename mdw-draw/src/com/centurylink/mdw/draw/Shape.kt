@@ -56,16 +56,12 @@ abstract class Shape(private val g2d: Graphics2D, open var display: Display): Dr
     }
 
     fun drawOval(x: Int = display.x, y: Int = display.y, w: Int = display.w, h: Int = display.h,
-            fill: Color? = null, fadeTo: Color? = null, g2d: Graphics2D = this.g2d) {
+            fill: Color? = null, g2d: Graphics2D = this.g2d) {
 
         if (fill != null) {
             g2d.color = Display.OUTLINE_COLOR
             g2d.fillOval(x, y, w, h)
-            if (fadeTo != null) {
-                g2d.paint = GradientPaint(x.toFloat(), y.toFloat(), fill, (x + w - 2).toFloat(), (y + h - 2).toFloat(), fadeTo)
-            } else {
-                g2d.paint = fill
-            }
+            g2d.paint = fill
             g2d.fillOval(x + 1, y + 1, w - 2, h - 2)
         } else {
             g2d.color = Display.OUTLINE_COLOR

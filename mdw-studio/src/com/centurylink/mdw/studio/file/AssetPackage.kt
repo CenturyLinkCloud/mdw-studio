@@ -86,6 +86,10 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             if (isMeta(file)) {
                 return true
             }
+            else if ((file.isDirectory && file.name == "Archive") ||
+                    (file.parent != null && file.parent.isDirectory && file.parent.name == "Archive")) {
+                return true
+            }
             else {
                 var parent: VirtualFile? = file
                 while (parent != null) {

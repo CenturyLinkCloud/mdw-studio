@@ -150,7 +150,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         get() {
             val pkgs = mutableListOf<AssetPackage>()
             VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory}, {
-                if (it.isDirectory && it.findFileByRelativePath(AssetPackage.META_FILE) != null) {
+                if (it.isDirectory && it.findFileByRelativePath(AssetPackage.META_FILE) != null && !AssetPackage.isIgnore(it)) {
                     try {
                         pkgs.add(AssetPackage(getPackageName(it), it))
                     }

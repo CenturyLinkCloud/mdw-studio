@@ -65,7 +65,7 @@ class AssetViewTreeStructure(project: Project) :
                             if (projectSetup.isAssetParent(dir)) {
                                 children.add(child)
                             }
-                            else if (projectSetup.isAssetSubdir(dir) && !AssetPackage.isMeta(dir)) {
+                            else if (projectSetup.isAssetSubdir(dir) && !AssetPackage.isIgnore(dir)) {
                                 val pkg = projectSetup.getPackage(dir)
                                 if (pkg == null) {
                                     children.add(child)

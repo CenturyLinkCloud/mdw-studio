@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.1.1-SNAPSHOT"
+version = "1.1.3-SNAPSHOT"
 
 java.sourceSets {
     "main" {

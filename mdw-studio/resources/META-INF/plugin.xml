@@ -44,7 +44,13 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>
         <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>
         <webHelpProvider id="mdwHelp" implementation="com.centurylink.mdw.studio.MdwHelp" order="first"/>
-        <usageGroupingRuleProvider id="mdwActivityGrouping" implementation="com.centurylink.mdw.studio.file.AssetUsageGroupingProvider"/>
+        <usageGroupingRuleProvider id="mdwActivityGrouping"
+                                   implementation="com.centurylink.mdw.studio.file.AssetUsageGroupingProvider"/>
+        <virtualFileSystem id="mdwVirtualFileSystem"
+                           implementationClass="com.centurylink.mdw.studio.file.AttributeVirtualFileSystem" key="mdw"/>
+        <java.elementFinder id="mdwAttributeElementFinder" implementation="com.centurylink.mdw.studio.file.AttributeElementFinder"/>
+        <debugger.positionManagerFactory id="mdwPositionManagerFactory"
+                                         implementation="com.centurylink.mdw.studio.debug.PositionManagerFactory"/>
     </extensions>
 
     <actions>

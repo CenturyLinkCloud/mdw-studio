@@ -13,6 +13,8 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
+import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
@@ -43,7 +45,7 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
         event.presentation.isEnabled = true
     }
 
-    private fun showEditDialog(project: Project) {
+    internal fun showEditDialog(project: Project) {
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
 
@@ -71,6 +73,8 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
             }
         }
 
+        // FileDocumentManagerImpl.registerDocument(document, virtualFile);
+        // val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile);
         val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         editor.component.preferredSize = Dimension(800, 600)
 

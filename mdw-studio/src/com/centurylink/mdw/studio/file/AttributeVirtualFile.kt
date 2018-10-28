@@ -3,6 +3,7 @@ package com.centurylink.mdw.studio.file
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.ext.JsonObject
 import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
@@ -17,11 +18,16 @@ import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem
+import com.intellij.openapi.vfs.NonPhysicalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileSystem
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFactory
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -52,6 +58,10 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
 
     private fun getJavaPackage(): String {
         return JavaNaming.getValidPackageName(workflowObj.asset.packageName)
+    }
+
+    override fun getFileSystem(): VirtualFileSystem {
+        return attrFileSystem
     }
 
     override fun getName(): String {
@@ -188,5 +198,59 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
 
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
+        val attrFileSystem = AttributeVirtualFileSystem()
+    }
+}
+
+class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
+
+    init {
+        startEventPropagation()
+    }
+
+    override fun getProtocol(): String {
+        return PROTOCOL
+    }
+
+    override fun findFileByPath(path: String): VirtualFile? {
+        val withoutExt = path.substring(0, path.lastIndexOf("."))
+        val pkg = withoutExt.substring(0, withoutExt.indexOf("/"))
+        val underscore = withoutExt.lastIndexOf("_")
+        val processName = withoutExt.substring(pkg.length + 1, underscore)
+        val activityId = withoutExt.substring(underscore + 1)
+        val assetPath = "$pkg/$processName.proc"
+
+        ProjectSetup.activeProject?.let { project ->
+            val projectSetup = project.getComponent(ProjectSetup::class.java)
+            projectSetup.getAsset(assetPath)?.let{ asset ->
+                val process = Process(JSONObject(String(asset.contents)))
+                process.name = "$processName.proc"
+                process.packageName = pkg
+                process.id = asset.id
+                process.activities.find{ it.logicalId == activityId }?.let { activity ->
+                    activity.getAttribute("Java")?.let { java ->
+                        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                        return AttributeVirtualFile(workflowObj, java)
+                    }
+                    activity.getAttribute("Rule")?.let { rule ->
+                        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                        return AttributeVirtualFile(workflowObj, rule)
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
+    override fun refreshAndFindFileByPath(path: String): VirtualFile? {
+        return findFileByPath(path)
+    }
+
+    override fun refresh(asynchronous: Boolean) {
+    }
+
+    companion object {
+        const val PROTOCOL = "mdw"
     }
 }

@@ -18,7 +18,7 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 
-class ProcessCanvas(private val setup: ProjectSetup, var process: Process, val isReadonly: Boolean = false) :
+class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process, val isReadonly: Boolean = false) :
         JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var zoom = 100

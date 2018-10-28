@@ -16,10 +16,12 @@ import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
 import com.centurylink.mdw.util.file.Packages
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.ide.DataManager
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
+import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
@@ -28,6 +30,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -35,6 +38,7 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiManager
@@ -518,6 +522,14 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         val isMac: Boolean by lazy {
             SystemInfo.isMac
         }
+
+        val activeProject: Project?
+            get() {
+                return ProjectManager.getInstance().openProjects.find { project ->
+                    val win = WindowManager.getInstance().suggestParentWindow(project)
+                    win?.isActive ?: false
+                }
+            }
     }
 
     enum class Props(val prop: String) {

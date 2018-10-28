@@ -28,6 +28,7 @@ dependencies {
     compile("org.yaml:snakeyaml:1.18")
     compile(files("lib/bpmn-schemas.jar"))
     compile("io.swagger:swagger-codegen-cli:2.3.1") { exclude(group = "org.slf4j") }
+    compileOnly(files("${System.getProperty("java.home")}/../lib/tools.jar"))
 }
 
 intellij {

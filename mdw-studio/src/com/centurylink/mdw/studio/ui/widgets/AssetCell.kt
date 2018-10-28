@@ -96,7 +96,7 @@ class AssetCellEditor(val isReadonly: Boolean, val projectSetup: ProjectSetup, v
 
     var assetPath = ""
 
-    override fun getTableCellEditorComponent(table: JTable, value: Any, isSelected: Boolean, row: Int, column: Int):
+    override fun getTableCellEditorComponent(table: JTable, value: Any?, isSelected: Boolean, row: Int, column: Int):
             Component {
         assetPath = value.toString()
         return AssetCell(assetPath, isReadonly, projectSetup, source) {

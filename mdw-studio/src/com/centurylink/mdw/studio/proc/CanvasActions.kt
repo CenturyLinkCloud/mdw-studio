@@ -15,6 +15,7 @@ import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.workflow.Process
+import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
@@ -187,8 +188,16 @@ val Step.associatedEdit: AttributeVirtualFile?
     get() {
         val process = workflowObj.asset as Process
         if (implementor.category == ScriptActivity::class.qualifiedName) {
-            val contents = activity.getAttribute("Rule") ?: ""
-            return AttributeVirtualFile(workflowObj, contents)
+            val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+            workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
+                AttributeVirtualFile.getScriptExt(scriptAttr)?.let { ext ->
+                    val filePath = "${process.packageName}/$name.$ext"
+                    val file = AttributeVirtualFileSystem.instance.findFileByPath(filePath)
+                    if (file is AttributeVirtualFile) {
+                        return file
+                    }
+                }
+            }
         }
         if (implementor.category == GeneralActivity::class.qualifiedName &&
                 (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA ||
@@ -202,15 +211,6 @@ val Step.associatedEdit: AttributeVirtualFile?
             if (file is AttributeVirtualFile) {
                 return file
             }
-//            val className = "${process.packageName}/$name"
-//            val scope = GlobalSearchScope.allScope(project) // TODO asset scope
-//            JavaPsiFacade.getInstance(project).findClass(className, scope)?.let { psiClass ->
-//                psiClass.containingFile?.virtualFile?.let { file ->
-//                    if (file is AttributeVirtualFile) {
-//                        return file
-//                    }
-//                }
-//            }
         }
         return null
     }

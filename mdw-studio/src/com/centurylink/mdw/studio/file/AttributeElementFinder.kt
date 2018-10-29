@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFinder
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.search.GlobalSearchScope
@@ -25,16 +26,28 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.name = asset.rootName
                         process.packageName = pkg
                         process.id = asset.id
-                        process.activities.find{ it.logicalId == activityId }?.let { activity ->
+                        process.activities.find { it.logicalId == activityId }?.let { activity ->
                             activity.getAttribute("Java")?.let { java ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java")?.let { file ->
                                     (file as AttributeVirtualFile).psiFile?.let { psiFile ->
-                                        return (psiFile as PsiJavaFile).classes[0]
+                                        if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
+                                            return psiFile.classes[0]
+                                        }
                                     }
                                 }
                             }
                             activity.getAttribute("Rule")?.let { rule ->
-                                return null // TODO
+                                activity.getAttribute("SCRIPT")?.let { scriptAttr ->
+                                    AttributeVirtualFile.getScriptExt(scriptAttr)?.let { ext ->
+                                        AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext")?.let { file ->
+                                            (file as AttributeVirtualFile).psiFile?.let { psiFile ->
+                                                if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
+                                                    return psiFile.classes[0]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

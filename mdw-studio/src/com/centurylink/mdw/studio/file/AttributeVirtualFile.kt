@@ -239,6 +239,14 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
         val attrFileSystem = AttributeVirtualFileSystem()
+        fun getScriptExt(scriptAttr: String): String? {
+            return when(scriptAttr) {
+                "Kotlin Script" -> "kts"
+                "Groovy" -> "groovy"
+                "JavaScript" -> "js"
+                else -> null
+            }
+        }
     }
 }
 

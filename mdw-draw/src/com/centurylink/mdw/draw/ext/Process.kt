@@ -11,6 +11,9 @@ import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.workflow.*
 import org.json.JSONObject
 
+val Process.rootName: String
+    get() = if (name.endsWith(".proc")) name.substring(0, name.length - 5) else name
+
 fun Process.maxActivityId(): Long {
     var maxAct: Activity? = null
     if (!activities.isEmpty()) {

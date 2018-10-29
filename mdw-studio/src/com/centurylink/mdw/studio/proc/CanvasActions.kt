@@ -9,11 +9,15 @@ import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.edit.SelectionBuilder
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.ext.rootName
 import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.drawio.MxGraphParser
+import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
+import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.CopyProvider
 import com.intellij.ide.CutProvider
@@ -181,6 +185,7 @@ val Step.associatedAsset: Asset?
 
 val Step.associatedEdit: AttributeVirtualFile?
     get() {
+        val process = workflowObj.asset as Process
         if (implementor.category == ScriptActivity::class.qualifiedName) {
             val contents = activity.getAttribute("Rule") ?: ""
             return AttributeVirtualFile(workflowObj, contents)
@@ -188,8 +193,24 @@ val Step.associatedEdit: AttributeVirtualFile?
         if (implementor.category == GeneralActivity::class.qualifiedName &&
                 (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA ||
                         activity.getAttribute("Java") != null)) {
-            val contents = activity.getAttribute("Java")
-            return AttributeVirtualFile(workflowObj, contents)
+            var name = activity.getAttribute("ClassName")
+            if (name == null) {
+                name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
+            }
+            val filePath = "${process.packageName}/$name.java"
+            val file = AttributeVirtualFileSystem.instance.findFileByPath(filePath)
+            if (file is AttributeVirtualFile) {
+                return file
+            }
+//            val className = "${process.packageName}/$name"
+//            val scope = GlobalSearchScope.allScope(project) // TODO asset scope
+//            JavaPsiFacade.getInstance(project).findClass(className, scope)?.let { psiClass ->
+//                psiClass.containingFile?.virtualFile?.let { file ->
+//                    if (file is AttributeVirtualFile) {
+//                        return file
+//                    }
+//                }
+//            }
         }
         return null
     }

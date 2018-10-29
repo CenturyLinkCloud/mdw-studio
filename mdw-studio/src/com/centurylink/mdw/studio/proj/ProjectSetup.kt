@@ -21,7 +21,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.DataKeys
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
@@ -523,9 +523,20 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             SystemInfo.isMac
         }
 
+        /**
+         * TODO: not good
+         */
         val activeProject: Project?
             get() {
-                return ProjectManager.getInstance().openProjects.find { project ->
+                val openProjects = ProjectManager.getInstance().openProjects
+                if (openProjects.size == 1) {
+                    return openProjects[0]
+                }
+                val project = DataManager.getInstance().dataContextFromFocus.result.getData(CommonDataKeys.PROJECT.getName())
+                if (project is Project) {
+                    return project
+                }
+                return openProjects.find { project ->
                     val win = WindowManager.getInstance().suggestParentWindow(project)
                     win?.isActive ?: false
                 }

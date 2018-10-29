@@ -22,6 +22,7 @@ class MdwConfig : SearchableConfigurable {
         }
     }
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
+    private val attributeContentInEditorTabCheckbox = CheckBox("Open dynamic Java and script activity content in editor tab")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
 
     init {
@@ -80,6 +81,15 @@ class MdwConfig : SearchableConfigurable {
         }
         editPanel.add(syncDynamicJavaCheckbox)
 
+        // open attribute content in editor tab
+        attributeContentInEditorTabCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        attributeContentInEditorTabCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        attributeContentInEditorTabCheckbox.isSelected = MdwSettings.instance.isOpenAttributeContentInEditorTab
+        attributeContentInEditorTabCheckbox.addActionListener {
+            modified = true
+        }
+        editPanel.add(attributeContentInEditorTabCheckbox)
+
         // create and associate task template
         createAndAssociateTaskCheckbox.alignmentX = Component.LEFT_ALIGNMENT
         createAndAssociateTaskCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
@@ -117,5 +127,7 @@ class MdwConfig : SearchableConfigurable {
     override fun apply() {
         val mdwSettings = MdwSettings.instance
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
+        mdwSettings.isOpenAttributeContentInEditorTab = attributeContentInEditorTabCheckbox.isSelected
+        mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
     }
 }

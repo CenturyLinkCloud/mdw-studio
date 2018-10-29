@@ -32,17 +32,25 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(SYNC_DYNAMIC_JAVA_CLASS_NAME, value)
         }
 
+    var isOpenAttributeContentInEditorTab: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB, value)
+        }
+
     var isCreateAndAssociateTaskTemplate: Boolean
         get() = PropertiesComponent.getInstance().getBoolean(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, false)
         set(value) {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
+
     companion object {
         val instance = MdwSettings()
         const val ID = "com.centurylink.mdw.studio"
         private const val MDW_HOME = "$ID.mdwHome"
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
+        private const val OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB = "$ID.isOpenAttributeContentInContentInEditorTab"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
     }
 }

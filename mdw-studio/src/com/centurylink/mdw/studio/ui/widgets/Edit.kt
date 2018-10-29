@@ -4,13 +4,17 @@ import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.isReadonly
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
+import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.ui.DialogBuilder
 import java.awt.Cursor
 import java.awt.Dimension
@@ -73,15 +77,20 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
             }
         }
 
-        val editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
-        editor.component.preferredSize = Dimension(800, 600)
-
-        val dialogBuilder = DialogBuilder(this)
-        dialogBuilder.setTitle(applier.workflowObj.titlePath)
-        dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
-
-        dialogBuilder.setCenterPanel(editor.component)
-        dialogBuilder.setDimensionServiceKey("mdw.AttributeSourceDialog")
-        dialogBuilder.showNotModal()
+        if (MdwSettings.instance.isOpenAttributeContentInEditorTab) {
+            val descriptor = OpenFileDescriptor(project, virtualFile)
+            FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
+        }
+        else {
+            FileDocumentManagerImpl.registerDocument(document, virtualFile);
+            val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile);
+            editor.component.preferredSize = Dimension(800, 600)
+            val dialogBuilder = DialogBuilder(parent)
+            dialogBuilder.setTitle(workflowObj.titlePath)
+            dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
+            dialogBuilder.setCenterPanel(editor.component)
+            dialogBuilder.setDimensionServiceKey("mdw.AttributeSourceDialog")
+            dialogBuilder.showNotModal()
+        }
     }
 }

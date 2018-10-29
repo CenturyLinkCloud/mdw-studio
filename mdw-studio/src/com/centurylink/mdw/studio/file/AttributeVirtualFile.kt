@@ -11,6 +11,7 @@ import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.fileTypes.FileTypes
@@ -18,10 +19,7 @@ import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem
-import com.intellij.openapi.vfs.NonPhysicalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileSystem
+import com.intellij.openapi.vfs.*
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFactory
 import com.intellij.psi.PsiManager
@@ -196,6 +194,10 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
         return ByteArrayOutputStream()
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is AttributeVirtualFile && other.path == path
+    }
+
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
         val attrFileSystem = AttributeVirtualFileSystem()
@@ -220,11 +222,15 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         val activityId = withoutExt.substring(underscore + 1)
         val assetPath = "$pkg/$processName.proc"
 
-        ProjectSetup.activeProject?.let { project ->
-            val projectSetup = project.getComponent(ProjectSetup::class.java)
+        var activeProject = ProjectSetup.activeProject
+        if (activeProject == null) {
+            LOG.warn("Cannot find active project for: $path")
+        }
+        else {
+            val projectSetup = activeProject.getComponent(ProjectSetup::class.java)
             projectSetup.getAsset(assetPath)?.let{ asset ->
                 val process = Process(JSONObject(String(asset.contents)))
-                process.name = "$processName.proc"
+                process.name = processName
                 process.packageName = pkg
                 process.id = asset.id
                 process.activities.find{ it.logicalId == activityId }?.let { activity ->
@@ -251,6 +257,9 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
     }
 
     companion object {
+        val LOG = Logger.getInstance(AttributeVirtualFileSystem::class.java)
         const val PROTOCOL = "mdw"
+        val instance: AttributeVirtualFileSystem
+            get() = VirtualFileManager.getInstance().getFileSystem(PROTOCOL) as AttributeVirtualFileSystem
     }
 }

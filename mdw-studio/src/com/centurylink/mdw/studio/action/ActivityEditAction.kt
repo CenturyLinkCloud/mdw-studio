@@ -10,19 +10,16 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
-import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogBuilder
-import org.eclipse.jgit.diff.Edit
 import java.awt.Component
 import java.awt.Dimension
 import java.io.IOException
@@ -31,8 +28,8 @@ import java.io.IOException
  * For activities whose main attribute can be opened in an inline editor.
  */
 class ActivityEditAction(private val parent: Component, var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
-        AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).name, null,
-                FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.getExt()).icon),
+        AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).name, null,
+                FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).icon),
         UpdateListeners by UpdateListenersDelegate() {
 
     val attributeName: String

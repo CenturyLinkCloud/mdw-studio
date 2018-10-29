@@ -10,19 +10,17 @@ import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.lang.Language
+import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.fileTypes.FileTypes
-import com.intellij.openapi.fileTypes.UnknownFileType
+import com.intellij.openapi.fileTypes.*
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.*
-import com.intellij.psi.PsiClassOwner
-import com.intellij.psi.PsiElementFactory
-import com.intellij.psi.PsiManager
+import com.intellij.psi.*
 import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
 import org.json.JSONObject
@@ -34,90 +32,111 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?, private val ext: String? = null) :
+class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?, private val fileExtension: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
-    val contents = value ?: getTemplateContents() ?: ""
+    val projectSetup: ProjectSetup
+        get() = workflowObj.project as ProjectSetup
 
-    private fun getTemplateContents(): String? {
-        val ext = getExt()
-        return when (ext) {
-            "java" -> {
-                var templateContents = Templates.get("assets/code/dynamic_java")
-                templateContents = templateContents.replace("{{assetPackage}}", getJavaPackage())
-                templateContents = templateContents.replace("{{className}}", getDynamicJavaClassName())
-                return templateContents
+    val project: Project
+        get() = projectSetup.project
+
+    val contents = value ?: templateContents ?: ""
+
+    val ext: String
+        get() {
+            if (fileExtension != null) {
+                return fileExtension // documentation, etc
             }
-            else -> {
-                Templates.get("assets/code/script_$ext")
+
+            if (workflowObj.getAttribute("Java") != null || (workflowObj.obj.has("implementor") &&
+                            workflowObj.obj.get("implementor") == "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity")) {
+                return "java"
             }
-        }
-    }
-
-    private fun getJavaPackage(): String {
-        return JavaNaming.getValidPackageName(workflowObj.asset.packageName)
-    }
-
-    override fun getFileSystem(): VirtualFileSystem {
-        return attrFileSystem
-    }
-
-    override fun getName(): String {
-        // eg: "PerformCriticalBusinessFunction_A5.java"
-        val ext = getExt()
-        return when (ext) {
-            "java" -> {
-                getDynamicJavaClassName() + "." + ext
+            for (langAttr in attrEditsJson.get("languageAttributes").asJsonArray) {
+                val lang = workflowObj.getAttribute(langAttr.asString)
+                if (lang != null) {
+                    return attrEditsJson.get("languages").asJsonObject.get(lang).asString
+                }
             }
-            else -> {
-                getScriptName() + "." + ext
+            if (workflowObj.obj.has("implementor") &&
+                    workflowObj.obj.get("implementor") == "com.centurylink.mdw.kotlin.ScriptActivity") {
+                return "kts"
             }
-        }
-    }
-
-    fun getExt(): String {
-        if (ext != null) {
-            return ext // documentation, etc
+            return "txt"
         }
 
-        if (workflowObj.getAttribute("Java") != null || (workflowObj.obj.has("implementor") &&
-                workflowObj.obj.get("implementor") == "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity")) {
-            return "java"
-        }
-        for (langAttr in attrEditsJson.get("languageAttributes").asJsonArray) {
-            val lang = workflowObj.getAttribute(langAttr.asString)
-            if (lang != null) {
-                return attrEditsJson.get("languages").asJsonObject.get(lang).asString
+    val language: Language?
+        get() {
+            val type = getFileType()
+            return if (type is LanguageFileType) {
+                type.language
+            }
+            else {
+                null
             }
         }
-        if (workflowObj.obj.has("implementor") &&
-                workflowObj.obj.get("implementor") == "com.centurylink.mdw.kotlin.ScriptActivity") {
-            return "kts"
+
+    val templateContents: String?
+        get() {
+            return when (ext) {
+                "java" -> {
+                    var templateContents = Templates.get("assets/code/dynamic_java")
+                    templateContents = templateContents.replace("{{assetPackage}}", javaPackage)
+                    templateContents = templateContents.replace("{{className}}", dynamicJavaClassName)
+                    return templateContents
+                }
+                else -> {
+                    Templates.get("assets/code/script_$ext")
+                }
+            }
         }
-        return "txt"
-    }
 
-    private fun getDynamicJavaClassName(): String {
-        val process = workflowObj.asset as Process
-        return JavaNaming.getValidClassName(process.name + "_" + workflowObj.id)
-    }
+    private val javaPackage: String
+      get() = JavaNaming.getValidPackageName(workflowObj.asset.packageName)
 
-    private fun getScriptName(): String {
-        val process = workflowObj.asset as Process
-        return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
-    }
+    private val dynamicJavaClassName: String
+        get() {
+            val process = workflowObj.asset as Process
+            return JavaNaming.getValidClassName(process.name + "_" + workflowObj.id)
+        }
+
+    private val scriptName: String
+        get() {
+            val process = workflowObj.asset as Process
+            return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
+        }
+
+    var _psiFile: PsiFile? = null
+    val psiFile: PsiFile?
+        get() {
+            if (_psiFile == null) {
+                language?.let { lang ->
+                    val factory = LanguageFileViewProviders.INSTANCE.forLanguage(lang)
+                    val psiManager = PsiManager.getInstance(project)
+                    var viewProvider: FileViewProvider? = factory?.createFileViewProvider(this, language, psiManager, true)
+                    if (viewProvider == null) {
+                        viewProvider = SingleRootFileViewProvider(psiManager, this, true)
+                    }
+                    val baseLang = viewProvider.baseLanguage
+                    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(baseLang)
+                    if (parserDefinition != null) {
+                        _psiFile = viewProvider.getPsi(baseLang)
+                    }
+                }
+            }
+            return _psiFile
+        }
 
     /**
      * Returns the resulting class name (not qualified).
      */
     fun syncDynamicJavaClassName(): String? {
-        val project = (workflowObj.project as ProjectSetup).project
         PsiManager.getInstance(project).findFile(this)?.let { psiFile ->
             if (psiFile is PsiClassOwner) {
                 for (psiClass in psiFile.classes) {
                     psiClass.modifierList?.let { modifierList ->
                         if (PsiUtil.getAccessLevel(modifierList) == PsiUtil.ACCESS_LEVEL_PUBLIC) {
-                            val dynamicJavaClassName = getDynamicJavaClassName()
                             if (psiClass.name != dynamicJavaClassName) {
                                 var sync = false
                                 val setting = "${MdwSettings.ID}.suppressPromptSyncDynamicJava"
@@ -161,7 +180,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     }
 
     override fun getFileType(): FileType {
-        val fileType = FileTypeManager.getInstance().getFileTypeByExtension(getExt())
+        val fileType = FileTypeManager.getInstance().getFileTypeByExtension(ext)
         if (fileType is UnknownFileType) {
             return FileTypes.PLAIN_TEXT
         }
@@ -193,9 +212,28 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     override fun getOutputStream(requestor: Any?, newModificationStamp: Long, newTimeStamp: Long): OutputStream {
         return ByteArrayOutputStream()
     }
+    override fun getFileSystem(): VirtualFileSystem {
+        return attrFileSystem
+    }
+
+    override fun getName(): String {
+        // eg: "MyProcess_A5.java"
+        return when (ext) {
+            "java" -> {
+                "$dynamicJavaClassName.$ext"
+            }
+            else -> {
+                "$scriptName.$ext"
+            }
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
-        return other is AttributeVirtualFile && other.path == path
+        return other is AttributeVirtualFile && other.project == project && other.path == path
+    }
+
+    override fun hashCode(): Int {
+        return "${project.name}~$path".hashCode()
     }
 
     companion object {

@@ -22,8 +22,9 @@
    intellijPublishPassword=mypassword
    ```
 1. Update version in build.gradle.kts (x2) and resources/META-INF/plugin.xml.
-2. (Release build only) - Comment out the PublishTask Channels entry (but do not commit)
-3. Run Gradle task intellij/publishPlugin.
-4. After success:
+2. Remove previous snapshot from beta channel if present.
+3. (Release build only) - Comment out the PublishTask Channels entry (but do not commit)
+4. Run Gradle task intellij/publishPlugin.
+5. After success:
    - Revert PublishTask comment-out
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml, and commit

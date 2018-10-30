@@ -1,11 +1,13 @@
 package com.centurylink.mdw.studio.file
 
 import com.centurylink.mdw.model.workflow.Package
+import com.centurylink.mdw.util.file.MdwIgnore
 import com.centurylink.mdw.util.file.VersionProperties
 import com.centurylink.mdw.yaml.YamlLoader
 import com.intellij.openapi.vfs.VirtualFile
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
@@ -79,25 +81,32 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             }
         }
 
-        /**
-         * TODO: honor .mdwignore
-         */
         fun isIgnore(file: VirtualFile): Boolean {
+            if (!file.isDirectory) {
+                return true
+            }
             if (isMeta(file)) {
                 return true
             }
-            else if ((file.isDirectory && file.name == "Archive") ||
+            if (file.name == "Archive" ||
                     (file.parent != null && file.parent.isDirectory && file.parent.name == "Archive")) {
                 return true
             }
-            else {
-                var parent: VirtualFile? = file
-                while (parent != null) {
-                    if (IGNORED_DIRS.contains(parent.name)) {
+            // walk the parent paths looking for IGNORED_DIRS and .mdwignores
+            var child: VirtualFile? = null
+            var parent: VirtualFile? = file
+            while (parent != null && parent.isDirectory) {
+                if (IGNORED_DIRS.contains(parent.name)) {
+                    return true
+                }
+                if (child != null) {
+                    val mdwIgnore = MdwIgnore(File(parent.path))
+                    if (mdwIgnore.isIgnore(File(child.path))) {
                         return true
                     }
-                    parent = parent.parent
                 }
+                child = parent
+                parent = parent.parent
             }
             return false
         }

@@ -12,6 +12,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
@@ -57,6 +58,7 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
             val mdwVersion = projectSetup.mdwVersion
             for (pkg in pkgs) {
                 if (Packages.isMdwPackage(pkg.name) && MdwVersion(pkg.verString) < mdwVersion) {
+                    LOG.warn("Out-of-date MDW asset package: ${pkg.name} (${pkg.verString} < $mdwVersion)")
                     return Status(true, "Asset update needed: $mdwVersion")
                 }
             }
@@ -85,6 +87,7 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
     }
 
     companion object {
+        val LOG = Logger.getInstance(AssetUpdate::class.java)
         data class Status(val isUpdateNeeded: Boolean, val reason: String)
     }
 }

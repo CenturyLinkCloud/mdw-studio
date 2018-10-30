@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.proj
 
+import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.file.Icons
 import com.intellij.ide.projectView.PresentationData
@@ -89,7 +90,7 @@ class AssetViewTreeStructure(project: Project) :
                     is PsiFileNode -> {
                         val file = child.virtualFile
                         file?.let {
-                            if (projectSetup.isAssetSubdir(file.parent) && !AssetPackage.isIgnore(file)) {
+                            if (projectSetup.isAssetSubdir(file.parent) && !AssetPackage.isIgnore(file.parent) && !Asset.isIgnore(file)) {
                                 projectSetup.getAsset(file)?.let {
                                     val childNode = object : PsiFileNode(child.project, child.value, child.settings) {
                                         override fun postprocess(presentation: PresentationData) {

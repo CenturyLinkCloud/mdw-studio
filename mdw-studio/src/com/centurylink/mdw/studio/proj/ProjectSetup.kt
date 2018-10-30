@@ -22,6 +22,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
@@ -65,9 +66,13 @@ class Startup : StartupActivity {
             projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
-            val pluginVer = PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.getVersion()
+            val pluginVer = PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.version
             try {
                 LOG.info("MDW Studio: $pluginVer (${MdwVersion.getRuntimeVersion()})")
+                val ideaVer = ApplicationInfo.getInstance().build.asString()
+                LOG.info("  IDEA: $ideaVer")
+                val kotlinVer = PluginManager.getPlugin(PluginId.getId("org.jetbrains.kotlin"))?.version
+                LOG.info("  Kotlin: $kotlinVer")
             }
             catch (ex: Exception) {
                 LOG.info("MDW Studio: $pluginVer")
@@ -153,7 +158,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     val packages: List<AssetPackage>
         get() {
             val pkgs = mutableListOf<AssetPackage>()
-            VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory}, {
+            VfsUtilCore.iterateChildrenRecursively(assetDir, { it.isDirectory }, {
                 if (it.isDirectory && it.findFileByRelativePath(AssetPackage.META_FILE) != null && !AssetPackage.isIgnore(it)) {
                     try {
                         pkgs.add(AssetPackage(getPackageName(it), it))

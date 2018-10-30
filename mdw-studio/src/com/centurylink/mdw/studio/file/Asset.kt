@@ -1,6 +1,8 @@
 package com.centurylink.mdw.studio.file
 
+import com.centurylink.mdw.util.file.MdwIgnore
 import com.intellij.openapi.vfs.VirtualFile
+import java.io.File
 import java.security.MessageDigest
 
 class Asset(val pkg: AssetPackage, val file: VirtualFile) : Comparable<Asset> {
@@ -74,11 +76,31 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) : Comparable<Asset> {
             return result
         }
 
-        /**
-         * TODO: honor .mdwignore
-         */
         fun isIgnore(file: VirtualFile): Boolean {
-            return IGNORED_FILES.contains(file.name)
+            if (file.isDirectory) {
+                return true
+            }
+            if (IGNORED_FILES.contains(file.name)) {
+                return true
+            }
+            if (file.parent != null && file.parent.isDirectory) {
+                val mdwIgnore = MdwIgnore(File("${file.parent.path}"))
+                if (mdwIgnore.isIgnore(File(file.path))) {
+                    return true
+                }
+            }
+            // walk the parent paths looking for .mdwignores
+            var child = file
+            var parent: VirtualFile? = file.parent
+            while (parent != null && parent.isDirectory) {
+                val mdwIgnore = MdwIgnore(File(parent.path))
+                if (mdwIgnore.isIgnore(File(child.path))) {
+                    return true
+                }
+                child = parent
+                parent = parent.parent
+            }
+            return false
         }
     }
 }

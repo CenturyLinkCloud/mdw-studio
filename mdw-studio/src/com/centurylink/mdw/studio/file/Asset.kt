@@ -80,6 +80,9 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) : Comparable<Asset> {
             if (file.isDirectory) {
                 return true
             }
+            if (AssetPackage.isMeta(file)) {
+                return true
+            }
             if (IGNORED_FILES.contains(file.name)) {
                 return true
             }

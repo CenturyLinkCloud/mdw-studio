@@ -45,10 +45,10 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             }
                             else {
                                 LOG.debug("Performing vercheck: $asset")
-                                val gitAssetBytes = git.readFromHead(git.getRelativePath(File(asset.pkg.dir.path + "/" + asset.name)))
+                                val gitPkgPath = git.getRelativePath(File(asset.pkg.dir.path).toPath())
+                                val gitAssetBytes = git.readFromHead("$gitPkgPath/${asset.name}")
                                 if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
-                                    val gitVerFileBytes = git.readFromHead(git.getRelativePath(
-                                            File(asset.pkg.dir.path + "/" + AssetPackage.VERSIONS_FILE)))
+                                    val gitVerFileBytes = git.readFromHead("$gitPkgPath/${AssetPackage.VERSIONS_FILE}")
                                     gitVerFileBytes?.let {
                                         val gitVerProps = Properties()
                                         gitVerProps.load(ByteArrayInputStream(gitVerFileBytes))

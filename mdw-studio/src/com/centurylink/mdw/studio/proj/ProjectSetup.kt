@@ -52,6 +52,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.Thread.sleep
 import java.net.URL
+import java.util.*
 import javax.swing.ImageIcon
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
@@ -513,6 +514,18 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
         }
         return icon
+    }
+
+    override fun readData(name: String): String? {
+        return YamlProperties(projectYaml).getString(name)
+    }
+
+    override fun readDataList(name: String): List<String>? {
+        return YamlProperties(projectYaml).getList(name)
+    }
+
+    override fun readDataMap(name: String): SortedMap<String,String>? {
+        return YamlProperties(projectYaml).getMap(name)?.toSortedMap()
     }
 
     companion object {

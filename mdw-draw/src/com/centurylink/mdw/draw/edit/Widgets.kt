@@ -70,21 +70,21 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
     this.isReadonly = workflowObj.isReadonly || this.isReadonly
 
     // options source
-    // TODO parameterized
     when (source) {
         "Variables" -> {
             options = (workflowObj.asset as Process).variables.map { it.name }
         }
         "DocumentVariables" -> {
+            val docTypes = Data.getDocumentTypes(workflowObj.project).keys
             options = (workflowObj.asset as Process).variables.filter {
-                Data.documentTypes.keys.contains(it.type)
+                docTypes.contains(it.type)
             }.map { it.name }
         }
         "UserGroup" -> {
-            options = Data.workgroups
+            options = Data.getWorkgroups(workflowObj.project)
         }
         "TaskCategory" -> {
-            options = Data.categories.keys.toMutableList()
+            options = Data.getTaskCategories(workflowObj.project).keys.toMutableList()
         }
     }
 

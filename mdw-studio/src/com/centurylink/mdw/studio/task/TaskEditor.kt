@@ -62,7 +62,7 @@ class TaskEditorGeneralProvider : TaskEditorProvider() {
 }
 
 class TaskEditorWorkgroupsProvider : TaskEditorProvider() {
-    override fun getEditorTypeId() = "task-editor-workgroups"
+    override fun getEditorTypeId() = "task-editor-DEFAULT_WORKGROUPS"
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
         return TaskEditorTab("Workgroups", project, file)
     }

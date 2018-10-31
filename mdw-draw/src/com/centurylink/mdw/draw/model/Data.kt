@@ -1,16 +1,43 @@
 package com.centurylink.mdw.draw.model
 
+import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 
 class Data {
 
     companion object {
-        // TODO these values should not be static and should not be hardcoded
-        const val SOURCE_REPO_URL = "https://github.com/CenturyLinkCloud/mdw"
         const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
         const val BASE_PKG = "com.centurylink.mdw.base"
 
-        val documentTypes = mapOf(
+        fun getWorkgroups(project: Project): List<String> {
+            return project.readDataList("data.workgroups") ?: DEFAULT_WORKGROUPS
+        }
+        // excludes Site Admin on purpose
+        private val DEFAULT_WORKGROUPS = listOf(
+                "MDW Support",
+                "Developers")
+
+        fun getTaskCategories(project: Project): Map<String,String> {
+            return project.readDataMap("data.task.categories") ?: DEFAULT_TASK_CATEGORIES
+        }
+        private val DEFAULT_TASK_CATEGORIES = sortedMapOf(
+                "Ordering" to "ORD",
+                "General Inquiry" to "GEN",
+                "Billing" to "BIL",
+                "Complaint" to "COM",
+                "Portal Support" to "POR",
+                "Training" to "TRN",
+                "Repair" to "RPR",
+                "Inventory" to "INV",
+                "Test" to "TST",
+                "Vacation Planning" to "VAC",
+                "Customer Contact" to "CNT"
+        )
+
+        fun getDocumentTypes(project: Project): Map<String,String> {
+            return project.readDataMap("data.document.types") ?: DEFAULT_DOCUMENT_TYPES
+        }
+        private val DEFAULT_DOCUMENT_TYPES = sortedMapOf(
                 "org.w3c.dom.Document" to "xml",
                 "org.apache.xmlbeans.XmlObject" to "xml",
                 "java.lang.Object" to "java",
@@ -29,23 +56,6 @@ class Data {
                 "java.util.List<Long>" to "json",
                 "java.util.List<String>" to "json",
                 "java.util.Map<String,String>" to "json"
-        )
-
-        // TODO better groups handling
-        // (make this configurable somehow by the user)
-        val workgroups = listOf("MDW Support", "Site Admin", "Developers")
-        val categories = mapOf(
-                "Ordering" to "ORD",
-                "General Inquiry" to "GEN",
-                "Billing" to "BIL",
-                "Complaint" to "COM",
-                "Portal Support" to "POR",
-                "Training" to "TRN",
-                "Repair" to "RPR",
-                "Inventory" to "INV",
-                "Test" to "TST",
-                "Vacation Planning" to "VAC",
-                "Customer Contact" to "CNT"
         )
     }
 

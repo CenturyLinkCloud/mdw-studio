@@ -1,13 +1,14 @@
 package com.centurylink.mdw.draw.ext
 
 import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.asset.Asset
 import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.model.task.TaskType
 import org.json.JSONObject
 
-fun TaskTemplate.update(obj: JSONObject) {
+fun TaskTemplate.update(project: Project, obj: JSONObject) {
     taskName = if (obj.has("name")) {
         obj.getString("name")
     } else {
@@ -16,13 +17,10 @@ fun TaskTemplate.update(obj: JSONObject) {
     }
     logicalId = if (obj.has("logicalId")) obj.getString("logicalId") else taskName
     if (obj.has("category")) {
-        taskCategory = Data.categories.get(obj.getString("category"))
+        taskCategory = Data.getTaskCategories(project).get(obj.getString("category"))
         if (taskCategory.isNullOrEmpty()){
             taskCategory = obj.getString("category")
         }
-    }
-    else {
-        null
     }
     version = if (obj.has("version")) Asset.parseVersion(obj.getString("version")) else 0
     language = "TASK"

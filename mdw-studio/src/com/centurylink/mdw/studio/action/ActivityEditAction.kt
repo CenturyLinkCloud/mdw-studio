@@ -37,7 +37,7 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.let { project ->
-            showEditDialog(project)
+            openEditor(project)
         }
     }
 
@@ -47,7 +47,9 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
         event.presentation.isEnabled = true
     }
 
-    internal fun showEditDialog(project: Project) {
+    internal fun openEditor(project: Project) {
+        // virtualFile.psiFile // trigger load
+
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
 

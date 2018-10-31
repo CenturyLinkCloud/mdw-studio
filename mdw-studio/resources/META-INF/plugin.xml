@@ -51,6 +51,12 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <java.elementFinder id="mdwAttributeElementFinder" implementation="com.centurylink.mdw.studio.file.AttributeElementFinder"/>
     </extensions>
 
+    <!--
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <scriptDefinitionContributor implementation="com.centurylink.mdw.studio.kotlin.ScriptDefinitionContributer"/>
+    </extensions>
+    -->
+
     <actions>
         <group id="mdwNewActions" text="MDW" icon="/icons/process.gif">
             <action id="mdwNewProcess" text="MDW Process" icon="/icons/process.gif"

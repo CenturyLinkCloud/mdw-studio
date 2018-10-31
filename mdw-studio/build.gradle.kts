@@ -32,7 +32,7 @@ dependencies {
 }
 
 intellij {
-    version = "2018.2.3"
+    version = "2018.2.5"
     setPlugins("Kotlin")
 }
 

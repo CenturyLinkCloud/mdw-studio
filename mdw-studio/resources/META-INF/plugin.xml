@@ -12,7 +12,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
 <a href="http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio</a>
 ]]></description>
 
-    <idea-version since-build="182.4129" />
+    <idea-version since-build="182.4892" />
 
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>

@@ -9,7 +9,6 @@ import com.centurylink.mdw.model.variable.Variable
 import com.centurylink.mdw.model.workflow.Process
 import org.json.JSONObject
 import java.io.IOException
-import java.lang.IllegalArgumentException
 
 /**
  * Map will have been converted to a table by its adapter.
@@ -46,20 +45,22 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
         return colWidgs
     }
 
-    /**
-     * TODO: versioning
-     */
     private val bindingVariables: List<Variable> by lazy {
         if (widget.source == "Subprocess") {
             val procName = workflowObj.getAttribute("processname")
-            procName ?: throw IllegalArgumentException("Missing processname attribute")
-            var file = projectSetup.getAssetFile(procName)
-            if (file == null) {
-                file = projectSetup.getAssetFile(procName + ".proc")
+            if (procName == null) {
+                // not set yet
+                listOf()
             }
-            file ?: throw IOException("Missing subprocess asset: " + procName)
-            val process = Process(JSONObject(String(file.contentsToByteArray())))
-            getBindingVars(process, true)
+            else {
+                var file = projectSetup.getAssetFile(procName)
+                if (file == null) {
+                    file = projectSetup.getAssetFile(procName + ".proc")
+                }
+                file ?: throw IOException("Missing subprocess asset: " + procName)
+                val process = Process(JSONObject(String(file.contentsToByteArray())))
+                getBindingVars(process, true)
+            }
         }
         else {
             getBindingVars(workflowObj.asset as Process, false)

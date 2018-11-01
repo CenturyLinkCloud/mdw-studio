@@ -42,6 +42,7 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
                 return Dimension(size.width, size.height - 2)
             }
         }
+        spinner.isOpaque = false
 
         val field = spinner.editor.getComponent(0) as JFormattedTextField
         (field.formatter as DefaultFormatter).commitsOnValidEdit = true

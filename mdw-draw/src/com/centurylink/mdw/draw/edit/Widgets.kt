@@ -28,8 +28,8 @@ var Pagelet.Widget.url: String?
     get() = attributes["url"]
     set(value) { attributes["url"] = value }
 var Pagelet.Widget.units: String?
-    get() = attributes[name + "_UNITS"]
-    set(value) { attributes[name + "_UNITS"] = value }
+    get() = attributes["${name}_DISPLAY_UNITS"]
+    set(value) { attributes["${name}_DISPLAY_UNITS"] = value }
 var Pagelet.Widget.version: Int?
     get() = attributes["version"]?.toInt()
     set(value) { attributes["version"] = value?.toString() }

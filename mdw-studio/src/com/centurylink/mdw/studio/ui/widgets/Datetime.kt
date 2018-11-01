@@ -21,7 +21,7 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
 
         var num = 0
         widget.value?.let {
-            num = it as Int
+            num = if (it is String) it.toInt() else it as Int
         }
         val spinner = object : JBIntSpinner(num, 0, 10000) {
             override fun getPreferredSize(): Dimension {
@@ -29,6 +29,7 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
                 return Dimension(size.width, size.height - 2)
             }
         }
+        spinner.isOpaque = false
 
         val field = spinner.editor.getComponent(0) as JFormattedTextField
         (field.formatter as DefaultFormatter).commitsOnValidEdit = true

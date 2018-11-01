@@ -2,6 +2,7 @@ package com.centurylink.mdw.draw.model
 
 import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.workflow.ActivityImplementor
+import org.json.JSONArray
 
 class Data {
 
@@ -57,6 +58,28 @@ class Data {
                 "java.util.List<String>" to "json",
                 "java.util.Map<String,String>" to "json"
         )
+
+        private val TASK_OUTCOMES = listOf(
+                "Open",
+                "Assigned",
+                "Completed",
+                "Cancelled",
+                "In Progress",
+                "Alert",
+                "Jeopardy",
+                "Forward"
+        )
+
+        val DEFAULT_TASK_NOTICES = JSONArray()
+
+        init {
+            for (taskOutcome in TASK_OUTCOMES) {
+                val notices = JSONArray()
+                notices.put(taskOutcome)
+                for (i in 1..4) { notices.put("") }
+                DEFAULT_TASK_NOTICES.put(notices)
+            }
+        }
     }
 
     class Implementors {

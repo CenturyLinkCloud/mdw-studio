@@ -94,6 +94,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
             column.cellRenderer = getCellRenderer(columnWidget)
             column.cellEditor = getCellEditor(columnWidget)
             columnWidget.attributes["vw"]?.let {
+                table.columnModel.getColumn(i).width = it.toInt()
                 table.columnModel.getColumn(i).maxWidth = it.toInt()
             }
         }

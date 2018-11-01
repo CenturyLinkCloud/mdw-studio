@@ -71,6 +71,19 @@ class TaskEditorWorkgroupsProvider : TaskEditorProvider() {
 class TaskEditorNoticesProvider : TaskEditorProvider() {
     override fun getEditorTypeId() = "task-editor-notices"
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
+        val content = String(file.contentsToByteArray())
+        if (!content.isEmpty()) {
+            val json = JSONObject(content)
+            json.optJSONObject("attributes")?.let { attrJson ->
+                var notices = attrJson.optString("Notices")
+                if (notices.isNullOrBlank() || notices == "\$DefaultNotices") {
+                    attrJson.put("Notices", Data.DEFAULT_TASK_NOTICES.toString())
+                    WriteAction.run<Throwable> {
+                        file.setBinaryContent(json.toString(2).toByteArray())
+                    }
+                }
+            }
+        }
         return TaskEditorTab("Notices", project, file)
     }
 }

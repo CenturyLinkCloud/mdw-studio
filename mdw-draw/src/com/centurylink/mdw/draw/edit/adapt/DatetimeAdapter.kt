@@ -22,19 +22,17 @@ class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
     /**
      * Old units attr saved by Designer (converted to seconds)
      */
-    private fun getOldStyleValue(widget: Widget): Int? {
+    private fun getOldStyleSeconds(widget: Widget): Int? {
         val oldUnitsAttr = getOldStyleUnitsAttr(widget)
-        if (oldUnitsAttr != null) {
-            val oldUnitsValue = workflowObj.getAttribute(oldUnitsAttr)
-            if (oldUnitsValue != null) {
-                widget.setAttribute(oldUnitsAttr, null)
-                if (!widget.valueString.isNullOrBlank()) {
-                    return when (oldUnitsValue) {
-                        "Minutes" -> parseInt(widget.valueString) / 60
-                        "Hours" -> parseInt(widget.valueString) / 3600
-                        "Days" -> parseInt(widget.valueString) / 86400
-                        else -> null
-                    }
+        val oldUnitsValue = workflowObj.getAttribute(oldUnitsAttr)
+        if (oldUnitsValue != null) {
+            widget.setAttribute(oldUnitsAttr, null)
+            if (!widget.valueString.isNullOrBlank()) {
+                return when (oldUnitsValue) {
+                    "Minutes" -> parseInt(widget.valueString) * 60
+                    "Hours" -> parseInt(widget.valueString) * 3600
+                    "Days" -> parseInt(widget.valueString) * 86400
+                    else -> parseInt(widget.valueString)
                 }
             }
         }
@@ -60,17 +58,15 @@ class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
         if (widget.units == null) {
             widget.units = "Hours"
         }
-        val oldStyleSeconds = getOldStyleValue(widget)
+        val oldStyleSeconds = getOldStyleSeconds(widget)
         if (oldStyleSeconds != null) {
             widget.value = oldStyleSeconds
         }
-        else {
-            widget.value?.let {
-                when (widget.units) {
-                    "Minutes" -> widget.value = parseInt(it.toString()) / 60
-                    "Hours" -> widget.value = parseInt(it.toString()) / 3600
-                    "Days" -> widget.value = parseInt(it.toString()) / 86400
-                }
+        widget.value?.let {
+            when (widget.units) {
+                "Minutes" -> widget.value = parseInt(it.toString()) / 60
+                "Hours" -> widget.value = parseInt(it.toString()) / 3600
+                "Days" -> widget.value = parseInt(it.toString()) / 86400
             }
         }
         workflowObj.setAttribute(oldStyleUnitsAttr, null)

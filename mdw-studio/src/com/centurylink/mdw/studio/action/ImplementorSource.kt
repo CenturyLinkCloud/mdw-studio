@@ -12,7 +12,7 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.OpenSourceUtil
 
-class ImplementorSource : AnAction() {
+class ImplementorSource : AnAction("Go To Implementor") {
 
     override fun actionPerformed(event: AnActionEvent) {
         getProject(event)?.let { project ->

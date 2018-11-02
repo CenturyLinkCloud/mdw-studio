@@ -28,3 +28,7 @@
 5. After success:
    - Revert PublishTask comment-out
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml, and commit
+6. Changelog (in top-level mdw-studio):
+   ```
+   github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '1.x.x' --exclude-labels duplicate,invalid,wontfix,question
+   ```

@@ -6,7 +6,9 @@ import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.action.ActivityAssetAction
 import com.centurylink.mdw.studio.action.ActivityEditAction
+import com.centurylink.mdw.studio.action.ImplementorSource
 import com.centurylink.mdw.studio.file.Icons
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.customization.CustomActionsSchema
@@ -89,13 +91,12 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                         diagram?.let { diagram ->
                             if (diagram.selection.selectObjs.size == 1 && diagram.selection.selectObj is Step) {
                                 val step = diagram.selection.selectObj as Step
+                                val actions = action.childActionsOrStubs.toMutableList()
+                                actions.add(0, ImplementorSource())
                                 step.associatedAsset?.let { asset ->
-                                    val actions = action.childActionsOrStubs.toMutableList()
                                     actions.add(0, ActivityAssetAction(asset))
-                                    actionGroup = DefaultActionGroup(actions)
                                 }
                                 step.associatedEdit?.let { edit ->
-                                    val actions = action.childActionsOrStubs.toMutableList()
                                     val editAction = ActivityEditAction(this@ProcessCanvas, step.workflowObj, edit)
                                     editAction.addUpdateListener { obj ->
                                         obj.updateAsset()
@@ -107,8 +108,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                                         }
                                     }
                                     actions.add(0, editAction)
-                                    actionGroup = DefaultActionGroup(actions)
                                 }
+                                actionGroup = DefaultActionGroup(actions)
                             }
                         }
                     }
@@ -276,6 +277,13 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                 PlatformDataKeys.CUT_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.PASTE_PROVIDER.`is`(dataId)) {
             return actionProvider
+        }
+        else if (Implementors.IMPLEMENTOR_DATA_KEY.`is`(dataId)) {
+            this.diagram?.selection?.selectObj?.let { selObj ->
+                if (selObj is Step) {
+                    return selObj.implementor
+                }
+            }
         }
         return null
     }

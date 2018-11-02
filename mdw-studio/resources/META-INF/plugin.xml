@@ -131,6 +131,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                         description="Export BPMN 2.0 format"
                         class="com.centurylink.mdw.studio.action.ExportProcess">
                 </action>
+                <action id="mdwExportPdf" text="PDF Document" icon="AllIcons.FileTypes.Html"
+                        description="Export PDF documentation"
+                        class="com.centurylink.mdw.studio.action.ExportProcess">
+                </action>
             </group>
             <separator/>
             <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />

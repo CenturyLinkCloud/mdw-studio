@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
-    <version>1.1.3-SNAPSHOT</version>
+    <version>1.1.4-SNAPSHOT</version>
     <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description><![CDATA[
@@ -10,6 +10,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://centurylinkcloud.github.io/mdw/">MDW Site</a><br>
 <a href="https://centurylinkcloud.github.io/mdw/docs/getting-started/">Getting Started</a><br>
 <a href="http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio</a>
+<a href="https://github.com/CenturyLinkCloud/mdw-studio/blob/master/CHANGELOG.md">Change Log</a>
 ]]></description>
 
     <idea-version since-build="182.4892" />

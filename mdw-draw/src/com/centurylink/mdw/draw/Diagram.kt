@@ -24,8 +24,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    private var showGrid = true // TODO: prefs
-    private var snap = false // TODO
+    var isShowGrid = true
     private var background = Color.WHITE
 
     var hoverObj: Drawable? = null
@@ -73,7 +72,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     }
 
     override fun draw(): Display {
-        if (showGrid) {
+        if (isShowGrid) {
             g2d.color = Display.GRID_COLOR
             g2d.stroke = Display.GRID_STROKE
             var x = Display.GRID_SIZE

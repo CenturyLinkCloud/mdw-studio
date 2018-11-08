@@ -4,6 +4,7 @@ import com.centurylink.mdw.draw.*
 import com.centurylink.mdw.draw.Shape
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.model.workflow.Process
+import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.ActivityAssetAction
 import com.centurylink.mdw.studio.action.ActivityEditAction
 import com.centurylink.mdw.studio.action.ImplementorSource
@@ -23,7 +24,26 @@ import javax.swing.UIManager
 class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process, val isReadonly: Boolean = false) :
         JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
-    private var zoom = 100
+    private var _zoom = 100
+    var zoom
+        get() = _zoom
+        set(value) {
+            _zoom = value
+            diagram?.let {
+                revalidate()
+                repaint()
+            }
+        }
+
+    var isShowGrid
+        get() = diagram?.isShowGrid ?: true
+        set(value) {
+            diagram?.let {
+                it.isShowGrid = value
+                revalidate()
+                repaint()
+            }
+        }
 
     private val initDisplay: Display by lazy {
         Display(0, 0, size.width - 1, size.height)
@@ -205,14 +225,16 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         super.paintComponent(g)
         val g2d = g as Graphics2D
 
-        if (zoom != 100) {
-            val scale = zoom / 100.0
+        _zoom = MdwSettings.instance.canvasZoom
+        if (_zoom != 100) {
+            val scale = _zoom / 100.0
             g2d.scale(scale, scale)
         }
 
         // draw the process diagram
         var prevSelect = diagram?.selection
         val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, isReadonly)
+        d.isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
         diagram = d
         preSelectedId?.let { selectId ->
             val drawable = d.findObj(selectId)

@@ -26,6 +26,20 @@ class MdwSettings {
         return File(mdwHome)
     }
 
+    var isHideCanvasGridLines: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(HIDE_CANVAS_GRIDLINES, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(HIDE_CANVAS_GRIDLINES, value)
+        }
+
+    var canvasZoom: Int
+        get() {
+            return PropertiesComponent.getInstance().getInt(CANVAS_ZOOM, 100)
+        }
+        set(value) {
+            PropertiesComponent.getInstance().setValue(CANVAS_ZOOM, value.toString())
+        }
+
     var isSyncDynamicJavaClassName: Boolean
         get() = PropertiesComponent.getInstance().getBoolean(SYNC_DYNAMIC_JAVA_CLASS_NAME, false)
         set(value) {
@@ -49,6 +63,12 @@ class MdwSettings {
         val instance = MdwSettings()
         const val ID = "com.centurylink.mdw.studio"
         private const val MDW_HOME = "$ID.mdwHome"
+
+        // canvas
+        private const val CANVAS_ZOOM = "$ID.canvasZoom"
+        private const val HIDE_CANVAS_GRIDLINES = "$ID.isCanvasGridLines"
+
+        // editing
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
         private const val OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB = "$ID.isOpenAttributeContentInContentInEditorTab"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"

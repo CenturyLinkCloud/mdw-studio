@@ -6,6 +6,7 @@ import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.CheckBox
 import java.awt.*
 import javax.swing.*
@@ -21,6 +22,14 @@ class MdwConfig : SearchableConfigurable {
             return Dimension(500, super.getPreferredSize().height)
         }
     }
+
+    private val gridLinesCheckbox = CheckBox("Show grid lines when editable")
+    private val zoomSlider = object : JSlider(20, 200, 100) {
+        override fun getPreferredSize(): Dimension {
+            return Dimension(500, super.getPreferredSize().height)
+        }
+    }
+
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val attributeContentInEditorTabCheckbox = CheckBox("Open dynamic Java and script activity content in editor tab")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
@@ -65,8 +74,42 @@ class MdwConfig : SearchableConfigurable {
         envPanel.add(mdwHomeHelp)
 
 
-        // editing
+        // canvas
         gridConstraints.gridy = 1
+        val canvasPanel = JPanel()
+        canvasPanel.layout = BoxLayout(canvasPanel, BoxLayout.Y_AXIS)
+        canvasPanel.border = IdeBorderFactory.createTitledBorder("Canvas")
+        settingsPanel.add(canvasPanel, gridConstraints)
+
+        // grid lines
+        gridLinesCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        gridLinesCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        gridLinesCheckbox.isSelected = !MdwSettings.instance.isHideCanvasGridLines
+        gridLinesCheckbox.addActionListener {
+            modified = true
+        }
+        canvasPanel.add(gridLinesCheckbox)
+
+        // canvas zoom
+        val zoomPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
+        zoomPanel.alignmentX = Component.LEFT_ALIGNMENT
+        canvasPanel.add(zoomPanel)
+        val zoomLabel = JLabel("Canvas Zoom:")
+        zoomPanel.add(zoomLabel)
+
+        zoomSlider.alignmentX = Component.LEFT_ALIGNMENT
+        zoomSlider.value = MdwSettings.instance.canvasZoom
+        zoomSlider.minorTickSpacing = 10
+        zoomSlider.majorTickSpacing = 20
+        zoomSlider.paintTicks = true
+        zoomSlider.paintLabels = true
+        zoomSlider.addChangeListener {
+            modified = true
+        }
+        zoomPanel.add(zoomSlider)
+
+        // editing
+        gridConstraints.gridy = 2
         val editPanel = JPanel()
         editPanel.layout = BoxLayout(editPanel, BoxLayout.Y_AXIS)
         editPanel.border = IdeBorderFactory.createTitledBorder("Editing")
@@ -101,7 +144,7 @@ class MdwConfig : SearchableConfigurable {
 
 
         // leftover vertical space
-        gridConstraints.gridy = 2
+        gridConstraints.gridy = 3
         gridConstraints.fill = GridBagConstraints.VERTICAL
         gridConstraints.gridheight = GridBagConstraints.REMAINDER
         gridConstraints.weighty = 100.0
@@ -126,6 +169,10 @@ class MdwConfig : SearchableConfigurable {
 
     override fun apply() {
         val mdwSettings = MdwSettings.instance
+
+        mdwSettings.isHideCanvasGridLines = !gridLinesCheckbox.isSelected
+        mdwSettings.canvasZoom = zoomSlider.value
+
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
         mdwSettings.isOpenAttributeContentInEditorTab = attributeContentInEditorTabCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected

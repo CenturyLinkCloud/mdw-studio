@@ -26,10 +26,11 @@
 3. (Release build only) - Comment out the PublishTask Channels entry in mdw-studio/build.gradle.kts (but do not commit)
 4. Run Gradle task intellij/publishPlugin.
 5. After success:
+   - TODO: Tagging
    - Revert PublishTask Channels comment-out
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml
 6. Changelog (in top-level mdw-studio):
    ```
    github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '1.x.x' --exclude-labels duplicate,invalid,wontfix,question
    ```
-7. Commit and push   
+7. Commit and push

@@ -38,6 +38,7 @@ fun Process.addActivity(x: Int, y: Int, implementor: ActivityImplementor, boxed:
     activity.name = when (implementor.implementorClass) {
         Data.Implementors.START_IMPL -> "Start"
         Data.Implementors.STOP_IMPL -> "Stop"
+        Data.Implementors.PAUSE_IMPL -> "Pause"
         else -> "New ${implementor.label}"
     }
     activity.implementor = implementor.implementorClass

@@ -86,6 +86,7 @@ class Data {
         companion object {
             const val START_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessStartActivity"
             const val STOP_IMPL = "com.centurylink.mdw.workflow.activity.process.ProcessFinishActivity"
+            const val PAUSE_IMPL = "com.centurylink.mdw.base.PauseActivity"
             const val DYNAMIC_JAVA = "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity"
             val PSEUDO_IMPLS = listOf(
                     ActivityImplementor("Exception Handler", "subflow", "" +

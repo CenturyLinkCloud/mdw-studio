@@ -9,7 +9,7 @@ MDW Studio is the official design tool built on the IntelliJ platform
 that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://centurylinkcloud.github.io/mdw/">MDW Site</a><br>
 <a href="https://centurylinkcloud.github.io/mdw/docs/getting-started/">Getting Started</a><br>
-<a href="http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio</a>
+<a href="http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio</a><br>
 <a href="https://github.com/CenturyLinkCloud/mdw-studio/blob/master/CHANGELOG.md">Change Log</a>
 ]]></description>
 
@@ -169,15 +169,35 @@ that makes it easy for you to create workflow processes and other assets.<br>
                 <keyboard-shortcut first-keystroke="alt F7" keymap="$default" />
             </action>
         </group>
+        <group id="mdwCanvasActions">
+            <separator/>
+            <add-to-group group-id="MainToolBar"/>
+        </group>
+        <action id="mdwGridLines" text="Grid Lines" icon="AllIcons.Graph.Grid"
+                class="com.centurylink.mdw.studio.action.GridLines">
+            <add-to-group group-id="mdwCanvasActions" />
+        </action>
+        <action id="mdwZoomIn" text="Zoom In" icon="AllIcons.Graph.ZoomIn"
+                class="com.centurylink.mdw.studio.action.ZoomIn">
+            <add-to-group group-id="mdwCanvasActions" />
+        </action>
+        <action id="mdwZoomOut" text="Zoom Out" icon="AllIcons.Graph.ZoomOut"
+                class="com.centurylink.mdw.studio.action.ZoomOut">
+            <add-to-group group-id="mdwCanvasActions" />
+        </action>
+        <group id="mdwServerActions">
+            <separator/>
+            <add-to-group group-id="MainToolBar"/>
+        </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
                 description="Open MDWHub"
                 class="com.centurylink.mdw.studio.action.HubAction">
-            <add-to-group group-id="MainToolBar" />
+            <add-to-group group-id="mdwServerActions" />
         </action>
         <action id="mdwSyncServer" text="Sync Server" icon="/icons/sync.png"
                 description="Refresh server cache to reflect asset changes"
                 class="com.centurylink.mdw.studio.action.SyncServer">
-            <add-to-group group-id="MainToolBar" />
+            <add-to-group group-id="mdwServerActions" />
         </action>
     </actions>
 </idea-plugin>

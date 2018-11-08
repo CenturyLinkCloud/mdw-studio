@@ -83,6 +83,7 @@ class Display {
         var OUTLINE_COLOR = Color.BLACK
         var SHADOW_COLOR = Color(0, 0, 0, 50)
         var META_COLOR = Color.GRAY
+        var NOTE_COLOR = Color.DARK_GRAY
         var BACKGROUND_COLOR = Color.WHITE
 
         val START_COLOR = Color(0xadfcad)

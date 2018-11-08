@@ -68,7 +68,12 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         Display.OUTLINE_COLOR = UIManager.getColor("EditorPane.foreground")
         Display.SHADOW_COLOR = Color(0, 0, 0, 50)
         Display.META_COLOR = Color.GRAY
-        Display.BACKGROUND_COLOR = UIManager.getColor("EditorPane.background")
+        Display.BACKGROUND_COLOR = if (UIUtil.isUnderDarcula()) {
+            Color(43, 43, 43)
+        }
+        else {
+            UIManager.getColor("EditorPane.background")
+        }
 
         background = Display.BACKGROUND_COLOR
         isFocusable = true

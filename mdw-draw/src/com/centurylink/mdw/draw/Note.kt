@@ -31,7 +31,7 @@ class Note (private val g2d: Graphics2D, project: Project, process: Process, val
                 y += h
                 extents.w = maxOf(extents.w, display.x + 4 + g2d.fontMetrics.stringWidth(line))
                 extents.h = maxOf(extents.h, y)
-                drawText(line, display.x + 4, y, FONT)
+                drawText(line, display.x + 4, y, FONT, Display.NOTE_COLOR)
             }
         }
 

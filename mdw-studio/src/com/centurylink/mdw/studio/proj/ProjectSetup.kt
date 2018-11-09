@@ -550,7 +550,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 if (openProjects.size == 1) {
                     return openProjects[0]
                 }
-                val project = DataManager.getInstance().dataContextFromFocus.result.getData(CommonDataKeys.PROJECT.getName())
+                val project = DataManager.getInstance().dataContextFromFocus.result?.getData(CommonDataKeys.PROJECT.name)
                 if (project is Project) {
                     return project
                 }

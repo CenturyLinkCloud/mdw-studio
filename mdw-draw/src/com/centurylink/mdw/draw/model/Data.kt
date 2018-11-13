@@ -16,7 +16,28 @@ class Data {
         // excludes Site Admin on purpose
         private val DEFAULT_WORKGROUPS = listOf(
                 "MDW Support",
-                "Developers")
+                "Developers"
+        )
+
+        private val DEFAULT_BINARY_ASSET_EXTS = listOf(
+                "png",
+                "jpg",
+                "gif",
+                "svg",
+                "xlsx",
+                "docx",
+                "class",
+                "jar",
+                "zip",
+                "eot",
+                "ttf",
+                "woff",
+                "woff2"
+        )
+
+        fun getBinaryAssetExts(project: Project): List<String> {
+            return project.readDataList("data.binary.asset.exts") ?: DEFAULT_BINARY_ASSET_EXTS
+        }
 
         fun getTaskCategories(project: Project): Map<String,String> {
             return project.readDataMap("data.task.categories") ?: DEFAULT_TASK_CATEGORIES

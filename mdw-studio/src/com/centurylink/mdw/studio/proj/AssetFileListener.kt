@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.annotations.Activity
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
@@ -37,6 +38,9 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             if (asset.name.endsWith(".impl")) {
                                 projectSetup.reloadImplementors()
                             }
+                            else if (asset.name.endsWith(".evth")) {
+                                // not asset
+                            }
                             else if (asset.version == 0) {
                                 projectSetup.setVersion(asset, 1)
                             }
@@ -46,8 +50,21 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                             else {
                                 LOG.debug("Performing vercheck: $asset")
                                 val gitPkgPath = git.getRelativePath(File(asset.pkg.dir.path).toPath())
-                                val gitAssetBytes = git.readFromHead("$gitPkgPath/${asset.name}")
-                                if (gitAssetBytes != null && !Arrays.equals(gitAssetBytes, asset.file.contentsToByteArray())) {
+                                val gitBytes = git.readFromHead("$gitPkgPath/${asset.name}")
+                                val assetBytes = asset.file.contentsToByteArray()
+                                var isGitDiff = false
+                                if (gitBytes != null && !Arrays.equals(gitBytes, assetBytes)) {
+                                    isGitDiff = if (Data.getBinaryAssetExts(projectSetup).contains(asset.ext)) {
+                                        true
+                                    }
+                                    else {
+                                        // ignore line ending diffs
+                                        val gitString = String(gitBytes).replace("\r", "")
+                                        val assetString = String(assetBytes).replace("\r", "")
+                                        gitString != assetString
+                                    }
+                                }
+                                if (isGitDiff) {
                                     val gitVerFileBytes = git.readFromHead("$gitPkgPath/${AssetPackage.VERSIONS_FILE}")
                                     gitVerFileBytes?.let {
                                         val gitVerProps = Properties()

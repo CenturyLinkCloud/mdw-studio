@@ -92,10 +92,7 @@ open class WorkflowObj(val project: Project, var asset: Asset, val type: Workflo
     }
 
     fun removeAttribute(name: String) {
-        if (obj.has("attributes")) {
-            val attrsJson = obj.getJSONObject("attributes")
-            attrsJson.remove(name)
-        }
+        setAttribute(name, null)
     }
 
     /**

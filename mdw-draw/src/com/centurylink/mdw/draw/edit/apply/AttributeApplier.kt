@@ -12,12 +12,6 @@ open class AttributeApplier : AbstractWidgetApplier() {
     }
 
     override fun update() {
-        val removeAttrs = widget.getAttribute("to_remove")
-        removeAttrs ?.let {
-            removeAttrs.split(",").forEach {
-                workflowObj.removeAttribute(it)
-            }
-        }
         workflowObj.setAttribute(widget.name, widget.valueString)
     }
 }

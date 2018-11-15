@@ -44,7 +44,10 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
         doc.addDocumentListener(object: DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 widget.value = doc.getText(0, e.document.length)
-                widget.setAttribute("to_remove" , widgetNames.joinToString())
+                val workflowObj = (widget.adapter as WidgetApplier).workflowObj
+                widgetNames.forEach { widgetName ->
+                    workflowObj.removeAttribute(widgetName)
+                }
                 applyUpdate()
                 if (!widget.value.equals("")) {
                     comboPanel.removeAll()
@@ -62,8 +65,7 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
         comboPanel = JPanel()
         comboPanel.background = UIManager.getColor("EditorPane.background")
         widget.widgets?.let {
-            widget.widgets.forEach {
-                val widg = it
+            widget.widgets.forEach { widg ->
                 widget.value?. let {
                     if (it.equals(widg.getAttribute("parentValue"))) {
                         widg.init("", workflowObj)
@@ -74,11 +76,12 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                             notifyUpdateListeners(obj)
                         }
                         comboPanel.add(paramWidget)
-                        val removeAttrs = mutableListOf<String>()
-                        removeAttrs.addAll(widgetNames)
-                        removeAttrs.remove(widg.name)
-                        removeAttrs.remove("${widg.name}_assetVersion")
-                        widg.setAttribute("to_remove" , removeAttrs.joinToString())
+                        val workflowObj = (widget.adapter as WidgetApplier).workflowObj
+                        widgetNames.forEach { widgetName ->
+                            if (widgetName != widg.name && widgetName != "${widg.name}_assetVersion") {
+                                workflowObj.removeAttribute(widgetName)
+                            }
+                        }
                     }
                 }
             }

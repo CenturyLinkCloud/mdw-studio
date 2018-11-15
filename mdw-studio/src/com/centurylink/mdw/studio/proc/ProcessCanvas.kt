@@ -74,6 +74,9 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         else {
             UIManager.getColor("EditorPane.background")
         }
+        if (UIUtil.isUnderDarcula()) {
+            Subflow.BOX_OUTLINE_COLOR = Color(75, 165, 199)
+        }
 
         background = Display.BACKGROUND_COLOR
         isFocusable = true

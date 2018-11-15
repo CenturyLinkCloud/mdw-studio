@@ -154,6 +154,6 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
     }
 
     companion object {
-        val BOX_OUTLINE_COLOR = Color(0x337ab)
+        var BOX_OUTLINE_COLOR = Color(0x337ab)
     }
 }

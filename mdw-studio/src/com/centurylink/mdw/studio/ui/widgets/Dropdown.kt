@@ -54,7 +54,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                     parent.repaint()
                 }
                 widget.setAttribute("to_remove" , null)
-
             }
         })
         add(combo)
@@ -74,7 +73,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                         val paramWidget = create(widg)
                         paramWidget.addUpdateListener { obj ->
                             notifyUpdateListeners(obj)
-                            applyUpdate()
                         }
                         comboPanel.add(paramWidget)
                         val removeAttrs = mutableListOf<String>()
@@ -85,7 +83,7 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                     }
                 }
             }
+            add(comboPanel)
         }
-        add(comboPanel)
     }
 }

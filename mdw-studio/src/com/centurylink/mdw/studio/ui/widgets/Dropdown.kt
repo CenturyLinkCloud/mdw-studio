@@ -53,7 +53,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                     parent.revalidate()
                     parent.repaint()
                 }
-                widget.setAttribute("to_remove" , null)
             }
         })
         add(combo)

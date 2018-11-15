@@ -3,13 +3,10 @@ package com.centurylink.mdw.studio.ui.widgets
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.init
 import com.centurylink.mdw.draw.edit.isReadonly
-import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.DocumentAdapter
 import java.awt.Dimension
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
 import javax.swing.JPanel
 import javax.swing.UIManager
 import javax.swing.event.DocumentEvent

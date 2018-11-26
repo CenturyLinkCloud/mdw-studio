@@ -53,8 +53,10 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                     comboPanel.removeAll()
                     remove(comboPanel)
                     adjustWidget()
-                    parent.revalidate()
-                    parent.repaint()
+                    if (parent != null) {
+                        parent.revalidate()
+                        parent.repaint()
+                    }
                 }
             }
         })

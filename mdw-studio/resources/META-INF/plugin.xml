@@ -189,15 +189,21 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <separator/>
             <add-to-group group-id="MainToolBar"/>
         </group>
+        <group id="mdwToolsActions" text="MDW" icon="/icons/mdw.png" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
                 description="Open MDWHub"
                 class="com.centurylink.mdw.studio.action.HubAction">
             <add-to-group group-id="mdwServerActions" />
+            <add-to-group group-id="mdwToolsActions" />
         </action>
         <action id="mdwSyncServer" text="Sync Server" icon="/icons/sync.png"
                 description="Refresh server cache to reflect asset changes"
                 class="com.centurylink.mdw.studio.action.SyncServer">
             <add-to-group group-id="mdwServerActions" />
+            <add-to-group group-id="mdwToolsActions" />
         </action>
+
     </actions>
 </idea-plugin>

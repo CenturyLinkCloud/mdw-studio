@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.intellij.tasks.PublishTask
+import org.jetbrains.intellij.tasks.RunIdeTask
 
 plugins {
     kotlin("jvm") version "1.3.0"
@@ -7,7 +8,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.1.4-SNAPSHOT"
+version = "1.1.5-SNAPSHOT"
 
 java.sourceSets {
     "main" {
@@ -34,6 +35,10 @@ dependencies {
 intellij {
     version = "2018.2.5"
     setPlugins("Kotlin")
+}
+
+tasks.withType<RunIdeTask> {
+    jvmArgs = listOf("-Xmx1G")
 }
 
 tasks.withType<PublishTask> {

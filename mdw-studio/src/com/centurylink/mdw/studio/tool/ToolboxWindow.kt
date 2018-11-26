@@ -18,7 +18,9 @@ class ToolboxWindowFactory : ToolWindowFactory {
             override fun getComponent(): JComponent? {
                 return super.getComponent()
             }
-
+            override fun isToolbarVisible(): Boolean {
+                return true
+            }
         }
         val projectSetup = project.getComponent(ProjectSetup::class.java)
         val toolboxPanel = ToolboxPanel(projectSetup)

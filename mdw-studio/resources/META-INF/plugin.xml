@@ -26,6 +26,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
+        <errorHandler implementation="com.centurylink.mdw.studio.MdwErrorReporter"/>
         <projectViewPane implementation="com.centurylink.mdw.studio.proj.AssetProjectView"/>
         <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
         <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>

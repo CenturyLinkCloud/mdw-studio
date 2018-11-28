@@ -9,3 +9,4 @@
 .DS_Store
 /build
 /captures
+/src/com/centurylink/mdw/studio/Secrets.kt

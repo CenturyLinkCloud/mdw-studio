@@ -67,7 +67,7 @@ class Startup : StartupActivity {
             projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
-            val pluginVer = PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.version
+            val pluginVer = projectSetup.getPluginVersion()
             try {
                 LOG.info("MDW Studio: $pluginVer (${MdwVersion.getRuntimeVersion()})")
                 val ideaVer = ApplicationInfo.getInstance().build.asString()
@@ -136,6 +136,17 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     override fun getAssetRoot(): File {
         return File(assetDir.path)
+    }
+
+    fun getMdwCentralUrl(): String {
+        val url = getMdwProp(PropertyNames.MDW_CENTRAL_URL)
+        if (url != null)
+            return url
+        return "https://mdw-central.com"
+    }
+
+    fun getPluginVersion() : String? {
+        return PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.version
     }
 
     private val projectYaml = File(project.basePath + "/project.yaml")

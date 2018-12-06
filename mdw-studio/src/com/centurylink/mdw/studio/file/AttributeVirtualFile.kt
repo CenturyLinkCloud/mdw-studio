@@ -32,7 +32,8 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?, private val fileExtension: String? = null) :
+class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
+        private val fileExtension: String? = null, private val qualifier: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
     val projectSetup: ProjectSetup
@@ -104,7 +105,9 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     private val scriptName: String
         get() {
             val process = workflowObj.asset as Process
-            return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
+            var name = process.name + "_" + workflowObj.id
+            qualifier?.let { name += "_$it" }
+            return ScriptNaming.getValidName(name)
         }
 
     var _psiFile: PsiFile? = null

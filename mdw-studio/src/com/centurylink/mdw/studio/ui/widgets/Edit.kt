@@ -57,7 +57,12 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
 
-        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString)
+        val qualifier = when(widget.name) {
+            "PreScript" -> "Pre"
+            "PostScript" -> "Post"
+            else -> null
+        }
+        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString, qualifier = qualifier)
         if (virtualFile.contents != widget.valueString) {
             // might have been set from template
             widget.value = virtualFile.contents

@@ -266,20 +266,21 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         val underscore = withoutExt.lastIndexOf("_")
         val processName = withoutExt.substring(pkg.length + 1, underscore)
         val activityId = withoutExt.substring(underscore + 1)
-        val assetPath = "$pkg/$processName.proc"
 
-        var activeProject = ProjectSetup.activeProject
+        val activeProject = ProjectSetup.activeProject
         if (activeProject == null) {
             LOG.warn("Cannot find active project for: $path")
         }
         else {
             val projectSetup = activeProject.getComponent(ProjectSetup::class.java)
-            projectSetup.getAsset(assetPath)?.let{ asset ->
+            val assetPkg = projectSetup.getPackage(pkg)
+
+            projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
                 val process = Process(JSONObject(String(asset.contents)))
                 process.name = processName
                 process.packageName = pkg
                 process.id = asset.id
-                process.activities.find{ it.logicalId == activityId }?.let { activity ->
+                process.activities.find { it.logicalId == activityId }?.let { activity ->
                     activity.getAttribute("Java")?.let { java ->
                         val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
                         return AttributeVirtualFile(workflowObj, java)

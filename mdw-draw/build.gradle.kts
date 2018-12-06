@@ -24,7 +24,7 @@ dependencies {
     compile(kotlin("reflect"))
     compile("com.centurylink.mdw:mdw-common:6.1.12-SNAPSHOT") { isTransitive = false }
     // compile(files("../../mdw/mdw/deploy/app/mdw-common-6.1.12-SNAPSHOT.jar"))
-    compile("io.limberest:limberest:1.2.4") { isTransitive = false }
+    compile("io.limberest:limberest:1.2.5") { isTransitive = false }
     compile("org.json:json:20180130")
     compile("com.google.code.gson:gson:2.8.5")
     compile("com.vladsch.flexmark:flexmark:0.32.22")
@@ -35,6 +35,7 @@ dependencies {
     compile("com.vladsch.flexmark:flexmark-ext-tables:0.32.22")
     compile("com.vladsch.flexmark:flexmark-ext-typographic:0.32.22")
     compile("com.vladsch.flexmark:flexmark-formatter:0.32.22")
+    compile("org.slf4j:slf4j-api:1.7.25")
 }
 
 tasks.withType<KotlinCompile> {

@@ -20,7 +20,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
             val underscore = cls.lastIndexOf("_")
             if (underscore > 0) {
                 project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
-                    projectSetup.getAsset("$pkg/${cls.substring(0, underscore)}.proc")?.let { asset ->
+                    projectSetup.findAssetFromNormalizedName(pkg, cls.substring(0, underscore), "proc")?.let { asset ->
                         val activityId = cls.substring(underscore + 1)
                         val process = Process(JSONObject(String(asset.contents)))
                         process.name = asset.rootName

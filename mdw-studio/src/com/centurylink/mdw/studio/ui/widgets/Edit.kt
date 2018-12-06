@@ -16,6 +16,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.util.ui.UIUtil
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
@@ -35,7 +36,13 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         border = BorderFactory.createEmptyBorder(1, 3, 1, 0)
 
         val text = if (widget.isReadonly) "View" else "Edit"
-        val linkLabel = JLabel("<html><a href='.'>$text</a></html>")
+        val labelHtml = if (UIUtil.isUnderDarcula()) {
+            "<html><font color='white'><a href='.'>$text</a></font></html>"
+        }
+        else {
+            "<html><a href='.'>$text</a></html>"
+        }
+        val linkLabel = JLabel(labelHtml)
         linkLabel.toolTipText = "Open ${widget.attributes["languages"]}"
         linkLabel.cursor = Cursor(Cursor.HAND_CURSOR)
         linkLabel.addMouseListener(object: MouseAdapter() {

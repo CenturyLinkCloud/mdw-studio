@@ -7,9 +7,14 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBScrollPane
+import java.awt.BorderLayout
 import javax.swing.BorderFactory
 import javax.swing.JComponent
+import javax.swing.JPanel
+import javax.swing.event.DocumentEvent
 
 class ToolboxWindowFactory : ToolWindowFactory {
 
@@ -22,8 +27,22 @@ class ToolboxWindowFactory : ToolWindowFactory {
                 return true
             }
         }
+
         val projectSetup = project.getComponent(ProjectSetup::class.java)
         val toolboxPanel = ToolboxPanel(projectSetup)
+
+        val searchPanel = JPanel(BorderLayout())
+        val searchBox = SearchTextField()
+        searchPanel.border = BorderFactory.createEmptyBorder(4, 10, 4, 10)
+        searchBox.addDocumentListener(object: DocumentAdapter() {
+            override fun textChanged(e: DocumentEvent) {
+                val searchText = e.document.getText(0, e.document.length)
+                toolboxPanel.search = searchText
+            }
+        })
+        searchPanel.add(searchBox, BorderLayout.CENTER)
+        panel.setToolbar(searchPanel)
+
         val scrollPane = JBScrollPane(toolboxPanel)
         scrollPane.border = BorderFactory.createEmptyBorder()
         panel.setContent(scrollPane)

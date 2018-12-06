@@ -4,9 +4,11 @@ import com.centurylink.mdw.annotations.Activity
 import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.file.Asset
-import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.openapi.actionSystem.DataKey
-import com.intellij.psi.*
+import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiClassObjectAccessExpression
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiLiteralExpression
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import com.intellij.psi.util.PsiTypesUtil
 import org.json.JSONObject
@@ -22,10 +24,10 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
             getImpl(asset, psiAnnotations[0])?.let { add(it) }
         }
         for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
-            pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
-            add(pseudoImpl)
+                pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
+                add(pseudoImpl)
+            }
         }
-    }
 
     private fun add(implementor: ActivityImplementor) {
         var iconAsset = implementor.icon

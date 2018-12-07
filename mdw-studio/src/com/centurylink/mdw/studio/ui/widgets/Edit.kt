@@ -16,6 +16,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.util.ui.UIUtil
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
@@ -35,7 +36,13 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         border = BorderFactory.createEmptyBorder(1, 3, 1, 0)
 
         val text = if (widget.isReadonly) "View" else "Edit"
-        val linkLabel = JLabel("<html><a href='.'>$text</a></html>")
+        val labelHtml = if (UIUtil.isUnderDarcula()) {
+            "<html><font color='white'><a href='.'>$text</a></font></html>"
+        }
+        else {
+            "<html><a href='.'>$text</a></html>"
+        }
+        val linkLabel = JLabel(labelHtml)
         linkLabel.toolTipText = "Open ${widget.attributes["languages"]}"
         linkLabel.cursor = Cursor(Cursor.HAND_CURSOR)
         linkLabel.addMouseListener(object: MouseAdapter() {
@@ -50,7 +57,12 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
 
-        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString)
+        val qualifier = when(widget.name) {
+            "PreScript" -> "Pre"
+            "PostScript" -> "Post"
+            else -> null
+        }
+        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString, qualifier = qualifier)
         if (virtualFile.contents != widget.valueString) {
             // might have been set from template
             widget.value = virtualFile.contents

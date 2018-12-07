@@ -56,7 +56,7 @@ class AssetViewTreeStructure(project: Project) :
 
     val projectSetup: ProjectSetup = project.getComponent(ProjectSetup::class.java)
 
-    override fun getChildElements(element: Any?): Array<Any> {
+    override fun getChildElements(element: Any): Array<Any> {
             val children = mutableListOf<Any>()
             for (child in super.getChildElements(element)) {
                 when (child) {
@@ -161,7 +161,7 @@ class AssetViewTreeStructure(project: Project) :
         }
     }
 
-    override fun isToBuildChildrenInBackground(element: Any?): Boolean {
+    override fun isToBuildChildrenInBackground(element: Any): Boolean {
         return false
     }
 }

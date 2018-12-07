@@ -32,7 +32,8 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?, private val fileExtension: String? = null) :
+class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
+        private val fileExtension: String? = null, private val qualifier: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
     val projectSetup: ProjectSetup
@@ -104,7 +105,9 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     private val scriptName: String
         get() {
             val process = workflowObj.asset as Process
-            return ScriptNaming.getValidName(process.name + "_" + workflowObj.id)
+            var name = process.name + "_" + workflowObj.id
+            qualifier?.let { name += "_$it" }
+            return ScriptNaming.getValidName(name)
         }
 
     var _psiFile: PsiFile? = null
@@ -266,20 +269,21 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         val underscore = withoutExt.lastIndexOf("_")
         val processName = withoutExt.substring(pkg.length + 1, underscore)
         val activityId = withoutExt.substring(underscore + 1)
-        val assetPath = "$pkg/$processName.proc"
 
-        var activeProject = ProjectSetup.activeProject
+        val activeProject = ProjectSetup.activeProject
         if (activeProject == null) {
             LOG.warn("Cannot find active project for: $path")
         }
         else {
             val projectSetup = activeProject.getComponent(ProjectSetup::class.java)
-            projectSetup.getAsset(assetPath)?.let{ asset ->
+            val assetPkg = projectSetup.getPackage(pkg)
+
+            projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
                 val process = Process(JSONObject(String(asset.contents)))
                 process.name = processName
                 process.packageName = pkg
                 process.id = asset.id
-                process.activities.find{ it.logicalId == activityId }?.let { activity ->
+                process.activities.find { it.logicalId == activityId }?.let { activity ->
                     activity.getAttribute("Java")?.let { java ->
                         val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
                         return AttributeVirtualFile(workflowObj, java)

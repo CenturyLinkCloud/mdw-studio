@@ -31,23 +31,33 @@ import javax.swing.*
 import javax.swing.border.Border
 import javax.swing.border.EmptyBorder
 
-
 class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposable, ImplementorChangeListener {
 
     private val toolPanels = mutableListOf<ToolPanel>()
     var selected: ToolPanel? = null
 
+    var search: String? = null
+        set(value) {
+            field = value
+            onChange(projectSetup.implementors)
+        }
+
     init {
         layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
         border = BorderFactory.createEmptyBorder(2, 2, 2, 0)
+        alignmentY = 0f
         initialize()
         projectSetup.addImplementorChangeListener(this)
     }
 
     private fun initialize() {
-        for (implementor in projectSetup.implementors.toSortedList()) {
+        for (implementor in projectSetup.implementors.toSortedList().filter {
+            val s = search
+            s.isNullOrBlank() || it.label.contains(s, true) || it.implementorClass.contains(s, true)
+        }) {
             val toolPanel = ToolPanel(projectSetup, implementor)
             toolPanel.border = BORDER_NOT
+
             toolPanel.addMouseListener(object: MouseAdapter() {
                 override fun mousePressed(e: MouseEvent) {
                     selected?.let {
@@ -66,6 +76,7 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
             iconPanel.preferredSize = Dimension(ICON_WIDTH + ICON_PAD, ICON_HEIGHT + ICON_PAD)
             toolPanel.add(iconPanel)
             val toolLabel = JLabel(implementor.label)
+            toolPanel.alignmentY = 0f
             toolLabel.border = EmptyBorder(0, 0, ICON_PAD, 0)
             toolPanel.add(toolLabel)
             toolPanels.add(toolPanel)
@@ -86,7 +97,6 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
     }
 
     companion object {
-        const val TOOL_WIDTH = 200
         const val TOOL_HEIGHT = 35
         val BORDER_SELECTED: Border = BorderFactory.createLineBorder(Color(0x0b93d5), 2 )
         val BORDER_NOT: Border = BorderFactory.createEmptyBorder(2, 2, 2, 2)
@@ -99,8 +109,6 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
     val icon = ToolboxIcon(implementor)
 
     init {
-        preferredSize = Dimension(ToolboxPanel.TOOL_WIDTH, ToolboxPanel.TOOL_HEIGHT)
-
         transferHandler = object : TransferHandler() {
 
             val transferData = "{ \"mdw.implementor\": \"${implementor.implementorClass}\" }"
@@ -159,6 +167,14 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
                 }
             }
         })
+    }
+
+    override fun getPreferredSize(): Dimension {
+        return Dimension(super.getPreferredSize().width, ToolboxPanel.TOOL_HEIGHT)
+    }
+
+    override fun getMaximumSize(): Dimension {
+        return Dimension(super.getMaximumSize().width, ToolboxPanel.TOOL_HEIGHT)
     }
 
     companion object {
@@ -223,7 +239,6 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
             return display
         }
     }
-
 }
 
 class IconPanel(private val toolboxIcon: ToolPanel.ToolboxIcon) : JPanel() {

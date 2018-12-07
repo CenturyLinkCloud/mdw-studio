@@ -7,6 +7,7 @@ import com.centurylink.mdw.config.PropertyException
 import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
+import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
@@ -15,6 +16,7 @@ import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
 import com.centurylink.mdw.util.file.Packages
+import com.centurylink.mdw.util.log.slf4j.Slf4JStandardLoggerImpl
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.ide.DataManager
 import com.intellij.ide.plugins.PluginManager
@@ -370,6 +372,23 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return getAssetFile(path)?.let { getAsset(it) }
     }
 
+    /**
+     * Finds assets in the designated package that match extension based on their
+     * normalized Java name.
+     */
+    fun findAssetFromNormalizedName(packageName: String, name: String, ext: String): Asset? {
+        getPackage(packageName)?.let { pkg ->
+            for (file in pkg.dir.children) {
+                if (file.exists() && !file.isDirectory && !Asset.isIgnore(file) && file.extension == ext) {
+                    if (JavaNaming.getValidClassName(file.nameWithoutExtension) == name) {
+                        return Asset(pkg, file);
+                    }
+                }
+            }
+        }
+        return null
+    }
+
     fun getAsset(file: VirtualFile): Asset? {
         val pkg = getPackage(file.parent)
         pkg?.let {
@@ -540,6 +559,10 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     companion object {
+        init {
+            System.setProperty("mdw.logger.impl", Slf4JStandardLoggerImpl::class.java.name)
+        }
+
         const val PLUGIN_ID = "com.centurylink.mdw.studio"
         val LOG = Logger.getInstance(ProjectSetup::class.java)
         const val SERVER_DETECT_INTERVAL = 3000L

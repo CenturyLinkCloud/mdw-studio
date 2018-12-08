@@ -6,6 +6,7 @@
 /.idea/tasks.xml
 /.idea/libraries
 /.idea/caches
+/.idea/uiDesigner.xml
 .DS_Store
 /build
 /captures

@@ -6,7 +6,6 @@ import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.IdeBorderFactory
-import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.CheckBox
 import java.awt.*
 import javax.swing.*

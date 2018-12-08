@@ -16,6 +16,7 @@ import com.centurylink.mdw.monitor.AdapterMonitor
 import com.centurylink.mdw.monitor.ProcessMonitor
 import com.centurylink.mdw.monitor.TaskMonitor
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.ui.IconButton
 import com.google.gson.JsonObject
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
@@ -27,7 +28,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Cursor
-import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -224,46 +224,12 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
         iconPanel.isOpaque = false
         iconPanel.border = BorderFactory.createEmptyBorder(0, 0, 0, 3)
 
-        val iconEmptyBorder = BorderFactory.createEmptyBorder(1, 1, 1, 1)
-        val iconHoverBorder = BorderFactory.createLineBorder(JBColor.border())
-        val iconCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
-        val iconSize = Dimension(24, 22)
-
-        helpLabel = JLabel(ConfigPanel.ICON_HELP)
-        helpLabel.isEnabled = false
-        helpLabel.border = iconEmptyBorder
-        helpLabel.cursor = iconCursor
-        helpLabel.preferredSize = iconSize
-        helpLabel.addMouseListener(object : MouseAdapter() {
-            override fun mouseEntered(e: MouseEvent?) {
-                helpLabel.isOpaque = true
-                helpLabel.border = iconHoverBorder
-            }
-            override fun mouseExited(e: MouseEvent?) {
-                helpLabel.isOpaque = false
-                helpLabel.border = iconEmptyBorder
-            }
-        })
+        helpLabel = IconButton(ConfigPanel.ICON_HELP, "Help")
         iconPanel.add(helpLabel)
 
-        hideLabel = JLabel(ConfigPanel.ICON_HIDE)
-        hideLabel.border = iconEmptyBorder
-        hideLabel.cursor = iconCursor
-        hideLabel.toolTipText = "Hide"
-        hideLabel.preferredSize = iconSize
-        hideLabel.addMouseListener(object : MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent) {
-                hideShowListener?.onHideShow(false)
-            }
-            override fun mouseEntered(e: MouseEvent?) {
-                hideLabel.isOpaque = true
-                hideLabel.border = iconHoverBorder
-            }
-            override fun mouseExited(e: MouseEvent?) {
-                hideLabel.isOpaque = false
-                hideLabel.border = iconEmptyBorder
-            }
-        })
+        hideLabel = IconButton(ConfigPanel.ICON_HIDE, "Hide") {
+            hideShowListener?.onHideShow(false)
+        }
         iconPanel.add(hideLabel)
 
         add(iconPanel, BorderLayout.EAST)

@@ -81,7 +81,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                 if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
                                     DumbService.getInstance(projectSetup.project).smartInvokeLater {
                                         projectSetup.findPsiAnnotation(asset, Activity::class)?.let { psiAnnotation ->
-                                            Implementors.getImpl(asset, psiAnnotation)?.let { projectSetup.reloadImplementors() }
+                                            Implementors.getImpl(projectSetup, asset, psiAnnotation)?.let { projectSetup.reloadImplementors() }
                                         }
                                     }
                                 }

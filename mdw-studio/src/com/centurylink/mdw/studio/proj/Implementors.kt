@@ -12,6 +12,7 @@ import com.intellij.psi.PsiLiteralExpression
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import com.intellij.psi.util.PsiTypesUtil
 import org.json.JSONObject
+import java.io.FileNotFoundException
 import java.util.*
 
 class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,ActivityImplementor>() {
@@ -21,7 +22,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
             add(ActivityImplementor(JSONObject(String(implAsset.contents))))
         }
         for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Activity::class)) {
-            getImpl(asset, psiAnnotations[0])?.let { add(it) }
+            getImpl(projectSetup, asset, psiAnnotations[0])?.let { add(it) }
         }
         for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
                 pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
@@ -65,7 +66,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         /**
          * Get implementor from annotated asset (null if not found or missing attributes)
          */
-        fun getImpl(asset: Asset, psiAnnotation: PsiAnnotation): ActivityImplementor? {
+        fun getImpl(projectSetup: ProjectSetup, asset: Asset, psiAnnotation: PsiAnnotation): ActivityImplementor? {
             val label = psiAnnotation.findAttributeValue("value")?.let {
                 (it as PsiLiteralExpression).value as String
             }
@@ -76,7 +77,16 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
                 (it as PsiLiteralExpression).value as String
             }
             val pagelet = psiAnnotation.findAttributeValue("pagelet")?.let {
-                PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
+                val value = PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
+                if (value.startsWith("{")) {
+                    value
+                }
+                else {
+                    val pageletAssetPath = if (value.indexOf("/") > 0) { value } else { "${asset.pkg.name}/$value" }
+                    val pageletAssetFile = projectSetup.getAssetFile(pageletAssetPath)
+                    pageletAssetFile ?: throw FileNotFoundException("No pagelet asset: " + pageletAssetPath)
+                    String(pageletAssetFile.contentsToByteArray())
+                }
             }
             if (label != null) {
                 val implClass = "${asset.pkg.name}.${asset.file.nameWithoutExtension}"

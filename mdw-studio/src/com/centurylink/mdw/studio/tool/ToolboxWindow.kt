@@ -1,6 +1,8 @@
 package com.centurylink.mdw.studio.tool
 
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.ui.IconButton
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Condition
@@ -33,7 +35,7 @@ class ToolboxWindowFactory : ToolWindowFactory {
 
         val searchPanel = JPanel(BorderLayout())
         val searchBox = SearchTextField()
-        searchPanel.border = BorderFactory.createEmptyBorder(4, 10, 4, 10)
+        searchPanel.border = BorderFactory.createEmptyBorder(4, 10, 4, 5)
         searchBox.addDocumentListener(object: DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 val searchText = e.document.getText(0, e.document.length)
@@ -41,6 +43,14 @@ class ToolboxWindowFactory : ToolWindowFactory {
             }
         })
         searchPanel.add(searchBox, BorderLayout.CENTER)
+
+        val refreshIcon = IconButton(AllIcons.Actions.Refresh, "Reload") {
+            projectSetup.reloadImplementors()
+        }
+        val iconPanel = JPanel()
+        iconPanel.add(refreshIcon)
+        searchPanel.add(iconPanel, BorderLayout.EAST)
+
         panel.setToolbar(searchPanel)
 
         val scrollPane = JBScrollPane(toolboxPanel)

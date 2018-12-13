@@ -26,6 +26,12 @@ class MdwSettings {
         return File(mdwHome)
     }
 
+    var isSuppressServerPolling: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(SUPPRESS_SERVER_POLLING, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(SUPPRESS_SERVER_POLLING, value)
+        }
+
     var isHideCanvasGridLines: Boolean
         get() = PropertiesComponent.getInstance().getBoolean(HIDE_CANVAS_GRIDLINES, false)
         set(value) {
@@ -64,6 +70,7 @@ class MdwSettings {
         const val ID = "com.centurylink.mdw.studio"
         private const val MDW_HOME = "$ID.mdwHome"
 
+        private const val SUPPRESS_SERVER_POLLING = "$ID.isSuppressServerPolling"
         // canvas
         private const val CANVAS_ZOOM = "$ID.canvasZoom"
         private const val HIDE_CANVAS_GRIDLINES = "$ID.isCanvasGridLines"

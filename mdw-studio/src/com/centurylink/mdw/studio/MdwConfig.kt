@@ -22,6 +22,8 @@ class MdwConfig : SearchableConfigurable {
         }
     }
 
+    private val serverPollingCheckbox = CheckBox("Poll to detect running server (requires restart)")
+
     private val gridLinesCheckbox = CheckBox("Show grid lines when editable")
     private val zoomSlider = object : JSlider(20, 200, 100) {
         override fun getPreferredSize(): Dimension {
@@ -72,6 +74,14 @@ class MdwConfig : SearchableConfigurable {
         mdwHomeHelp.border = BorderFactory.createEmptyBorder(0, 90, 0, 0)
         envPanel.add(mdwHomeHelp)
 
+        // server polling
+        serverPollingCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        serverPollingCheckbox.border = BorderFactory.createEmptyBorder(10, 0, 5, 0)
+        serverPollingCheckbox.isSelected = !MdwSettings.instance.isSuppressServerPolling
+        serverPollingCheckbox.addActionListener {
+            modified = true
+        }
+        envPanel.add(serverPollingCheckbox)
 
         // canvas
         gridConstraints.gridy = 1
@@ -168,6 +178,8 @@ class MdwConfig : SearchableConfigurable {
 
     override fun apply() {
         val mdwSettings = MdwSettings.instance
+
+        mdwSettings.isSuppressServerPolling = !serverPollingCheckbox.isSelected
 
         mdwSettings.isHideCanvasGridLines = !gridLinesCheckbox.isSelected
         mdwSettings.canvasZoom = zoomSlider.value

@@ -99,18 +99,20 @@ class Startup : StartupActivity {
                 }
             }
             // start the server detection background thread
-            projectSetup.hubRootUrl?.let {
-                val serverCheckUrl = URL("$it/services/AppSummary")
-                thread(true, true, name = "mdwServerDetection") {
-                    while (true) {
-                        sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
-                        try {
-                            val response = HttpHelper(serverCheckUrl).get()
-                            projectSetup.isServerRunning = JSONObject(response).has("mdwVersion")
-                        } catch (e: IOException) {
-                            projectSetup.isServerRunning = false
-                        } catch (e: JSONException) {
-                            projectSetup.isServerRunning = false
+            if (!MdwSettings.instance.isSuppressServerPolling) {
+                projectSetup.hubRootUrl?.let {
+                    val serverCheckUrl = URL("$it/services/AppSummary")
+                    thread(true, true, name = "mdwServerDetection") {
+                        while (true) {
+                            sleep(ProjectSetup.SERVER_DETECT_INTERVAL)
+                            try {
+                                val response = HttpHelper(serverCheckUrl).get()
+                                projectSetup.isServerRunning = JSONObject(response).has("mdwVersion")
+                            } catch (e: IOException) {
+                                projectSetup.isServerRunning = false
+                            } catch (e: JSONException) {
+                                projectSetup.isServerRunning = false
+                            }
                         }
                     }
                 }

@@ -85,19 +85,23 @@ class Startup : StartupActivity {
             // reload implementors (after dumb) to pick up annotation-driven impls
             projectSetup.reloadImplementors()
 
-            // check mdw assets
-            val updateStatus = AssetUpdate(projectSetup).status
-            if (updateStatus.isUpdateNeeded) {
-                val note = Notification("MDW", "MDW Assets", updateStatus.reason, NotificationType.WARNING)
-                note.addAction(UpdateNotificationAction(projectSetup, "Update MDW Assets"))
-                Notifications.Bus.notify(note, project)
+            if (!projectSetup.isFramework) {
+                // check mdw assets
+                val updateStatus = AssetUpdate(projectSetup).status
+                if (updateStatus.isUpdateNeeded) {
+                    val note = Notification("MDW", "MDW Assets", updateStatus.reason, NotificationType.WARNING)
+                    note.addAction(UpdateNotificationAction(projectSetup, "Update MDW Assets"))
+                    Notifications.Bus.notify(note, project)
+                }
             }
+
             // associate .test files with groovy
             FileTypeManager.getInstance().getFileTypeByExtension("groovy").let {
                 WriteAction.run<RuntimeException> {
                     FileTypeManager.getInstance().associateExtension(it, "test")
                 }
             }
+
             // start the server detection background thread
             if (!MdwSettings.instance.isSuppressServerPolling) {
                 projectSetup.hubRootUrl?.let {
@@ -117,6 +121,7 @@ class Startup : StartupActivity {
                     }
                 }
             }
+
             MdwSettings.instance.getOrMakeMdwHome()
         }
     }
@@ -166,6 +171,9 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     var git: VersionControlGit? = null
 
     var isServerRunning = false
+
+    val isFramework: Boolean
+      get() = File("${project.basePath}/../mdw-common/src/com/centurylink/mdw/activity/ActivityException.java").isFile
 
     // pass-through properties
     val configLoc: String?

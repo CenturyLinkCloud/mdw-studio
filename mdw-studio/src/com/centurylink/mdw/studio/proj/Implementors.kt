@@ -25,7 +25,9 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
             getImpl(projectSetup, asset, psiAnnotations[0])?.let { add(it) }
         }
         for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
-                pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
+                if (!pseudoImpl.icon.startsWith("shape:")) {
+                    pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
+                }
                 add(pseudoImpl)
             }
         }

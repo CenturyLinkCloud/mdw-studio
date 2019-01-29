@@ -1,14 +1,18 @@
 package com.centurylink.mdw.draw.ext
 
 import com.centurylink.mdw.app.Templates
+import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.constant.WorkAttributeConstant.LOGICAL_ID
 import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.LinkDisplay
 import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.workflow.*
+import com.centurylink.mdw.monitor.MonitorAttributes
+import org.json.JSONArray
 import org.json.JSONObject
 
 val Process.rootName: String
@@ -190,7 +194,39 @@ fun Process.addTextNote(x: Int, y: Int): TextNote {
 fun Process.set(process: Process) {
     description = process.description
     val displayInfo = getAttribute(WORK_DISPLAY_INFO)
-    attributes = process.attributes
+    val processAttributes = mutableListOf<Attribute>()
+    for (attribute in process.attributes) {
+        if (attribute.attributeName.startsWith("[activities]_")) {
+            // attribute is applied to all activities instead of process
+            val name = attribute.attributeName.substring(13)
+            val value = attribute.attributeValue
+            for (activity in process.activities) {
+                val activityAttribute = when (name) {
+                    "Monitors" -> {
+                        val monitorsStr = activity.getAttribute(WorkAttributeConstant.MONITORS)
+                        val monitorsAttr = if (monitorsStr == null) {
+                            MonitorAttributes("[$value]")
+                        }
+                        else {
+                            MonitorAttributes(monitorsStr)
+                        }
+                        val jsonArray = JSONArray(value)
+                        monitorsAttr.setEnabled(jsonArray.getString(2), jsonArray.getString(1), jsonArray.getString(0) == "true")
+                        Attribute(WorkAttributeConstant.MONITORS, monitorsAttr.toString())
+                    }
+                    else -> {
+                        Attribute(name, value)
+                    }
+                }
+                activity.setAttribute(activityAttribute.attributeName, activityAttribute.attributeValue)
+                setActivity(activity.logicalId, activity)
+            }
+        }
+        else {
+            processAttributes.add(attribute)
+        }
+    }
+    attributes = processAttributes
     setAttribute(WORK_DISPLAY_INFO, displayInfo)
     variables = process.variables
 }

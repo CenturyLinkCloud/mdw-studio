@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.1.6](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.1.6) (2019-01-29)
+**Implemented enhancements:**
+
+- Capture all activity timings via process-level checkbox [\#53](https://github.com/CenturyLinkCloud/mdw-studio/issues/53)
+- Pagelet content in @Activity annotations can be externalized [\#47](https://github.com/CenturyLinkCloud/mdw-studio/issues/47)
+- Upgrade to IntelliJ 2018.3.x [\#45](https://github.com/CenturyLinkCloud/mdw-studio/issues/45)
+
+**Fixed bugs:**
+
+- Restore Dummy Activity to toolbox [\#51](https://github.com/CenturyLinkCloud/mdw-studio/issues/51)
+- ClassCastException in dynamic Java update listener [\#48](https://github.com/CenturyLinkCloud/mdw-studio/issues/48)
+
 ## [1.1.5](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.1.5) (2018-12-06)
 **Implemented enhancements:**
 

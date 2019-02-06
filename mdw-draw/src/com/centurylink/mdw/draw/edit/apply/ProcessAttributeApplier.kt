@@ -2,6 +2,7 @@ package com.centurylink.mdw.draw.edit.apply
 
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.monitor.MonitorAttributes
 
@@ -16,7 +17,14 @@ class ProcessAttributeApplier : AttributeApplier() {
             "_captureTimings" -> {
                 var allActivitiesTimed = true
                 val process = workflowObj.asset as Process
-                for (activity in process.activities) {
+                var allActivities = mutableListOf<Activity>()
+                allActivities.addAll(process.activities)
+                process.subprocesses?.let { subprocs ->
+                    for (subproc in subprocs) {
+                        allActivities.addAll(subproc.activities)
+                    }
+                }
+                for (activity in allActivities) {
                     val monitorsStr = activity.getAttribute("Monitors")
                     val timed = if (monitorsStr == null) {
                         false

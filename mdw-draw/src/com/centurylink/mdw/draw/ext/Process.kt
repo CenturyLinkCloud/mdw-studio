@@ -200,7 +200,14 @@ fun Process.set(process: Process) {
             // attribute is applied to all activities instead of process
             val name = attribute.attributeName.substring(13)
             val value = attribute.attributeValue
-            for (activity in process.activities) {
+            var allActivities = mutableListOf<Activity>()
+            allActivities.addAll(process.activities)
+            process.subprocesses?.let { subprocs ->
+                for (subproc in subprocs) {
+                    allActivities.addAll(subproc.activities)
+                }
+            }
+            for (activity in allActivities) {
                 val activityAttribute = when (name) {
                     "Monitors" -> {
                         val monitorsStr = activity.getAttribute(WorkAttributeConstant.MONITORS)

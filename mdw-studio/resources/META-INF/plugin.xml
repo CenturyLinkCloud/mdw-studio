@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.7-SNAPSHOT</version>
     <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description><![CDATA[
@@ -13,7 +13,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://github.com/CenturyLinkCloud/mdw-studio/blob/master/CHANGELOG.md">Change Log</a>
 ]]></description>
 
-    <idea-version since-build="182.4892" />
+    <idea-version since-build="183.5153" />
 
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>

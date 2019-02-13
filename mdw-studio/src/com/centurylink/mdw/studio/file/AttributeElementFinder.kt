@@ -29,7 +29,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.activities.find { it.logicalId == activityId }?.let { activity ->
                             activity.getAttribute("Java")?.let { java ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java")?.let { file ->
-                                    (file as AttributeVirtualFile).psiFile?.let { psiFile ->
+                                        (file as AttributeVirtualFile).psiFile?.let { psiFile ->
                                         if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
                                             return psiFile.classes[0]
                                         }

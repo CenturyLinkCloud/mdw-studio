@@ -1,5 +1,6 @@
 package com.centurylink.mdw.draw.model
 
+import com.centurylink.mdw.activity.types.GeneralActivity
 import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import org.json.JSONArray
@@ -117,7 +118,9 @@ class Data {
                     ActivityImplementor("Delay Handler", "subflow",
                             "Delay Handler Subflow", "${Data.BASE_PKG}/subflow.png", null),
                     ActivityImplementor("TextNote", "note",
-                            "Text Note", "$BASE_PKG/note.png", null)
+                            "Text Note", "$BASE_PKG/note.png", null),
+                    ActivityImplementor("com.centurylink.mdw.workflow.activity.DefaultActivityImpl",
+                            GeneralActivity::class.qualifiedName,"Dummy Activity", "shape:activity", "{}")
             )
         }
     }

@@ -32,7 +32,7 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
+class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String?,
         private val fileExtension: String? = null, private val qualifier: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
@@ -42,7 +42,7 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
     val project: Project
         get() = projectSetup.project
 
-    val contents = value ?: templateContents ?: ""
+    var contents = value ?: templateContents ?: ""
 
     val ext: String
         get() {
@@ -255,6 +255,8 @@ class AttributeVirtualFile(private val workflowObj: WorkflowObj, value: String?,
 
 class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
 
+    private val virtualFiles = mutableMapOf<String,AttributeVirtualFile>()
+
     init {
         startEventPropagation()
     }
@@ -263,7 +265,12 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         return PROTOCOL
     }
 
+    /**
+     * Caches found VirtualFiles to avoid this:
+     * https://youtrack.jetbrains.com/issue/IDEA-203751
+     */
     override fun findFileByPath(path: String): VirtualFile? {
+        var virtualFile = virtualFiles[path]
         val withoutExt = path.substring(0, path.lastIndexOf("."))
         val pkg = withoutExt.substring(0, withoutExt.indexOf("/"))
         val underscore = withoutExt.lastIndexOf("_")
@@ -276,7 +283,6 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         }
         else {
             val projectSetup = activeProject.getComponent(ProjectSetup::class.java)
-            val assetPkg = projectSetup.getPackage(pkg)
 
             projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
                 val process = Process(JSONObject(String(asset.contents)))
@@ -286,17 +292,35 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
                 process.activities.find { it.logicalId == activityId }?.let { activity ->
                     activity.getAttribute("Java")?.let { java ->
                         val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
-                        return AttributeVirtualFile(workflowObj, java)
+                        val file = virtualFile
+                        if (file == null) {
+                            val vFile = AttributeVirtualFile(workflowObj, java)
+                            virtualFiles[path] = vFile
+                        }
+                        else {
+                            file.workflowObj = workflowObj
+                            file.contents = java
+                            file._psiFile = null
+                        }
                     }
                     activity.getAttribute("Rule")?.let { rule ->
                         val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
-                        return AttributeVirtualFile(workflowObj, rule)
+                        val file = virtualFile
+                        if (file == null) {
+                            val vFile = AttributeVirtualFile(workflowObj, rule)
+                            virtualFiles[path] = vFile
+                        }
+                        else {
+                            file.workflowObj = workflowObj
+                            file.contents = rule
+                            file._psiFile = null
+                        }
                     }
                 }
             }
         }
 
-        return null
+        return virtualFile
     }
 
     override fun refreshAndFindFileByPath(path: String): VirtualFile? {

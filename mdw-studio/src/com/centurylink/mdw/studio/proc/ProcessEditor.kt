@@ -32,6 +32,7 @@ import com.intellij.util.ui.JBUI
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Cursor
+import java.awt.Dimension
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.BorderFactory
@@ -121,11 +122,12 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
                             Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR)
                         }
                     }
+
                 }
             }
 
             override fun getDividerWidth(): Int {
-                return TabsUtil.getTabsHeight(JBUI.CurrentTheme.ToolWindow.tabVerticalPadding())
+                return SPLITTER_HEIGHT
             }
         }
 
@@ -293,5 +295,6 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     companion object {
         val CONFIG_PANEL_IS_SHOWN = Key.create<Boolean>("configPanelIsShown")
         private val userData = UserDataHolderBase()
+        private const val SPLITTER_HEIGHT = 26
     }
 }

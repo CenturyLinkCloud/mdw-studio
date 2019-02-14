@@ -949,8 +949,8 @@ class Link(val g2d: Graphics2D, project: Project, process: Process, val transiti
         RESUME(Color(0x006400)),
         DELAY(Color(0xFFA500)),
         HOLD(Color(0xFFA500)),
-        ERROR(Color(0xf44336)),
-        ABORT(Color(0xf44336)),
+        ERROR(Color(0xff5252)),
+        ABORT(Color(0xff5252)),
         CORRECT(Color(0x800080)),
         FINISH(Color(0x808080))
     }

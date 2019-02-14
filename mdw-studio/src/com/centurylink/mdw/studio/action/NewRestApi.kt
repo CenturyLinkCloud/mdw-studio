@@ -54,7 +54,7 @@ class NewRestApiJava : NewRestApi("Java Service", Icons.JAVA) {
     override val fileType = JavaFileType.INSTANCE
 
     override fun getAnnotations(path: String): Pair<String,String> {
-        return Pair<String,String>("@Path(\"$path\")\n", "import javax.ws.rs.Path;\n")
+        return Pair<String,String>("@Path(\"$path\")\n@Api()\n", "import javax.ws.rs.Path;\nimport io.swagger.annotations.Api;\n")
     }
 
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
@@ -70,7 +70,7 @@ class NewRestApiKotlin : NewRestApi("Kotlin Service", Icons.KOTLIN) {
     override val fileType = FileTypeManager.getInstance().getFileTypeByExtension("kt")
 
     override fun getAnnotations(path: String): Pair<String,String> {
-        return Pair<String,String>("@Path(\"$path\")\n", "import javax.ws.rs.Path\n")
+        return Pair<String,String>("@Path(\"$path\")\n@Api()\n", "import javax.ws.rs.Path\nimport io.swagger.annotations.Api\n")
     }
 
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {

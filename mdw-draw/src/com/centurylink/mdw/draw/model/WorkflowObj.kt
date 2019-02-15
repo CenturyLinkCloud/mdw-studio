@@ -29,6 +29,10 @@ open class WorkflowObj(val project: Project, var asset: Asset, val type: Workflo
         get() = if (obj.has("name")) obj.getString("name") else "New " + type
         set(value) { obj.put("name", value)}
 
+    var version: String
+        get() = if (obj.has("version")) obj.getString("version") else ""
+        set(value) { obj.put("version", value)}
+
     val titlePath: String
         get() = asset.packageName + "/" + asset.name + ": " + name.lines().joinToString(" ")
 

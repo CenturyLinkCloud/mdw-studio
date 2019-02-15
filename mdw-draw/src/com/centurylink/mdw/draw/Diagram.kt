@@ -21,6 +21,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         init {
             id = process.id?.toString() ?: "-1"
             name = process.name
+            version = "v${process.versionString}"
         }
     }
 

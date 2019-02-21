@@ -4,6 +4,7 @@ import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.file.AssetOpener
+import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileChooser.FileChooser
@@ -66,7 +67,7 @@ class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
             setButton.isOpaque = false
             setButton.addActionListener {
                 val value = JOptionPane.showInputDialog(this@Asset, widget.label, "Enter Value",
-                        JOptionPane.PLAIN_MESSAGE, null, null,  widget.valueString)
+                        JOptionPane.PLAIN_MESSAGE, Icons.MDWDLG, null,  widget.valueString)
                 if (value != null) {
                     // not canceled
                     widget.value = value.toString()

@@ -196,7 +196,7 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
             value?.let {
                 helpListener = object : MouseAdapter() {
                     override fun mouseReleased(e: MouseEvent) {
-                        BrowserUtil.browse(Data.HELP_LINK_URL + "/" + it.url)
+                        BrowserUtil.browse(Data.DOCS_URL + "/" + it.url)
                     }
                 }
                 helpLabel.addMouseListener(helpListener)

@@ -8,7 +8,8 @@ import org.json.JSONArray
 class Data {
 
     companion object {
-        const val HELP_LINK_URL = "http://centurylinkcloud.github.io/mdw/docs"
+        const val GIT_URL = "https://github.com/CenturyLinkCloud/mdw.git"
+        const val DOCS_URL = "http://centurylinkcloud.github.io/mdw/docs"
         const val BASE_PKG = "com.centurylink.mdw.base"
 
         fun getWorkgroups(project: Project): List<String> {

@@ -42,7 +42,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup"/>
-        <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig"/>
+        <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig" />
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>
         <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>
         <webHelpProvider id="mdwHelp" implementation="com.centurylink.mdw.studio.MdwHelp" order="first"/>
@@ -91,6 +91,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
                     description="Update MDW asset packages"
                     class="com.centurylink.mdw.studio.action.UpdateAssets">
+            </action>
+            <action id="mdwDiscoverAssets" text="Discover MDW Assets" icon="AllIcons.Actions.Find"
+                    description="Discover MDW asset packages from Git"
+                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
             </action>
             <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
                     description="Run process via MDWHub"

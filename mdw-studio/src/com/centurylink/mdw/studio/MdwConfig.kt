@@ -1,13 +1,21 @@
 package com.centurylink.mdw.studio
 
+import com.centurylink.mdw.studio.file.Icons
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.PathChooserDialog
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.JBColor
+import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.CheckBox
+import com.intellij.ui.components.JBList
+import com.intellij.util.ui.UIUtil
 import java.awt.*
+import java.net.MalformedURLException
+import java.net.URL
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
@@ -34,6 +42,15 @@ class MdwConfig : SearchableConfigurable {
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val attributeContentInEditorTabCheckbox = CheckBox("Open dynamic Java and script activity content in editor tab")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
+
+    private val discoveryRepoUrlsList = object: JBList<String>() {
+        override fun getPreferredSize(): Dimension {
+            val height = super.getPreferredSize().height
+            return Dimension(460, if (height < 60) 60 else height)
+        }
+    }
+    private val discoveryRepoUrls: MutableList<String> = MdwSettings.instance.discoveryRepoUrls.toMutableList()
+    private val maxBranchesTagsSpinner = JBIntSpinner(MdwSettings.instance.discoveryMaxBranchesTags, 1, 100)
 
     init {
         settingsPanel.layout = GridBagLayout()
@@ -151,9 +168,91 @@ class MdwConfig : SearchableConfigurable {
         }
         editPanel.add(createAndAssociateTaskCheckbox)
 
+        // discovery
+        gridConstraints.gridy = 3
+        val discoveryPanel = JPanel()
+        discoveryPanel.layout = BoxLayout(discoveryPanel, BoxLayout.Y_AXIS)
+        discoveryPanel.border = IdeBorderFactory.createTitledBorder("Discovery")
+        settingsPanel.add(discoveryPanel, gridConstraints)
+
+        // repos panel
+        val reposLayout = FlowLayout(FlowLayout.LEFT, 7, 5)
+        reposLayout.alignOnBaseline = true
+        val reposPanel = JPanel(reposLayout)
+        reposPanel.alignmentX = Component.LEFT_ALIGNMENT
+        discoveryPanel.add(reposPanel)
+        val reposLabel = JLabel("Repositories:")
+        reposPanel.add(reposLabel)
+
+        discoveryRepoUrlsList.alignmentX = Component.LEFT_ALIGNMENT
+        val borderColor = if (UIUtil.isUnderDarcula()) Color.GRAY else JBColor.border()
+        discoveryRepoUrlsList.border = BorderFactory.createLineBorder(borderColor)
+        discoveryRepoUrlsList.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        discoveryRepoUrlsList.setListData(discoveryRepoUrls.toTypedArray())
+        reposPanel.add(discoveryRepoUrlsList)
+
+        val buttonPanel = JPanel()
+        buttonPanel.layout = BoxLayout(buttonPanel, BoxLayout.Y_AXIS)
+        val addButton = JButton(AllIcons.General.Add)
+        addButton.preferredSize = Dimension(35, 30)
+        addButton.addActionListener {
+            val value = JOptionPane.showInputDialog(discoveryRepoUrlsList, "Repo URL", "Git Repository URL",
+                    JOptionPane.PLAIN_MESSAGE, Icons.MDWDLG, null,  "")
+            value?.let {
+                if (!discoveryRepoUrls.contains(value)) {
+                    var msg: String? = null
+                    try {
+                        val url = URL(value as String)
+                        if (!url.path.endsWith(".git")) {
+                            msg = "Invalid Git repository URL:\n$url"
+                        }
+                    } catch (ex: MalformedURLException) {
+                        msg = "Invalid repository URL:\n$value"
+                    }
+                    if (msg != null) {
+                        JOptionPane.showMessageDialog(discoveryRepoUrlsList, msg,
+                                "Bad Value", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
+                    }
+                    else {
+                        discoveryRepoUrls.add(value as String)
+                        discoveryRepoUrlsList.setListData(discoveryRepoUrls.toTypedArray())
+                        modified = true
+                    }
+                }
+            }
+        }
+        buttonPanel.add(addButton)
+        val removeButton = JButton(AllIcons.General.Remove)
+        removeButton.preferredSize = Dimension(35, 30)
+        removeButton.isEnabled = false
+        removeButton.addActionListener {
+            discoveryRepoUrlsList.selectedValue?.let { value ->
+                if (discoveryRepoUrls.contains(value)) {
+                    discoveryRepoUrls.remove(value)
+                    discoveryRepoUrlsList.setListData(discoveryRepoUrls.toTypedArray())
+                    modified = true
+                }
+            }
+        }
+        buttonPanel.add(removeButton)
+        reposPanel.add(buttonPanel)
+
+        discoveryRepoUrlsList.addListSelectionListener {
+            removeButton.isEnabled = discoveryRepoUrlsList.selectedIndex >= 0
+        }
+
+        val maxPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
+        maxPanel.alignmentX = Component.LEFT_ALIGNMENT
+        discoveryPanel.add(maxPanel)
+        maxPanel.add(JLabel("Max Branches/Tags:"))
+        maxPanel.add(maxBranchesTagsSpinner)
+        maxBranchesTagsSpinner.addChangeListener {
+            modified = true
+        }
+
 
         // leftover vertical space
-        gridConstraints.gridy = 3
+        gridConstraints.gridy = 4
         gridConstraints.fill = GridBagConstraints.VERTICAL
         gridConstraints.gridheight = GridBagConstraints.REMAINDER
         gridConstraints.weighty = 100.0
@@ -187,5 +286,8 @@ class MdwConfig : SearchableConfigurable {
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
         mdwSettings.isOpenAttributeContentInEditorTab = attributeContentInEditorTabCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
+
+        mdwSettings.discoveryRepoUrls = discoveryRepoUrls
+        mdwSettings.discoveryMaxBranchesTags = maxBranchesTagsSpinner.number
     }
 }

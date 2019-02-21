@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio
 
+import com.centurylink.mdw.draw.model.Data
 import com.intellij.openapi.help.WebHelpProvider
 
 class MdwHelp : WebHelpProvider() {
@@ -11,7 +12,7 @@ class MdwHelp : WebHelpProvider() {
         val CREATE_PROJECT = "$PREFIX.createProject"
 
         val Topics = mapOf(
-            CREATE_PROJECT to "http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/#12-create-and-open-a-project"
+            CREATE_PROJECT to Data.DOCS_URL + "/guides/mdw-studio/#12-create-and-open-a-project"
         )
 
     }

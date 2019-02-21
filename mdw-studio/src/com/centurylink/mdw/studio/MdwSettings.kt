@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio
 
+import com.centurylink.mdw.draw.model.Data
 import com.intellij.ide.util.PropertiesComponent
 import java.io.File
 import java.nio.file.Files
@@ -64,6 +65,32 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
+    var discoveryRepoUrls: List<String>
+        get() {
+            val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
+            val list = mutableListOf<String>()
+            if (!str.isBlank()) {
+                for (repoUrl in str.split(",")) {
+                    list.add(repoUrl.trim())
+                }
+            }
+            return list
+        }
+        set(value) {
+            PropertiesComponent.getInstance().setValue(DISCOVERY_REPO_URLS, if (value.isEmpty()) {
+                ""
+            } else {
+                value.joinToString(",")
+            })
+        }
+
+    var discoveryMaxBranchesTags: Int
+        get() {
+            return PropertiesComponent.getInstance().getInt(DISCOVERY_MAX_BRANCHES_TAGS, 10)
+        }
+        set(value) {
+            PropertiesComponent.getInstance().setValue(DISCOVERY_MAX_BRANCHES_TAGS, value.toString())
+        }
 
     companion object {
         val instance = MdwSettings()
@@ -79,5 +106,9 @@ class MdwSettings {
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
         private const val OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB = "$ID.isOpenAttributeContentInContentInEditorTab"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
+
+        // discovery
+        private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"
+        private const val DISCOVERY_MAX_BRANCHES_TAGS = "$ID.discoveryMaxBranchesTags"
     }
 }

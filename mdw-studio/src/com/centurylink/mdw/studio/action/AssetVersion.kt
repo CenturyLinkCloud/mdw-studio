@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.action
 
+import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -38,7 +39,7 @@ class AssetVersion() : AssetAction() {
 
     private fun showDialog(curVer: String): Any? {
         return JOptionPane.showInputDialog(null, curVer, "MDW Asset Version", PLAIN_MESSAGE,
-                 null, arrayOf(INCREMENT_MAJOR_VERSION, INCREMENT_MINOR_VERSION), INCREMENT_MAJOR_VERSION)
+                 Icons.MDWDLG, arrayOf(INCREMENT_MAJOR_VERSION, INCREMENT_MINOR_VERSION), INCREMENT_MAJOR_VERSION)
     }
 
     override fun update(event: AnActionEvent) {

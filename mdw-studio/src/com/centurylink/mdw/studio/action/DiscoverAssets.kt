@@ -7,21 +7,23 @@ import com.centurylink.mdw.studio.MdwConfig
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.Secrets
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.UIUtil
-import java.awt.BorderLayout
-import java.awt.Component
-import java.awt.Cursor
-import java.awt.FlowLayout
+import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.IOException
 import java.net.URL
 import javax.swing.*
+import javax.swing.event.TreeExpansionEvent
+import javax.swing.event.TreeWillExpandListener
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel
@@ -62,7 +64,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
             } else {
                 GitLabDiscoverer(repoUrl)
             }
-            Secrets.DISCOVERY_TOKENS.get("$repoUrl")?.let {
+            Secrets.DISCOVERY_TOKENS["${repoUrl.host}"]?.let {
                 discoverer.setToken(it)
             }
             discoverer
@@ -80,12 +82,18 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
 
         discoverers.forEach { discoverer ->
             val discovererNode = DefaultMutableTreeNode(discoverer)
-            discovererNode.add(RefsNode(RefsNode.RefType.Tags))
-            discovererNode.add(RefsNode(RefsNode.RefType.Branches))
+            discovererNode.add(RefsNode(discoverer, RefsNode.RefType.Tags))
+            discovererNode.add(RefsNode(discoverer, RefsNode.RefType.Branches))
             rootNode.add(discovererNode)
         }
 
-        val treePanel = JPanel(BorderLayout(5, 5))
+        val treePanel = object: JPanel(BorderLayout(5, 5)) {
+            override fun getPreferredSize(): Dimension {
+                val size = super.getPreferredSize()
+                // account for vertical scrollbar when expanded
+                return Dimension(size.width + 20, size.height)
+            }
+        }
         centerPanel.add(treePanel)
         treePanel.add(JLabel("Select Repository Tag or Branch:"), BorderLayout.NORTH)
 
@@ -95,6 +103,26 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         tree.showsRootHandles = true
         tree.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
         tree.alignmentX = Component.LEFT_ALIGNMENT
+        tree.addTreeWillExpandListener(object : TreeWillExpandListener {
+            override fun treeWillExpand(event: TreeExpansionEvent) {
+                val path = event.path
+                if (path.lastPathComponent is RefsNode) {
+                    val refsNode = path.lastPathComponent as RefsNode
+                    try {
+                        refsNode.refs.forEach { ref ->
+                            refsNode.add(DefaultMutableTreeNode(ref))
+                        }
+                    } catch(ex: IOException) {
+                        LOG.error(ex)
+                        JOptionPane.showMessageDialog(centerPanel, ex.message,
+                                "Git Retrieval Error", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
+                    }
+                }
+            }
+            override fun treeWillCollapse(event: TreeExpansionEvent) {
+            }
+        })
+
         treePanel.add(JScrollPane(tree), BorderLayout.CENTER)
 
         // link to prefs
@@ -124,25 +152,31 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
     override fun getPreferredFocusedComponent(): JComponent {
         return tree
     }
+
+    companion object {
+        val LOG = Logger.getInstance(DiscoverAssets::class.java)
+
+    }
 }
 
-class RefsNode(val refType: RefType) : DefaultMutableTreeNode(refType) {
+class RefsNode(private val discoverer: GitDiscoverer, private val refType: RefType) : DefaultMutableTreeNode(refType) {
 
     enum class RefType {
         Tags,
         Branches
     }
 
-//    private val refs: List<String> by lazy {
-//        when (refType) {
-//            RefType.Branches -> {
-//                discovererNode.discoverer.getBranches(MdwSettings.instance.discoveryMaxBranchesTags)
-//            }
-//            RefType.Tags -> {
-//                discovererNode.discoverer.getTags(MdwSettings.instance.discoveryMaxBranchesTags)
-//            }
-//        }
-//    }
+    override fun isLeaf() = false
 
+    val refs: List<String> by lazy {
+        when (refType) {
+            RefType.Branches -> {
+                discoverer.getBranches(MdwSettings.instance.discoveryMaxBranchesTags)
+            }
+            RefType.Tags -> {
+                discoverer.getTags(MdwSettings.instance.discoveryMaxBranchesTags)
+            }
+        }
+    }
 }
 

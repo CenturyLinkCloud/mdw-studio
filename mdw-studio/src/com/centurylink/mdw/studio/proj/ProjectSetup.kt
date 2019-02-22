@@ -50,7 +50,6 @@ import org.json.JSONObject
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.Thread.sleep
 import java.net.URL
@@ -189,8 +188,11 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                     }
                     catch (e: Exception) {
                         when(e) {
-                            is FileNotFoundException -> { LOG.warn(e)}
-                            is YAMLException -> { LOG.warn("Bad meta (YAMLException): $it", e)}
+                            is YAMLException -> {
+                                LOG.warn(e)
+                                val note = Notification("MDW", "Invalid Package", "${e.message}", NotificationType.WARNING)
+                                Notifications.Bus.notify(note, project)
+                            }
                             else -> throw e
                         }
                     }

@@ -3,7 +3,7 @@ package com.centurylink.mdw.studio.action
 import com.centurylink.mdw.discovery.GitDiscoverer
 import com.centurylink.mdw.discovery.GitHubDiscoverer
 import com.centurylink.mdw.discovery.GitLabDiscoverer
-import com.centurylink.mdw.model.PackageMeta
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.studio.MdwConfig
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.Secrets
@@ -16,6 +16,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.MessageDialogBuilder
+import com.intellij.openapi.ui.Messages
 import com.intellij.ui.CheckBoxList
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.treeStructure.Tree
@@ -39,7 +41,29 @@ class DiscoverAssets : AnAction() {
         Locator(event).getProjectSetup()?.let { projectSetup ->
             val discoveryDialog = DiscoveryDialog(projectSetup)
             if (discoveryDialog.showAndGet()) {
-                println("DISCOVERY")
+                discoveryDialog.selectedDiscoverer?.let { discoverer ->
+                    discoveryDialog.selectedPackages?.let { packages ->
+                        if (discoverer.repoUrl.toString() == Data.GIT_URL) {
+                            // import from maven central (honoring ref)
+                        }
+                        else {
+                            // import from git repository
+                            val conflicts = mutableListOf<String>()
+                            for (pkg in packages) {
+                                projectSetup.getPackage(pkg)?.let { localPkg ->
+                                    conflicts.add("${localPkg.name} v${localPkg.verString}")
+                                }
+                            }
+                            if (conflicts.isEmpty() || MessageDialogBuilder
+                                    .yesNo("Overwrite Existing Packages?",
+                                            "Overwrite these local packages (and their subpackages) with ${discoverer.ref} from ${discoverer.repoName}?\n\n" +
+                                                    "  " + '\u2022' + " " + conflicts.joinToString("\n  " + '\u2022' + " "))
+                                    .show() == Messages.YES) {
+                                GitImport(projectSetup, discoverer, packages).import()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -74,6 +98,9 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
     }
     private val allButton = JButton("Select All")
     private val noneButton = JButton("Select None")
+
+    var selectedDiscoverer: GitDiscoverer? = null
+    var selectedPackages: List<String>? = null
 
     init {
         init()
@@ -128,7 +155,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                     refsNode.refs
                                     null
                                 } catch(ex: IOException) {
-                                    LOG.error(ex)
+                                    LOG.warn(ex)
                                     ex
                                 }
                             }
@@ -153,6 +180,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
             }
         })
         tree.addTreeSelectionListener {
+            okButton?.isEnabled = false
             tree.lastSelectedPathComponent?.let {
                 if (it is DefaultMutableTreeNode) {
                     if (it.isLeaf) {
@@ -165,9 +193,11 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                         object: SwingWorker() {
                             override fun construct(): Any? {
                                 return try {
-                                    discoverer.packageInfo
+                                    val packageInfo = discoverer.packageInfo
+                                    selectedDiscoverer = discoverer
+                                    packageInfo
                                 } catch(ex: IOException) {
-                                    LOG.error(ex)
+                                    LOG.warn(ex)
                                     ex
                                 }
                             }
@@ -191,6 +221,11 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                 buttonPanel.repaint()
                             }
                         }.start()
+                    }
+                    else {
+                        packageList.setEmptyText("Nothing to show")
+                        packageList.setItems(listOf<String>(), null)
+                        packageList.repaint()
                     }
                 }
             }
@@ -226,11 +261,20 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         val packagePanel = JPanel(BorderLayout(5, 5))
         packagePanel.add(JLabel("Packages to Import:"), BorderLayout.NORTH)
 
+        packageList.setCheckBoxListListener { _, _ ->
+            val packages = mutableListOf<String>()
+            for (i in 0 until packageList.model.size) {
+                if (packageList.isItemSelected(i)) {
+                    packageList.getItemAt(i)?.let { packages.add(it) }
+                }
+            }
+            selectedPackages = packages
+            okButton?.isEnabled = !packages.isEmpty()
+        }
         packagePanel.add(JScrollPane(packageList), BorderLayout.CENTER)
 
-        // to line up with tree panel
         allButton.addActionListener {
-            for (i in 0..packageList.model.size-1) {
+            for (i in 0 until packageList.model.size) {
                 packageList.setItemSelected(packageList.getItemAt(i), true)
             }
             packageList.repaint()
@@ -238,7 +282,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         allButton.isVisible = false
         buttonPanel.add(allButton)
         noneButton.addActionListener {
-            for (i in 0..packageList.model.size-1) {
+            for (i in 0 until packageList.model.size) {
                 packageList.setItemSelected(packageList.getItemAt(i), false)
             }
             packageList.repaint()

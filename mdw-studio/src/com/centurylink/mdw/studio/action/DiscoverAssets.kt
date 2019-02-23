@@ -43,23 +43,24 @@ class DiscoverAssets : AnAction() {
             if (discoveryDialog.showAndGet()) {
                 discoveryDialog.selectedDiscoverer?.let { discoverer ->
                     discoveryDialog.selectedPackages?.let { packages ->
-                        if (discoverer.repoUrl.toString() == Data.GIT_URL) {
-                            // import from maven central (honoring ref)
-                        }
-                        else {
-                            // import from git repository
-                            val conflicts = mutableListOf<String>()
-                            for (pkg in packages) {
-                                projectSetup.getPackage(pkg)?.let { localPkg ->
-                                    conflicts.add("${localPkg.name} v${localPkg.verString}")
-                                }
+                        val conflicts = mutableListOf<String>()
+                        for (pkg in packages) {
+                            projectSetup.getPackage(pkg)?.let { localPkg ->
+                                conflicts.add("${localPkg.name} v${localPkg.verString}")
                             }
-                            if (conflicts.isEmpty() || MessageDialogBuilder
-                                    .yesNo("Overwrite Existing Packages?",
-                                            "Overwrite these local packages (and their subpackages) with ${discoverer.ref} from ${discoverer.repoName}?\n\n" +
-                                                    "  " + '\u2022' + " " + conflicts.joinToString("\n  " + '\u2022' + " "))
-                                    .show() == Messages.YES) {
-                                GitImport(projectSetup, discoverer, packages).import()
+                        }
+                        if (conflicts.isEmpty() || MessageDialogBuilder
+                                .yesNo("Overwrite Existing Packages?",
+                                        "Overwrite these local packages (and their subpackages) with ${discoverer.ref} from ${discoverer.repoName}?\n\n" +
+                                                "  " + '\u2022' + " " + conflicts.joinToString("\n  " + '\u2022' + " "))
+                                .show() == Messages.YES) {
+                            if (discoverer.repoUrl.toString() == Data.GIT_URL) {
+                                // import from maven central (honoring ref)
+                                AssetUpdate(projectSetup).doUpdate(packages)
+                            }
+                            else {
+                                // import from git repository
+                                GitImport(projectSetup, discoverer).doImport(packages)
                             }
                         }
                     }
@@ -210,8 +211,8 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                 }
                                 else {
                                     val packageInfo = res as Map<*,*>
-                                    for ((pkg, meta) in packageInfo) {
-                                        packageList.addItem(pkg.toString(), meta.toString(), false)
+                                    for (pkg in discoverer.packages) {
+                                        packageList.addItem(pkg.toString(), packageInfo.get(pkg).toString(), false)
                                     }
                                 }
                                 packageList.repaint()

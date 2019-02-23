@@ -26,13 +26,14 @@ import java.nio.file.StandardCopyOption
  * GitLab support: https://gitlab.com/gitlab-org/gitlab-ce/issues/46555 (v11.4)
  * However, client must be configured with protocol.version 2 (unlikely).
  */
-class GitImport(private val projectSetup: ProjectSetup, private val discoverer: GitDiscoverer,
-        private val packages: List<String>) :
+class GitImport(private val projectSetup: ProjectSetup, private val discoverer: GitDiscoverer) :
             Task.Backgroundable(projectSetup.project, "Import MDW Assets") {
 
     private val tempDir = Files.createTempDirectory("mdw-studio-")
+    private var packages = listOf<String>()
 
-    fun import() {
+    fun doImport(packages: List<String>) {
+        this.packages = packages
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(this,
                 BackgroundableProcessIndicator(this))
     }
@@ -93,6 +94,7 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             indicator.fraction = i.toDouble() / packages.size
         }
         VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+        projectSetup.reloadImplementors()
         indicator.stop()
     }
 

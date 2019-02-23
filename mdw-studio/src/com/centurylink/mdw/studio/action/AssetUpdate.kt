@@ -29,8 +29,12 @@ class UpdateAssets : AnAction() {
     override fun update(event: AnActionEvent) {
         var applicable = false
         Locator(event).getProjectSetup()?.let { projectSetup ->
-            val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-            applicable = file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            applicable = if (event.place == "MainMenu") {
+                true
+            } else {
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            }
         }
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable

@@ -72,8 +72,12 @@ class DiscoverAssets : AnAction() {
     override fun update(event: AnActionEvent) {
         var applicable = false
         Locator(event).getProjectSetup()?.let { projectSetup ->
-            val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-            applicable = file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            applicable = if (event.place == "MainMenu") {
+                true
+            } else {
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            }
         }
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
@@ -82,7 +86,11 @@ class DiscoverAssets : AnAction() {
 
 class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.project, true) {
 
-    private val centerPanel = JPanel(BorderLayout())
+    private val centerPanel = object: JPanel(BorderLayout()) {
+        override fun getMinimumSize(): Dimension {
+            return Dimension(780, super.getMinimumSize().width)
+        }
+    }
     private val okButton: JButton?
         get() = getButton(okAction)
 
@@ -138,6 +146,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         tree.showsRootHandles = true
         tree.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
         tree.alignmentX = Component.LEFT_ALIGNMENT
+        tree.border = BorderFactory.createEmptyBorder()
         tree.cellRenderer = object: NodeRenderer() {
             override fun customizeCellRenderer(tree: JTree, value: Any?, selected: Boolean, expanded: Boolean, leaf: Boolean, row: Int, hasFocus: Boolean) {
                 val selectable = leaf
@@ -262,6 +271,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         val packagePanel = JPanel(BorderLayout(5, 5))
         packagePanel.add(JLabel("Packages to Import:"), BorderLayout.NORTH)
 
+        packageList.border = BorderFactory.createEmptyBorder()
         packageList.setCheckBoxListListener { _, _ ->
             val packages = mutableListOf<String>()
             for (i in 0 until packageList.model.size) {

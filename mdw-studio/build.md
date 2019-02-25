@@ -32,7 +32,10 @@
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml
    - Commit snapshot versions.
 6. Changelog (in top-level mdw-studio):
+   - Close milestone in GitHub.
+   - Generate changelog for milestone.
    ```
    github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '1.x.x' --exclude-labels duplicate,invalid,wontfix,question
    ```
+   - Merge changelog into CHANGELOG.md.
 7. Commit and push

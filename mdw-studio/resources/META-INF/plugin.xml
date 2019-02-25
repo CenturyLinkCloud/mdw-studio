@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.2.0</version>
     <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description><![CDATA[
@@ -188,15 +188,16 @@ that makes it easy for you to create workflow processes and other assets.<br>
         </group>
         <group id="mdwToolsActions" text="MDW" icon="/icons/mdw.png" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <separator/>
+            <action id="mdwDiscoverAssets" text="Discover New Assets" icon="AllIcons.Actions.Find"
+                    description="Discover MDW asset packages from Git"
+                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
+                <add-to-group group-id="mdwAssetActions" anchor="first" />
+            </action>
             <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
                     description="Update MDW asset packages"
                     class="com.centurylink.mdw.studio.action.UpdateAssets">
                 <add-to-group group-id="mdwAssetActions" anchor="first" />
-            </action>
-            <action id="mdwDiscoverAssets" text="Discover New Assets" icon="AllIcons.Actions.Find"
-                    description="Discover MDW asset packages from Git"
-                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
-                <add-to-group group-id="mdwAssetActions" anchor="last" />
             </action>
             <separator/>
         </group>

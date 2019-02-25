@@ -44,6 +44,7 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             move(indicator)
         }
         finally {
+            // TODO uncomment in build 1.2.2
             // Files.deleteIfExists(tempDir);
         }
     }

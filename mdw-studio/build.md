@@ -28,7 +28,9 @@
 5. After success:
    - TODO: Tagging
    - Revert PublishTask Channels comment-out
+   - Commit new versions.
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml
+   - Commit snapshot versions.
 6. Changelog (in top-level mdw-studio):
    ```
    github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '1.x.x' --exclude-labels duplicate,invalid,wontfix,question

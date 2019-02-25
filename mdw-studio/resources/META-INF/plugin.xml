@@ -88,14 +88,6 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Major version should be incremented to indicate possible breaking changes."
                     class="com.centurylink.mdw.studio.action.AssetVersion">
             </action>
-            <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
-                    description="Update MDW asset packages"
-                    class="com.centurylink.mdw.studio.action.UpdateAssets">
-            </action>
-            <action id="mdwDiscoverAssets" text="Discover New Assets" icon="AllIcons.Actions.Find"
-                    description="Discover MDW asset packages from Git"
-                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
-            </action>
             <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
                     description="Run process via MDWHub"
                     class="com.centurylink.mdw.studio.action.RunProcess">
@@ -196,6 +188,17 @@ that makes it easy for you to create workflow processes and other assets.<br>
         </group>
         <group id="mdwToolsActions" text="MDW" icon="/icons/mdw.png" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
+                    description="Update MDW asset packages"
+                    class="com.centurylink.mdw.studio.action.UpdateAssets">
+                <add-to-group group-id="mdwAssetActions" anchor="first" />
+            </action>
+            <action id="mdwDiscoverAssets" text="Discover New Assets" icon="AllIcons.Actions.Find"
+                    description="Discover MDW asset packages from Git"
+                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
+                <add-to-group group-id="mdwAssetActions" anchor="last" />
+            </action>
+            <separator/>
         </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"
                 description="Open MDWHub"
@@ -209,6 +212,5 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <add-to-group group-id="mdwServerActions" />
             <add-to-group group-id="mdwToolsActions" />
         </action>
-
     </actions>
 </idea-plugin>

@@ -34,7 +34,7 @@ dependencies {
 
 intellij {
     version = "2018.3.4"
-    setPlugins("Kotlin")
+    setPlugins("Kotlin","Git4Idea")
 }
 
 tasks.withType<RunIdeTask> {

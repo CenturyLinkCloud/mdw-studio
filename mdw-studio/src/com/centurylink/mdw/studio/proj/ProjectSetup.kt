@@ -133,7 +133,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     // setup is null if not an mdw project
     private var setup: Setup? = null
-    internal var assetDir: VirtualFile
+    var assetDir: VirtualFile
 
     val isMdwProject: Boolean
         get() = setup != null

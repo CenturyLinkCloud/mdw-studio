@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
@@ -28,8 +29,12 @@ class UpdateAssets : AnAction() {
     override fun update(event: AnActionEvent) {
         var applicable = false
         Locator(event).getProjectSetup()?.let { projectSetup ->
-            val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-            applicable = file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            applicable = if (event.place == "MainMenu") {
+                true
+            } else {
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            }
         }
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
@@ -65,8 +70,9 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
             return Status(false, "Base assets already up-to-date with MDW $mdwVersion.")
         }
 
-    fun doUpdate() {
+    fun doUpdate(packages: List<String>? = null) {
         val update = Update(File(projectSetup.project.baseDir.path))
+        packages?.let{ update.baseAssetPackages = it }
         val backgroundOp = BackgroundOp("Update MDW assets", projectSetup, update)
         backgroundOp.runAsync {
             val note = Notification("MDW", backgroundOp.title, backgroundOp.status.message,
@@ -74,7 +80,6 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
             Notifications.Bus.notify(note, projectSetup.project)
             if (backgroundOp.status.isSuccess) {
                 note.expire()
-                projectSetup.reloadImplementors()
                 val toolWindowManager = ToolWindowManager.getInstance(projectSetup.project)
                 if (toolWindowManager.getToolWindow(ToolboxWindowFactory.ID) == null) {
                     val toolbox = toolWindowManager.registerToolWindow(ToolboxWindowFactory.ID, false, ToolWindowAnchor.RIGHT)
@@ -82,7 +87,8 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
                     ToolboxWindowFactory.instance.createToolWindowContent(projectSetup.project, toolbox)
                 }
             }
-            projectSetup.assetDir.refresh(true, true)
+            VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+            projectSetup.reloadImplementors()
         }
     }
 

@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.2.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.2.0) (2019-02-25)
+**Implemented enhancements:**
+
+- Disable AssetFileListener from updating asset versions during a git pull operation [\#61](https://github.com/CenturyLinkCloud/mdw-studio/issues/61)
+- Discover/Import asset packages from Git [\#59](https://github.com/CenturyLinkCloud/mdw-studio/issues/59)
+
+**Fixed bugs:**
+
+- Adapter activities do not show Output documents lists in Script tab [\#58](https://github.com/CenturyLinkCloud/mdw-studio/issues/58)
+- Single invalid package.yaml file should not prevent MDW plugin from loading [\#57](https://github.com/CenturyLinkCloud/mdw-studio/issues/57)
+- Auto version updates FileListener anomalies [\#56](https://github.com/CenturyLinkCloud/mdw-studio/issues/56)
+
 ## [1.1.6](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.1.6) (2019-01-29)
 **Implemented enhancements:**
 

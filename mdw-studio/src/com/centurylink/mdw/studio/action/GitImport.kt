@@ -50,18 +50,28 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
                     NotificationType.ERROR), projectSetup.project)
         }
         finally {
-            Files.deleteIfExists(tempDir);
+            try {
+                Delete(tempDir.toFile(), true).run();
+            }
+            catch (ex: Exception) {
+                LOG.warn(ex)
+                Notifications.Bus.notify(Notification("MDW", "Failed to delete Temp directory after asset import: ${tempDir}", ex.toString(),
+                        NotificationType.WARNING), projectSetup.project)
+            }
         }
     }
 
     private fun clone(indicator: ProgressIndicator) {
         val git = GitImpl()
-        val projectLocation = projectSetup.project.presentableUrl
+        val projectLocation = File(projectSetup.project.presentableUrl)
         // If system temp location is on different drive (i.e in WindowsOS) then we cannot move directory due to
         // bug in JDK, so create temp location for cloning on same drive as the project
         if (projectLocation.toString().length > 3 && ":\\".equals(projectLocation.toString().substring(1,3)) && !projectLocation.toString().get(0).equals(tempDir.toString().get(0))) {
             Delete(tempDir.toFile(), true).run()
-            tempDir = Files.createDirectories(File("${projectLocation.toString().get(0)}${tempDir.toString().substring(1)}").toPath())
+            if (projectLocation.parent == null)
+                tempDir = Files.createDirectories(File("${projectLocation}/${tempDir.fileName}").toPath())
+            else
+                tempDir = Files.createDirectories(File("${projectLocation.parent}/${tempDir.fileName}").toPath())
         }
         LOG.info("Cloning $discoverer to: $tempDir")
         indicator.isIndeterminate = false

@@ -30,7 +30,7 @@ import java.nio.file.StandardCopyOption
 class GitImport(private val projectSetup: ProjectSetup, private val discoverer: GitDiscoverer) :
             Task.Backgroundable(projectSetup.project, "Import MDW Assets") {
 
-    private val tempDir = Files.createTempDirectory("mdw-studio-")
+    private var tempDir = Files.createTempDirectory("mdw-studio-")
     private var packages = listOf<String>()
 
     fun doImport(packages: List<String>) {
@@ -50,13 +50,19 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
                     NotificationType.ERROR), projectSetup.project)
         }
         finally {
-            // TODO uncomment in build 1.2.2
-            // Files.deleteIfExists(tempDir);
+            Files.deleteIfExists(tempDir);
         }
     }
 
     private fun clone(indicator: ProgressIndicator) {
         val git = GitImpl()
+        val projectLocation = projectSetup.project.presentableUrl
+        // If system temp location is on different drive (i.e in WindowsOS) then we cannot move directory due to
+        // bug in JDK, so create temp location for cloning on same drive as the project
+        if (projectLocation.toString().length > 3 && ":\\".equals(projectLocation.toString().substring(1,3)) && !projectLocation.toString().get(0).equals(tempDir.toString().get(0))) {
+            Delete(tempDir.toFile(), true).run()
+            tempDir = Files.createDirectories(File("${projectLocation.toString().get(0)}${tempDir.toString().substring(1)}").toPath())
+        }
         LOG.info("Cloning $discoverer to: $tempDir")
         indicator.isIndeterminate = false
         indicator.text2 = "Retrieving project..."

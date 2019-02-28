@@ -1,16 +1,17 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.cli.Download
+import com.centurylink.mdw.cli.Fetch
 import com.centurylink.mdw.draw.edit.label
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.action.GitImport
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBList
+import com.intellij.util.concurrency.SwingWorker
 import com.intellij.util.ui.UIUtil
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.PathNotFoundException
@@ -21,17 +22,16 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.event.MouseEvent
-import java.io.File
 import java.net.URL
-import java.nio.file.Files
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
 class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widget) :
-        DialogWrapper(projectSetup.project, false) {
+        DialogWrapper(projectSetup.project) {
 
     private val centerPanel = JPanel(BorderLayout())
-    private val okButton: JButton? = getButton(okAction)
+    private val okButton: JButton?
+        get() = getButton(okAction)
 
     private val searchText = SearchTextField()
 
@@ -54,20 +54,12 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
 
     var selectedResult: SearchResult? = null
 
-    private val jsonArray: JSONArray? by lazy {
-        widget.attributes["searchUrl"]?.let { searchUrl ->
-            val url = URL(searchUrl)
-            val tempDir = Files.createTempDirectory("mdw-studio-${widget.name}")
-            val fileName = File(url.file).name
-            val jsonFile = File("$tempDir/$fileName")
-            if (!jsonFile.isFile) {
-                resultsList.setEmptyText("Loading...")
-                resultsList.repaint()
-                Download(url, jsonFile).run()
-                resultsList.setEmptyText("Nothing to show")
-                resultsList.repaint()
-            }
-            JSONArray(String(Files.readAllBytes(jsonFile.toPath())))
+    private val jsonArray: JSONArray by lazy {
+        val searchUrl = widget.attributes["searchUrl"]
+        if (searchUrl == null) {
+            JSONArray()
+        } else {
+            JSONArray(Fetch(URL(searchUrl)).get())
         }
     }
 
@@ -75,13 +67,40 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         return centerPanel
     }
 
-    override fun getPreferredFocusedComponent(): JComponent {
-        return searchText
+    override fun getPreferredFocusedComponent(): JComponent? {
+
+        object: SwingWorker() {
+            override fun construct(): Any? {
+                return try {
+                    jsonArray // initialize
+                    null
+                } catch (ex: Exception) {
+                    LOG.warn(ex)
+                    ex
+                }
+            }
+            override fun finished() {
+                resultsList.setEmptyText("Nothing to show")
+                resultsList.repaint()
+                val res = get()
+                if (res is Exception) {
+                    JOptionPane.showMessageDialog(centerPanel, res.message,
+                            "Search Load Error", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
+                } else {
+                    searchText.isEnabled = true
+                    searchText.grabFocus()
+                }
+            }
+        }.start()
+
+        return super.getPreferredFocusedComponent()
     }
 
     init {
         init()
         title = widget.label
+
+        searchText.isEnabled = false
         okButton?.isEnabled = false
 
         val searchProps = widget.attributes["searchProps"]?.split(",")
@@ -91,7 +110,7 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
                 resultsList.repaint()
                 val search = e.document.getText(0, e.document.length)
                 if (search.length > 1) {
-                    jsonArray?.let { ja ->
+                    jsonArray.let { ja ->
                         val searchResults = mutableListOf<SearchResult>()
                         for (i in 0 until ja.length()) {
                             val json = ja.getJSONObject(i)
@@ -108,7 +127,7 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
                         }
                         searchResults.sort()
                         searchResults.forEach { listModel.addElement(it) }
-                        resultsList.repaint()
+                        null
                     }
                 }
             }
@@ -122,11 +141,23 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         resultsList.border = BorderFactory.createLineBorder(borderColor)
         resultsList.selectionMode = ListSelectionModel.SINGLE_SELECTION
         resultsList.addListSelectionListener { event ->
-            selectedResult = listModel.elementAt(event.firstIndex)
-            okButton?.isEnabled = true
+            if (event.firstIndex > -1 && !listModel.isEmpty) {
+                selectedResult = listModel.elementAt(event.firstIndex)
+                okButton?.isEnabled = true
+            }
+            else {
+                selectedResult = null
+                okButton?.isEnabled = false
+            }
         }
         listPanel.add(resultsList, BorderLayout.CENTER)
         centerPanel.add(listPanel, BorderLayout.CENTER)
+
+        resultsList.setEmptyText("Loading...")
+    }
+
+    companion object {
+        val LOG = Logger.getInstance(SearchDialog::class.java)
     }
 }
 
@@ -171,7 +202,7 @@ class SearchResult(val json: JSONObject, val name: String, val descrip: String?)
                 return value.toString()
             }
             catch (ex: PathNotFoundException) {
-                GitImport.LOG.warn(ex)
+                LOG.warn(ex)
                 return ""
             }
         } else {
@@ -184,9 +215,7 @@ class SearchResult(val json: JSONObject, val name: String, val descrip: String?)
     }
 
     companion object {
-        val LOG = Logger.getInstance(SearchDialog::class.java)
-
+        val LOG = Logger.getInstance(SearchResult::class.java)
         fun isPath(name: String) = name.contains("\$.")
     }
-
 }

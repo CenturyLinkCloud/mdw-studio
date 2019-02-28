@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.action
 
-import com.centurylink.mdw.cli.Delete
 import com.centurylink.mdw.discovery.GitDiscoverer
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.notification.Notification
@@ -51,7 +50,7 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         }
         finally {
             try {
-                Delete(tempDir.toFile(), true).run();
+                tempDir.toFile().deleteRecursively()
             }
             catch (ex: Exception) {
                 LOG.warn(ex)
@@ -67,7 +66,7 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         // If system temp location is on different drive (i.e in WindowsOS) then we cannot move directory due to
         // bug in JDK, so create temp location for cloning on same drive as the project
         if (projectLocation.toString().length > 3 && ":\\".equals(projectLocation.toString().substring(1,3)) && !projectLocation.toString().get(0).equals(tempDir.toString().get(0))) {
-            Delete(tempDir.toFile(), true).run()
+            tempDir.toFile().deleteRecursively()
             if (projectLocation.parent == null)
                 tempDir = Files.createDirectories(File("${projectLocation}/${tempDir.fileName}").toPath())
             else
@@ -100,14 +99,22 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         indicator.text2 = "Moving packages..."
         indicator.isIndeterminate = false
 
-        for ((i, pkg) in packages.withIndex()) {
+        // filter subpackages to avoid trying to move subdirs that were moved with parent
+        var prevPkg = ""
+        val pkgs = packages.filter { pkg ->
+            val include = prevPkg.isEmpty() || !pkg.startsWith(prevPkg)
+            prevPkg = pkg
+            include
+        }
+
+        for ((i, pkg) in pkgs.withIndex()) {
             val pkgPath = pkg.replace('.','/')
             val src = File("$tempDir/${discoverer.repoName}/${discoverer.assetPath}/$pkgPath").toPath()
             val dest = File("${projectSetup.assetRoot}/$pkgPath").toPath()
 
             try {
                 Files.createDirectories(dest)
-                Delete(dest.toFile(), true).run()
+                dest.toFile().deleteRecursively()
                 Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING)
             } catch (ex: IOException) {
                 LOG.warn(ex)

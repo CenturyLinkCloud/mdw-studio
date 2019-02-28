@@ -20,7 +20,6 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
 
     override fun initialColumnWidgets(): List<Pagelet.Widget> {
         val colWidgs = mutableListOf<Pagelet.Widget>()
-        val pagelet = Pagelet(JSONObject("{ \"widgets\": [] }"))
 
         val label = if (widget.source == null) "Input Variable" else "${widget.source} Variable"
         val varWidget = Widget(label, "text")

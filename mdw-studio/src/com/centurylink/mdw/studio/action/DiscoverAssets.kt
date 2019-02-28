@@ -91,8 +91,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
             return Dimension(780, super.getMinimumSize().width)
         }
     }
-    private val okButton: JButton?
-        get() = getButton(okAction)
+    private val okButton: JButton? = getButton(okAction)
 
     private val discoverers = mutableListOf<GitDiscoverer>()
 

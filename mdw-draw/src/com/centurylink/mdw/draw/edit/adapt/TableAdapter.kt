@@ -2,6 +2,7 @@ package com.centurylink.mdw.draw.edit.adapt
 
 import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.default
+import com.centurylink.mdw.draw.edit.isHidden
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import org.json.JSONArray
 
@@ -31,7 +32,9 @@ open class TableAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     protected fun createEmptyRow(tableWidget: Widget): JSONArray {
         val row = JSONArray()
         for (columnWidget in tableWidget.widgets) {
-            row.put(columnWidget.default ?: "")
+            if (!columnWidget.isHidden) {
+                row.put(columnWidget.default ?: "")
+            }
         }
         return row
     }

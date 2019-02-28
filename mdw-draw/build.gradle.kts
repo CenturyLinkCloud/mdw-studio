@@ -36,6 +36,7 @@ dependencies {
     compile("com.vladsch.flexmark:flexmark-ext-typographic:0.32.22")
     compile("com.vladsch.flexmark:flexmark-formatter:0.32.22")
     compile("org.slf4j:slf4j-api:1.7.25")
+    compile("com.jayway.jsonpath:json-path:2.4.0")
 }
 
 tasks.withType<KotlinCompile> {

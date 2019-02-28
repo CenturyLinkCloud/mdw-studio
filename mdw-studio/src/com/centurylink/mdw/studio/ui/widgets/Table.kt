@@ -24,6 +24,8 @@ import javax.swing.table.DefaultTableModel
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
+typealias RowCreationHandler = (widget: Pagelet.Widget) -> Array<String>?
+
 @Suppress("unused")
 open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         private val withButtons: Boolean = true) : SwingWidget(widget, BorderLayout()) {
@@ -52,6 +54,21 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
             val was = _initialized
             _initialized = true
             return was
+        }
+
+    private var _rowCreationHandler: RowCreationHandler? = null
+    var rowCreationHandler: RowCreationHandler
+        get() {
+            return _rowCreationHandler ?: { _ ->
+                val rowList = mutableListOf<String>()
+                for (columnWidget in columnWidgets) {
+                    rowList.add(columnWidget.default ?: "")
+                }
+                rowList.toTypedArray()
+            }
+        }
+        set(handler) {
+            _rowCreationHandler = handler
         }
 
     private fun createAndAddTable() {
@@ -148,8 +165,10 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         val colWidgs = mutableListOf<Pagelet.Widget>()
         for (i in widget.widgets.indices) {
             val colWidg = widget.widgets[i]
-            colWidg.init("table", workflowObj)
-            colWidgs.add(colWidg)
+            if (!colWidg.isHidden) {
+                colWidg.init("table", workflowObj)
+                colWidgs.add(colWidg)
+            }
         }
         return colWidgs
     }
@@ -189,19 +208,17 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         btnPanel.isOpaque = false
         btnPanel.border = BorderFactory.createEmptyBorder(15, 5, 0, 0)
 
+
         val addButton = JButton(AllIcons.General.Add)
         addButton.isOpaque = false
         addButton.preferredSize = Dimension(addButton.preferredSize.width - 8, addButton.preferredSize.height - 2)
         addButton.toolTipText = "Add"
         btnPanel.add(addButton, BorderLayout.NORTH)
         addButton.addActionListener {
-            val rowList = mutableListOf<String>()
-            for (columnWidget in columnWidgets) {
-                rowList.add(columnWidget.default ?: "")
+            rowCreationHandler.invoke(widget)?.let { row ->
+                rows.add(row)
+                (table.model as DefaultTableModel).addRow(row)
             }
-            val row = rowList.toTypedArray()
-            rows.add(row)
-            (table.model as DefaultTableModel).addRow(row)
         }
 
         val delButton = JButton(AllIcons.General.Remove)

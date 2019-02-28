@@ -2,12 +2,11 @@ package com.centurylink.mdw.studio.config
 
 import com.centurylink.mdw.draw.RoundedBorder
 import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.edit.adapt.TableAdapter
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.ui.widgets.Editor
+import com.centurylink.mdw.studio.ui.widgets.*
 import com.centurylink.mdw.studio.ui.widgets.Label
-import com.centurylink.mdw.studio.ui.widgets.SwingWidget
-import com.centurylink.mdw.studio.ui.widgets.Table
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
@@ -87,7 +86,15 @@ class ConfigTab(private val tabName: String, private val template: Template, val
             return
         }
         findSoloWidget(widgets,"table")?.let {
-            val table = Table(it, true)
+            val table = if (it.adapter::class == TableAdapter::class) {
+                Table(it, true)
+            }
+            else {
+                val customWidget = it.attributes["customWidget"]?.let { cw ->
+                    widgets.find{ w -> w.name == cw }
+                }
+                CustomTable(it, customWidget)
+            }
             table.border = RoundedBorder(JBColor.border())
             table.addUpdateListener { obj ->
                 notifyUpdateListeners(obj)
@@ -199,10 +206,11 @@ class ConfigTab(private val tabName: String, private val template: Template, val
      * of the specified type.
      */
     private fun findSoloWidget(widgets: List<Pagelet.Widget>, type: String): Pagelet.Widget? {
-        if (widgets.size != 1) {
+        val foundWidgets = widgets.filter { it.type != "custom" }
+        if (foundWidgets.size != 1) {
             return null
         }
-        return widgets.find { it.type == type }
+        return foundWidgets.find { it.type == type }
     }
 
     private fun getBackgroundColor(): Color {

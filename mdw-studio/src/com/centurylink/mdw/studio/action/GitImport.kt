@@ -17,6 +17,7 @@ import git4idea.commands.GitImpl
 import git4idea.commands.GitLineHandler
 import git4idea.commands.GitStandardProgressAnalyzer
 import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -29,7 +30,7 @@ import java.nio.file.StandardCopyOption
 class GitImport(private val projectSetup: ProjectSetup, private val discoverer: GitDiscoverer) :
             Task.Backgroundable(projectSetup.project, "Import MDW Assets") {
 
-    private val tempDir = Files.createTempDirectory("mdw-studio-")
+    private var tempDir = Files.createTempDirectory("mdw-studio-")
     private var packages = listOf<String>()
 
     fun doImport(packages: List<String>) {
@@ -43,40 +44,54 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             clone(indicator)
             move(indicator)
         }
+        catch (ex: Exception) {
+            LOG.warn(ex)
+            Notifications.Bus.notify(Notification("MDW", "Asset Import Error", ex.toString(),
+                    NotificationType.ERROR), projectSetup.project)
+        }
         finally {
-            // TODO uncomment in build 1.2.2
-            // Files.deleteIfExists(tempDir);
+            try {
+                Delete(tempDir.toFile(), true).run();
+            }
+            catch (ex: Exception) {
+                LOG.warn(ex)
+                Notifications.Bus.notify(Notification("MDW", "Failed to delete Temp directory after asset import: ${tempDir}", ex.toString(),
+                        NotificationType.WARNING), projectSetup.project)
+            }
         }
     }
 
     private fun clone(indicator: ProgressIndicator) {
         val git = GitImpl()
+        val projectLocation = File(projectSetup.project.presentableUrl)
+        // If system temp location is on different drive (i.e in WindowsOS) then we cannot move directory due to
+        // bug in JDK, so create temp location for cloning on same drive as the project
+        if (projectLocation.toString().length > 3 && ":\\".equals(projectLocation.toString().substring(1,3)) && !projectLocation.toString().get(0).equals(tempDir.toString().get(0))) {
+            Delete(tempDir.toFile(), true).run()
+            if (projectLocation.parent == null)
+                tempDir = Files.createDirectories(File("${projectLocation}/${tempDir.fileName}").toPath())
+            else
+                tempDir = Files.createDirectories(File("${projectLocation.parent}/${tempDir.fileName}").toPath())
+        }
         LOG.info("Cloning $discoverer to: $tempDir")
-        try {
-            indicator.isIndeterminate = false
-            indicator.text2 = "Retrieving project..."
-            val progressListener = GitStandardProgressAnalyzer.createListener(indicator)
-            git.runCommand {
-                val url = discoverer.repoUrl.toString()
-                val handler = GitLineHandler(projectSetup.project, tempDir.toFile(), GitCommand.CLONE)
-                handler.setSilent(false)
-                handler.setStderrSuppressed(false)
-                handler.setUrl(url)
-                handler.addParameters("--progress")
-                handler.addParameters("-b", discoverer.ref)
-                handler.addParameters("--single-branch")
-                handler.addParameters("--depth", "1")
-                handler.addParameters(url)
-                handler.endOptions()
-                // handler.addParameters(clonedDirectoryName)
-                handler.addLineListener(progressListener)
-                handler
-            }
-            LOG.info("Clone finished")
-        } catch (ex: Exception) {
-            LOG.warn(ex)
-            Notifications.Bus.notify(Notification("MDW", "Asset Import Error", ex.toString(),
-                    NotificationType.ERROR), projectSetup.project)
+        indicator.isIndeterminate = false
+        indicator.text2 = "Retrieving project..."
+        val progressListener = GitStandardProgressAnalyzer.createListener(indicator)
+        git.runCommand {
+            val url = discoverer.repoUrl.toString()
+            val handler = GitLineHandler(projectSetup.project, tempDir.toFile(), GitCommand.CLONE)
+            handler.setSilent(false)
+            handler.setStderrSuppressed(false)
+            handler.setUrl(url)
+            handler.addParameters("--progress")
+            handler.addParameters("-b", discoverer.ref)
+            handler.addParameters("--single-branch")
+            handler.addParameters("--depth", "1")
+            handler.addParameters(url)
+            handler.endOptions()
+            // handler.addParameters(clonedDirectoryName)
+            handler.addLineListener(progressListener)
+            handler
         }
     }
 
@@ -89,9 +104,16 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             val pkgPath = pkg.replace('.','/')
             val src = File("$tempDir/${discoverer.repoName}/${discoverer.assetPath}/$pkgPath").toPath()
             val dest = File("${projectSetup.assetRoot}/$pkgPath").toPath()
-            Files.createDirectories(dest)
-            Delete(dest.toFile(), true).run()
-            Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING)
+
+            try {
+                Files.createDirectories(dest)
+                Delete(dest.toFile(), true).run()
+                Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING)
+            } catch (ex: IOException) {
+                LOG.warn(ex)
+                Notifications.Bus.notify(Notification("MDW", "Asset Import Error", ex.toString(),
+                        NotificationType.ERROR), projectSetup.project)
+            }
             indicator.fraction = i.toDouble() / packages.size
         }
         VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)

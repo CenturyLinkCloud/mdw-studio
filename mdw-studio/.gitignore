@@ -7,6 +7,7 @@
 /.idea/libraries
 /.idea/caches
 /.idea/uiDesigner.xml
+/.idea/kotlinScripting.xml
 .DS_Store
 /build
 /captures

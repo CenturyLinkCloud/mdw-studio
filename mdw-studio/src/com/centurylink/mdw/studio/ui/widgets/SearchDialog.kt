@@ -3,7 +3,9 @@ package com.centurylink.mdw.studio.ui.widgets
 import com.centurylink.mdw.cli.Download
 import com.centurylink.mdw.draw.edit.label
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.studio.action.GitImport
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
@@ -11,12 +13,14 @@ import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBList
 import com.intellij.util.ui.UIUtil
 import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.PathNotFoundException
 import com.jayway.jsonpath.ReadContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.event.MouseEvent
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -35,6 +39,16 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
     private val resultsList = object: JBList<SearchResult>(listModel) {
         override fun getMinimumSize(): Dimension {
             return Dimension(350, 450)
+        }
+
+        override fun getToolTipText(event: MouseEvent): String? {
+            val idx = locationToIndex(event.point)
+            if (idx > -1) {
+                listModel.elementAt(idx)?.let { searchResult ->
+                    return searchResult.description
+                }
+            }
+            return super.getToolTipText(event)
         }
     }
 
@@ -116,13 +130,23 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
     }
 }
 
-class SearchResult(val json: JSONObject, val name: String, val description: String?) : Comparable<SearchResult> {
+class SearchResult(val json: JSONObject, val name: String, val descrip: String?) : Comparable<SearchResult> {
 
     val label: String by lazy {
         if (isPath(name)) {
             evalPath(name)
         } else {
             name
+        }
+    }
+
+    val description: String? by lazy {
+        descrip?.let {
+            if (isPath(it)) {
+                evalPath(it)
+            } else {
+                it
+            }
         }
     }
 
@@ -136,15 +160,20 @@ class SearchResult(val json: JSONObject, val name: String, val description: Stri
 
     fun evalPath(path: String): String {
         return if (isPath(path)) {
-            val value = StringBuilder()
-            path.split("/").forEach { segment ->
-                if (value.isNotEmpty()) {
-                    value.append("/")
+            try {
+                val value = StringBuilder()
+                path.split("/").forEach { segment ->
+                    if (value.isNotEmpty()) {
+                        value.append(" / ")
+                    }
+                    value.append(readContext.read(segment) as String)
                 }
-                value.append(readContext.read(segment) as String)
+                return value.toString()
             }
-
-            return value.toString()
+            catch (ex: PathNotFoundException) {
+                GitImport.LOG.warn(ex)
+                return ""
+            }
         } else {
             path
         }
@@ -155,6 +184,8 @@ class SearchResult(val json: JSONObject, val name: String, val description: Stri
     }
 
     companion object {
+        val LOG = Logger.getInstance(SearchDialog::class.java)
+
         fun isPath(name: String) = name.contains("\$.")
     }
 

@@ -191,19 +191,27 @@ class SearchResult(val json: JSONObject, val name: String, val descrip: String?)
 
     fun evalPath(path: String): String {
         return if (isPath(path)) {
-            try {
-                val value = StringBuilder()
-                path.split("/").forEach { segment ->
-                    if (value.isNotEmpty()) {
-                        value.append(" / ")
-                    }
-                    value.append(readContext.read(segment) as String)
-                }
-                return value.toString()
+            if (path == "\$") {
+                json.toString()
             }
-            catch (ex: PathNotFoundException) {
-                LOG.warn(ex)
-                return ""
+            else {
+                try {
+                    val value = StringBuilder()
+                    path.split("/", "\n").forEach { segment ->
+                        if (value.isNotEmpty()) {
+                            if (path.contains("\n")) {
+                                value.append("\n")
+                            } else {
+                                value.append(" / ")
+                            }
+                        }
+                        value.append((readContext.read(segment) as Any).toString())
+                    }
+                    value.toString()
+                } catch (ex: PathNotFoundException) {
+                    LOG.warn(ex)
+                    ""
+                }
             }
         } else {
             path
@@ -216,6 +224,6 @@ class SearchResult(val json: JSONObject, val name: String, val descrip: String?)
 
     companion object {
         val LOG = Logger.getInstance(SearchResult::class.java)
-        fun isPath(name: String) = name.contains("\$.")
+        fun isPath(name: String) = name.contains("\$.") || name == "\$"
     }
 }

@@ -130,6 +130,15 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
                         table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
                     }
                 }
+                else if (renderer is LinkCellRenderer) {
+                    val cellRect = table.getCellRect(table.rowAtPoint(e.point), colIdx, false)
+                    if (renderer.linkCell?.onHover(e.x - cellRect.x, e.y - cellRect.y) == true) {
+                        table.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                    }
+                    else {
+                        table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                    }
+                }
                 else {
                     table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
                 }
@@ -242,6 +251,7 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         return when (widget.type) {
             "checkbox" -> CheckboxCellRenderer()
             "asset" -> AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
+            "link" -> LinkCellRenderer()
             else -> DefaultTableCellRenderer()
         }
     }

@@ -225,7 +225,14 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
                 helpLabel.border = BorderFactory.createEmptyBorder(0, 0, 1, 0)
             }
             override fun mouseReleased(e: MouseEvent) {
-                BrowserUtil.browse(Data.DOCS_URL + "/" + widget.url)
+                BrowserUtil.browse(if (widget.url?.startsWith("help/http") == true) {
+                    // full-fledged url for help link
+                    widget.url?.substring(5) ?: Data.DOCS_URL
+                }
+                else {
+                    // relative to help docs
+                    Data.DOCS_URL + "/" + widget.url
+                })
             }
         })
         val helpPane = JPanel(BorderLayout())

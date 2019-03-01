@@ -8,6 +8,7 @@ import com.centurylink.mdw.studio.MdwConfig
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.Secrets
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.ui.widgets.LinkLabel
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.treeView.NodeRenderer
 import com.intellij.openapi.actionSystem.AnAction
@@ -22,10 +23,10 @@ import com.intellij.ui.CheckBoxList
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.concurrency.SwingWorker
-import com.intellij.util.ui.UIUtil
-import java.awt.*
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import java.awt.BorderLayout
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.FlowLayout
 import java.io.IOException
 import java.net.URL
 import javax.swing.*
@@ -244,22 +245,20 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         treePanel.add(JScrollPane(tree), BorderLayout.CENTER)
 
         // link to prefs
-        val linkText = "Change discovery repositories..."
-        val linkHtml = if (UIUtil.isUnderDarcula()) {
-            "<html><a href='.' style='color:white;'>$linkText</a></html>"
-        }
-        else {
-            "<html><a href='.'>$linkText</a></html>"
-        }
-        val link = JLabel(linkHtml)
+        val link = LinkLabel("Change discovery repositories...")
         link.alignmentX = Component.LEFT_ALIGNMENT
-        link.cursor = Cursor(Cursor.HAND_CURSOR)
-        link.addMouseListener(object : MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(projectSetup.project, MdwConfig::class.java)
-                this@DiscoveryDialog.close(0)
-            }
-        })
+        link.clickListener = {
+            ShowSettingsUtil.getInstance().showSettingsDialog(projectSetup.project, MdwConfig::class.java)
+            this@DiscoveryDialog.close(0)
+        }
+
+//        link.cursor = Cursor(Cursor.HAND_CURSOR)
+//        link.addMouseListener(object : MouseAdapter() {
+//            override fun mouseReleased(e: MouseEvent) {
+//                ShowSettingsUtil.getInstance().showSettingsDialog(projectSetup.project, MdwConfig::class.java)
+//                this@DiscoveryDialog.close(0)
+//            }
+//        })
         val linkPanel = object: JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)) {
             override fun getPreferredSize(): Dimension {
                 return Dimension(super.getPreferredSize().width, BTM_HT)

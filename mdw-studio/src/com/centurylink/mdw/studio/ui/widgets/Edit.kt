@@ -16,14 +16,9 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.ui.DialogBuilder
-import com.intellij.util.ui.UIUtil
-import java.awt.Cursor
 import java.awt.Dimension
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import java.io.IOException
 import javax.swing.BorderFactory
-import javax.swing.JLabel
 
 /**
  * For in-place editing of dynamic java, scripts, etc.
@@ -35,25 +30,15 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         isOpaque = false
         border = BorderFactory.createEmptyBorder(1, 3, 1, 0)
 
-        val text = if (widget.isReadonly) "View" else "Edit"
-        val labelHtml = if (UIUtil.isUnderDarcula()) {
-            "<html><font color='white'><a href='.'>$text</a></font></html>"
-        }
-        else {
-            "<html><a href='.'>$text</a></html>"
-        }
-        val linkLabel = JLabel(labelHtml)
+        val linkLabel = LinkLabel(if (widget.isReadonly) "View" else "Edit")
         linkLabel.toolTipText = "Open ${widget.attributes["languages"]}"
-        linkLabel.cursor = Cursor(Cursor.HAND_CURSOR)
-        linkLabel.addMouseListener(object: MouseAdapter() {
-            override fun mouseReleased(e: MouseEvent?) {
-                showEditDialog()
-            }
-        })
+        linkLabel.clickListener = {
+            showEditDialog()
+        }
         add(linkLabel)
     }
 
-    fun showEditDialog() {
+    private fun showEditDialog() {
         val applier = widget.adapter as WidgetApplier
         val workflowObj = applier.workflowObj
 
@@ -94,8 +79,8 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
             FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
         }
         else {
-            FileDocumentManagerImpl.registerDocument(document, virtualFile);
-            val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile);
+            FileDocumentManagerImpl.registerDocument(document, virtualFile)
+            val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile)
             editor.component.preferredSize = Dimension(800, 600)
             val dialogBuilder = DialogBuilder(parent)
             dialogBuilder.setTitle(workflowObj.titlePath)

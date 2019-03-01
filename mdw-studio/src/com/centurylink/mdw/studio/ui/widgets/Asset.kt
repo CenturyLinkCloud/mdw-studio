@@ -93,6 +93,7 @@ class AssetLink(var assetPath: String?, projectSetup: ProjectSetup) : JLabel() {
         set(value) {
             _linkColor = value
             text = getAssetLabel()
+            field = value
         }
 
     val assetName: String

@@ -21,6 +21,7 @@ import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.URL
 import javax.swing.*
@@ -140,16 +141,23 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         val borderColor = if (UIUtil.isUnderDarcula()) Color.GRAY else JBColor.border()
         resultsList.border = BorderFactory.createLineBorder(borderColor)
         resultsList.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        resultsList.addListSelectionListener { event ->
-            if (event.firstIndex > -1 && !listModel.isEmpty) {
-                selectedResult = listModel.elementAt(event.firstIndex)
-                okButton?.isEnabled = true
+        resultsList.addMouseListener(object: MouseAdapter() {
+            override fun mouseClicked(event: MouseEvent) {
+                val index = resultsList.locationToIndex(event.point)
+                if (index > -1 && !listModel.isEmpty) {
+                    selectedResult = listModel.elementAt(index)
+                    okButton?.isEnabled = true
+                    if (event.clickCount >= 2) {
+                        okButton?.doClick()
+                    }
+                }
+                else {
+                    selectedResult = null
+                    okButton?.isEnabled = false
+                }
             }
-            else {
-                selectedResult = null
-                okButton?.isEnabled = false
-            }
-        }
+        })
+
         listPanel.add(resultsList, BorderLayout.CENTER)
         centerPanel.add(listPanel, BorderLayout.CENTER)
 

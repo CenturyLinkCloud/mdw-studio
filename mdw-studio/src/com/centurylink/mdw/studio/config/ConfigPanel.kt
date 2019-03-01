@@ -188,7 +188,8 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
     var hideLabel: JLabel
     var hideShowListener: HideShowListener? = null
     var helpListener: MouseListener? = null
-    var helpLink: HelpLink? = null
+    var helpLink: HelpLink?
+        get() = null
         set(value) {
             helpLabel.isEnabled = value != null
             helpLabel.toolTipText = value?.tooltip
@@ -196,7 +197,14 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
             value?.let {
                 helpListener = object : MouseAdapter() {
                     override fun mouseReleased(e: MouseEvent) {
-                        BrowserUtil.browse(Data.DOCS_URL + "/" + it.url)
+                        BrowserUtil.browse(if (it.url.startsWith("help/http")) {
+                            // full-fledged url for help link
+                            it.url.substring(5) ?: Data.DOCS_URL
+                        }
+                        else {
+                            // relative to help docs
+                            Data.DOCS_URL + "/" + it.url
+                        })
                     }
                 }
                 helpLabel.addMouseListener(helpListener)

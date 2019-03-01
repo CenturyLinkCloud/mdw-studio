@@ -7,14 +7,10 @@ import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.BrowserUtil
 import com.intellij.ui.DocumentAdapter
-import com.intellij.util.ui.UIUtil
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.BorderFactory
-import javax.swing.JLabel
 import javax.swing.JTextField
 import javax.swing.UIManager
 import javax.swing.event.DocumentEvent
@@ -30,28 +26,12 @@ class Link(widget: Pagelet.Widget) : SwingWidget(widget) {
         border = BorderFactory.createEmptyBorder()
 
         if (widget.isReadonly) {
-            val linkText = widget.attributes["label"] ?: widget.valueString
-            val linkHtml = if (UIUtil.isUnderDarcula()) {
-                "<html><a href='.' style='color:white;'>$linkText</a></html>"
+            val linkLabel = LinkLabel(widget.attributes["label"] ?: widget.valueString ?: "")
+            linkLabel.alignmentX = Component.LEFT_ALIGNMENT
+            linkLabel.clickListener = {
+                widget.valueString?.let { BrowserUtil.browse(it) }
             }
-            else {
-                "<html><a href='.'>$linkText</a></html>"
-            }
-            val link = JLabel(linkHtml)
-            link.alignmentX = Component.LEFT_ALIGNMENT
-            link.cursor = Cursor(Cursor.HAND_CURSOR)
-            link.addMouseListener(object : MouseAdapter() {
-                override fun mouseReleased(e: MouseEvent) {
-                    val custom = widget.attributes["customWidget"]
-                    if (custom == null) {
-                        widget.valueString?.let { BrowserUtil.browse(it) }
-                    }
-                    else {
-                        // TODO details dialog
-                    }
-                }
-            })
-            add(link)
+            add(linkLabel)
         }
         else {
             val textField = JTextField()
@@ -70,4 +50,5 @@ class Link(widget: Pagelet.Widget) : SwingWidget(widget) {
                 }
             })
         }
-    }}
+    }
+}

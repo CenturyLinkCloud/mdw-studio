@@ -104,14 +104,14 @@ class AssetCellEditor(val isReadonly: Boolean, val projectSetup: ProjectSetup, v
             if (source == "proc" && !assetPath.isBlank() && !assetPath.endsWith(".proc")) {
                 assetPath += ".proc"
             }
-            if (table.model.columnCount > column + 1) {
+            if (table.model.columnCount > column + 1 && table.model.getColumnName(column + 1).trim() == "Version") {
+                // auto-set smart version
                 if (assetPath.isBlank()) {
                     table.model.setValueAt("", row, column + 1)
                 }
                 else {
                     val asset = projectSetup.getAsset(assetPath)
                     if (asset != null) {
-                        // auto-set smart version
                         val ver = AssetVersionSpec.getDefaultSmartVersionSpec(Asset.formatVersion(asset.version))
                         table.model.setValueAt(ver, row, column + 1)
                     }

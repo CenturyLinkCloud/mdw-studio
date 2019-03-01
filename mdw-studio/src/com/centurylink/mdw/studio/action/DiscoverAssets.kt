@@ -84,14 +84,15 @@ class DiscoverAssets : AnAction() {
     }
 }
 
-class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.project, true) {
+class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.project) {
 
     private val centerPanel = object: JPanel(BorderLayout()) {
         override fun getMinimumSize(): Dimension {
             return Dimension(780, super.getMinimumSize().width)
         }
     }
-    private val okButton: JButton? = getButton(okAction)
+    private val okButton: JButton?
+        get() = getButton(okAction)
 
     private val discoverers = mutableListOf<GitDiscoverer>()
 
@@ -157,32 +158,32 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                 val path = event.path
                 if (path.lastPathComponent is RefsNode) {
                     val refsNode = path.lastPathComponent as RefsNode
-                        refsNode.add(DefaultMutableTreeNode("Loading...", false))
-                        object: SwingWorker() {
-                            override fun construct(): Any? {
-                                return try {
-                                    refsNode.refs
-                                    null
-                                } catch(ex: IOException) {
-                                    LOG.warn(ex)
-                                    ex
+                    refsNode.add(DefaultMutableTreeNode("Loading...", false))
+                    object: SwingWorker() {
+                        override fun construct(): Any? {
+                            return try {
+                                refsNode.refs
+                                null
+                            } catch(ex: IOException) {
+                                LOG.warn(ex)
+                                ex
+                            }
+                        }
+                        override fun finished() {
+                            refsNode.removeAllChildren()
+                            val ex = get()
+                            if (ex == null) {
+                                refsNode.refs.forEach { ref ->
+                                    refsNode.add(DefaultMutableTreeNode(ref))
                                 }
                             }
-                            override fun finished() {
-                                refsNode.removeAllChildren()
-                                val ex = get()
-                                if (ex == null) {
-                                    refsNode.refs.forEach { ref ->
-                                        refsNode.add(DefaultMutableTreeNode(ref))
-                                    }
-                                }
-                                else {
-                                    JOptionPane.showMessageDialog(centerPanel, (ex as Exception).message,
-                                            "Git Retrieval Error", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
-                                }
-                                treeModel.nodeStructureChanged(refsNode)
+                            else {
+                                JOptionPane.showMessageDialog(centerPanel, (ex as Exception).message,
+                                        "Git Retrieval Error", JOptionPane.PLAIN_MESSAGE, AllIcons.General.ErrorDialog)
                             }
-                        }.start()
+                            treeModel.nodeStructureChanged(refsNode)
+                        }
+                    }.start()
                 }
             }
             override fun treeWillCollapse(event: TreeExpansionEvent) {
@@ -288,6 +289,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                 packageList.setItemSelected(packageList.getItemAt(i), true)
             }
             packageList.repaint()
+            okButton?.isEnabled = true
         }
         allButton.isVisible = false
         buttonPanel.add(allButton)
@@ -296,6 +298,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                 packageList.setItemSelected(packageList.getItemAt(i), false)
             }
             packageList.repaint()
+            okButton?.isEnabled = false
         }
         noneButton.isVisible = false
         buttonPanel.add(noneButton)

@@ -1,13 +1,13 @@
 package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.draw.edit.default
-import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.asset.Pagelet.Widget
 
 /**
  * Table with custom row entry dialog.
  */
 @Suppress("unused")
-class CustomTable(widget: Pagelet.Widget, customWidget: Pagelet.Widget? = null) :
+class CustomTable(widget: Widget, customWidget: Widget? = null) :
         Table(widget, true, true) {
 
     init {

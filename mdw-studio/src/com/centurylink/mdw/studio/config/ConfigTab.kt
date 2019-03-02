@@ -90,7 +90,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
                 Table(it, true)
             }
             else {
-                val customWidget = it.attributes["customWidget"]?.let { cw ->
+                val customWidget = it.attributes["addWidget"]?.let { cw ->
                     widgets.find{ w -> w.name == cw }
                 }
                 CustomTable(it, customWidget)

@@ -250,8 +250,18 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
     private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
         return when (widget.type) {
             "checkbox" -> CheckboxCellRenderer()
-            "asset" -> AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
-            "link" -> LinkCellRenderer()
+            "asset" -> {
+                AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
+            }
+            "link" -> {
+                var dlgWidget: Pagelet.Widget? = null
+                widget.url?.let { url ->
+                    if (url.startsWith("widget:")) {
+                        dlgWidget = this@Table.widget.widgets.find { it.name == url.substring(7) }
+                    }
+                }
+                LinkCellRenderer(widget.url, dlgWidget)
+            }
             else -> DefaultTableCellRenderer()
         }
     }
@@ -263,8 +273,19 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
-            "asset" -> AssetCellEditor(this@Table.widget.isReadonly || widget.isReadonly, projectSetup, widget.source)
             "number" -> NumberCellEditor()
+            "asset" -> {
+                AssetCellEditor(this@Table.widget.isReadonly || widget.isReadonly, projectSetup, widget.source)
+            }
+            "link" -> {
+                var dlgWidget: Pagelet.Widget? = null
+                widget.url?.let { url ->
+                    if (url.startsWith("widget:")) {
+                        dlgWidget =this@Table.widget.widgets.find { it.name == url.substring(7) }
+                    }
+                }
+                LinkCellEditor(widget.url, dlgWidget)
+            }
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }
     }

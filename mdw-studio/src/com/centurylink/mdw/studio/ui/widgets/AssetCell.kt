@@ -19,21 +19,6 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
 
     val assetLink = AssetLink(assetPath, projectSetup)
 
-    /**
-     * Coords are relative to cell origin.
-     * Returns whether the pointer cursor should be displayed.
-     */
-    fun onHover(x: Int, y: Int): Boolean {
-        if (x > HGAP && y > VGAP) {
-            val fontMetrics = assetLink.getFontMetrics(assetLink.font)
-            if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
-                    y < VGAP + fontMetrics.height) {
-                return true
-            }
-        }
-        return false
-    }
-
     init {
         background = UIManager.getColor("EditorPane.background")
 
@@ -70,6 +55,21 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
                 border = EmptyBorder(1, 1, 1, 1)
             }
         }
+    }
+
+    /**
+     * Coords are relative to cell origin.
+     * Returns whether the pointer cursor should be displayed.
+     */
+    fun onHover(x: Int, y: Int): Boolean {
+        if (x > HGAP && y > VGAP) {
+            val fontMetrics = assetLink.getFontMetrics(assetLink.font)
+            if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
+                    y < VGAP + fontMetrics.height) {
+                return true
+            }
+        }
+        return false
     }
 
     companion object {

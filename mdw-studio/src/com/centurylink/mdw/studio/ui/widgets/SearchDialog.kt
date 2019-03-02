@@ -111,6 +111,8 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
                 resultsList.repaint()
                 val search = e.document.getText(0, e.document.length)
                 if (search.length > 1) {
+
+
                     jsonArray.let { ja ->
                         val searchResults = mutableListOf<SearchResult>()
                         for (i in 0 until ja.length()) {

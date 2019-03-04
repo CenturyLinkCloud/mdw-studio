@@ -44,7 +44,7 @@ tasks.withType<RunIdeTask> {
 tasks.withType<PublishTask> {
     username(project.properties["intellijPublishUsername"] ?: "")
     password(project.properties["intellijPublishPassword"] ?: "")
-    // channels(project.properties["intellijPublishChannel"] ?: "Beta")
+    channels(project.properties["intellijPublishChannel"] ?: "Beta")
 }
 
 tasks.withType<KotlinCompile> {

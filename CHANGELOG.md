@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.2.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.2.1) (2019-03-04)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.2.0...1.2.1)
+
+**Fixed bugs:**
+
+- Discovery GitImport failure when subpackages included [\#65](https://github.com/CenturyLinkCloud/mdw-studio/issues/65)
+- Discovery errors on Windows [\#63](https://github.com/CenturyLinkCloud/mdw-studio/issues/63)
+
 ## [1.2.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.2.0) (2019-02-25)
 **Implemented enhancements:**
 

@@ -251,14 +251,6 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
             ShowSettingsUtil.getInstance().showSettingsDialog(projectSetup.project, MdwConfig::class.java)
             this@DiscoveryDialog.close(0)
         }
-
-//        link.cursor = Cursor(Cursor.HAND_CURSOR)
-//        link.addMouseListener(object : MouseAdapter() {
-//            override fun mouseReleased(e: MouseEvent) {
-//                ShowSettingsUtil.getInstance().showSettingsDialog(projectSetup.project, MdwConfig::class.java)
-//                this@DiscoveryDialog.close(0)
-//            }
-//        })
         val linkPanel = object: JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)) {
             override fun getPreferredSize(): Dimension {
                 return Dimension(super.getPreferredSize().width, BTM_HT)

@@ -85,7 +85,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
             add(containerPane)
             return
         }
-        findSoloWidget(widgets,"table")?.let {
+        findSoloWidget(widgets, "table")?.let {
             val table = if (it.adapter::class == TableAdapter::class) {
                 Table(it, true)
             }

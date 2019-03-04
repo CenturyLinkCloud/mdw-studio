@@ -90,7 +90,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
                 Table(it, true)
             }
             else {
-                val customWidget = it.attributes["addWidget"]?.let { cw ->
+                val customWidget = it.attributes["adderWidget"]?.let { cw ->
                     widgets.find{ w -> w.name == cw }
                 }
                 CustomTable(it, customWidget)
@@ -206,7 +206,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
      * of the specified type.
      */
     private fun findSoloWidget(widgets: List<Pagelet.Widget>, type: String): Pagelet.Widget? {
-        val foundWidgets = widgets.filter { it.type != "custom" }
+        val foundWidgets = widgets.filter { it.type != "dialog" }
         if (foundWidgets.size != 1) {
             return null
         }

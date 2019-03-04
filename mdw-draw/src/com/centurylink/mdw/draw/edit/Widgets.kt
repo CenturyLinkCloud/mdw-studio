@@ -16,7 +16,7 @@ var Pagelet.Widget.label: String
 val Pagelet.Widget.section: String?
     get() = attributes["section"]
 val Pagelet.Widget.isHidden: Boolean
-    get() = "true" == attributes["hidden"] || type == "custom"
+    get() = "true" == attributes["hidden"]
 var Pagelet.Widget.isReadonly: Boolean
     get() = "true" == attributes["readonly"]
     set(value) { attributes["readonly"] = value.toString() }

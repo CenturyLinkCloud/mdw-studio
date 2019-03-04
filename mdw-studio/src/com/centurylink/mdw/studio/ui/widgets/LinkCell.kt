@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.intellij.ide.BrowserUtil
 import java.awt.Component
 import java.awt.FlowLayout
@@ -12,22 +11,15 @@ import javax.swing.border.EmptyBorder
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
-class LinkCell(val label: String, url: String?, widget: Widget? = null) :
-        JPanel(FlowLayout(FlowLayout.LEFT, HGAP, VGAP)) {
+open class LinkCell(val label: String, url: String? = null) : JPanel(FlowLayout(FlowLayout.LEFT, HGAP, VGAP)) {
 
-    val linkLabel = LinkLabel(label)
+    private val linkLabel = LinkLabel(label)
 
     init {
         linkLabel.alignmentX = Component.LEFT_ALIGNMENT
         linkLabel.clickListener = {
-            val dialogWidget = widget
-            if (dialogWidget == null) {
-                url?.let {
-                    BrowserUtil.browse(it)
-                }
-            }
-            else {
-                println("TODO: " + dialogWidget.name)
+            url?.let {
+                BrowserUtil.browse(it)
             }
         }
         add(linkLabel)
@@ -53,11 +45,7 @@ class LinkCell(val label: String, url: String?, widget: Widget? = null) :
         }
     }
 
-    /**
-     * Coords are relative to cell origin.
-     * Returns whether the pointer cursor should be displayed.
-     */
-    fun onHover(x: Int, y: Int): Boolean {
+    fun isHover(x: Int, y: Int): Boolean {
         if (x > HGAP && y > VGAP) {
             val fontMetrics = getFontMetrics(font)
             if (x < HGAP + fontMetrics.stringWidth(label) &&
@@ -74,27 +62,31 @@ class LinkCell(val label: String, url: String?, widget: Widget? = null) :
     }
 }
 
-class LinkCellRenderer(private val url: String?, private val widget: Widget? = null) : TableCellRenderer {
+class LinkCellRenderer(private val url: String?) : TableCellRenderer, Hoverable {
 
     var linkCell: LinkCell? = null
 
     override fun getTableCellRendererComponent(table: JTable, value: Any?,
             isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component {
-        val linkCell = LinkCell(value.toString(), url, widget)
+        val linkCell = LinkCell(value.toString(), url)
         linkCell.init(table, isSelected, hasFocus)
         this.linkCell = linkCell
         return linkCell
     }
+
+    override fun isHover(x: Int, y: Int): Boolean {
+        return linkCell?.isHover(x, y) == true
+    }
 }
 
-class LinkCellEditor(private val url: String?, private val widget: Widget? = null) :  AbstractCellEditor(), TableCellEditor {
+class LinkCellEditor(private val url: String?) :  AbstractCellEditor(), TableCellEditor {
 
     var label = ""
 
     override fun getTableCellEditorComponent(table: JTable, value: Any?, isSelected: Boolean, row: Int, column: Int):
             Component {
         label = value.toString()
-        return LinkCell(label, url, widget)
+        return LinkCell(label, url)
     }
 
     override fun getCellEditorValue(): Any? {

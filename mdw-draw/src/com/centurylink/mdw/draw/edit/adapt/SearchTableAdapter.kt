@@ -15,7 +15,6 @@ class SearchTableAdapter(applier: WidgetApplier) : TableAdapter(applier) {
         else {
             widget.value = JSONArray(widget.value.toString())
         }
-        println(widget.valueString)
     }
 
     override fun willUpdate(widget: Pagelet.Widget) {

@@ -14,23 +14,21 @@ class CustomTable(widget: Widget, customWidget: Widget? = null) :
         customWidget?.let { custom ->
             custom.attributes["searchUrl"]?.let { _ ->
                 rowCreationHandler = { _ ->
-                    val searchDialog = SearchDialog(projectSetup, custom)
-                    if (searchDialog.showAndGet()) {
-                        searchDialog.selectedResult?.let { searchResult ->
-                            val row = mutableListOf<String>()
-                            for (tableWidget in widget.widgets) {
-                                val path = tableWidget.attributes["path"]
-                                row.add(when {
-                                    path != null -> searchResult.evalPath(path)
-                                    tableWidget.default != null -> tableWidget.default!!
-                                    else -> ""
-                                })
-                            }
-                            row.toTypedArray()
-                        }
+                    val searchResult = SearchDialog(custom).showAndGet()
+                    if (searchResult == null) {
+                        null
                     }
                     else {
-                        null
+                        val row = mutableListOf<String>()
+                        for (tableWidget in widget.widgets) {
+                            val path = tableWidget.attributes["path"]
+                            row.add(when {
+                                path != null -> searchResult.evalPath(path)
+                                tableWidget.default != null -> tableWidget.default!!
+                                else -> ""
+                            })
+                        }
+                        row.toTypedArray()
                     }
                 }
             }

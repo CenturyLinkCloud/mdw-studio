@@ -105,7 +105,7 @@ class TransferHandler(private val diagram: Diagram) : javax.swing.TransferHandle
                             taskJson.put("logicalId", name)
                             taskJson.put("version", "0")
                             val task = TaskTemplate(taskJson)
-                            var fileName = "$name.task"
+                            val fileName = "$name.task"
                             val psiFile = PsiFileFactory.getInstance(projectSetup.project).createFileFromText(fileName, TaskFileType, task.json.toString(2))
                             WriteAction.run<Exception> {
                                 PsiManager.getInstance(projectSetup.project).findDirectory(pkg.dir)?.add(psiFile)

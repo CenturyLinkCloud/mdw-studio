@@ -13,6 +13,9 @@ import javax.swing.JPanel
 open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOUT) :
         JPanel(layout), UpdateListeners by UpdateListenersDelegate() {
 
+    protected val workflowObj = (widget.adapter as WidgetApplier).workflowObj
+    protected val projectSetup = workflowObj.project as ProjectSetup
+
     // name of (previously-added) widget whose updates I'm interested in
     open val listenTo: String? = null
 

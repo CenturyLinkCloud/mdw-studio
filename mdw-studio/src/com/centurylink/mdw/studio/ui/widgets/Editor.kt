@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
@@ -25,9 +24,6 @@ class Editor(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
     init {
         background = UIManager.getColor("EditorPane.background")
         border = BorderFactory.createEmptyBorder()
-
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
 
         val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString, widget.attributes["ext"])
         val project = (workflowObj.project as ProjectSetup).project

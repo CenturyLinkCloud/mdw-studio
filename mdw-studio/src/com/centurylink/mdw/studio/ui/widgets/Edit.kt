@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.isReadonly
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
@@ -39,9 +38,6 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
     }
 
     private fun showEditDialog() {
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
-
         val qualifier = when(widget.name) {
             "PreScript" -> "Pre"
             "PostScript" -> "Post"

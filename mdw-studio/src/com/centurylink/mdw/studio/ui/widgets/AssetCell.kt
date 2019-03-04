@@ -57,11 +57,7 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
         }
     }
 
-    /**
-     * Coords are relative to cell origin.
-     * Returns whether the pointer cursor should be displayed.
-     */
-    fun onHover(x: Int, y: Int): Boolean {
+    fun isHover(x: Int, y: Int): Boolean {
         if (x > HGAP && y > VGAP) {
             val fontMetrics = assetLink.getFontMetrics(assetLink.font)
             if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
@@ -78,7 +74,7 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
     }
 }
 
-class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer() {
+class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer(), Hoverable {
 
     var assetCell : AssetCell? = null
 
@@ -88,6 +84,10 @@ class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup)
         assetCell.init(table, isSelected, hasFocus)
         this.assetCell = assetCell
         return assetCell
+    }
+
+    override fun isHover(x: Int, y: Int): Boolean {
+        return assetCell?.isHover(x, y) == true
     }
 }
 

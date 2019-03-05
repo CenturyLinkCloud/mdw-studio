@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.init
 import com.centurylink.mdw.draw.edit.isReadonly
 import com.centurylink.mdw.model.asset.Pagelet.Widget
@@ -21,7 +20,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
             return Dimension(size.width, size.height - 2)
         }
     }
-    val workflowObj = (widget.adapter as WidgetApplier).workflowObj
     private var comboPanel = JPanel()
     private val widgetNames = mutableListOf<String>()
 
@@ -44,7 +42,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
         doc.addDocumentListener(object: DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 widget.value = doc.getText(0, e.document.length)
-                val workflowObj = (widget.adapter as WidgetApplier).workflowObj
                 widgetNames.forEach { widgetName ->
                     workflowObj.removeAttribute(widgetName)
                 }
@@ -78,7 +75,6 @@ class Dropdown(widget: Widget) : SwingWidget(widget) {
                             notifyUpdateListeners(obj)
                         }
                         comboPanel.add(paramWidget)
-                        val workflowObj = (widget.adapter as WidgetApplier).workflowObj
                         widgetNames.forEach { widgetName ->
                             if (widgetName != widg.name && widgetName != "${widg.name}_assetVersion") {
                                 workflowObj.removeAttribute(widgetName)

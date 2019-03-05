@@ -29,7 +29,6 @@ import javax.swing.JOptionPane
 @Suppress("unused")
 class Asset(widget: Pagelet.Widget) : SwingWidget(widget) {
 
-    private val projectSetup = (widget.adapter as WidgetApplier).workflowObj.project as ProjectSetup
     private val assetLink = AssetLink(widget.url ?: widget.valueString, projectSetup)
 
     init {

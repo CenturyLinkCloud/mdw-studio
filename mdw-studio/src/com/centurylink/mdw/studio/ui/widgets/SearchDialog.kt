@@ -6,37 +6,42 @@ import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBList
 import com.intellij.util.concurrency.SwingWorker
 import com.intellij.util.ui.UIUtil
-import com.jayway.jsonpath.JsonPath
-import com.jayway.jsonpath.PathNotFoundException
-import com.jayway.jsonpath.ReadContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.net.URL
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
-class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widget) :
-        DialogWrapper(projectSetup.project) {
+class SearchDialog(widget: Pagelet.Widget) : Dialog(widget) {
 
-    private val centerPanel = JPanel(BorderLayout())
-    private val okButton: JButton?
-        get() = getButton(okAction)
+    override fun showAndGet(): JsonValue? {
+        val dialogWrapper = SearchDialogWrapper(widget, projectSetup)
+        return if (dialogWrapper.showAndGet()) {
+            dialogWrapper.jsonValue
+        } else {
+            null
+        }
+    }
+}
+
+class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: ProjectSetup) :
+        DialogWrapper(widget, projectSetup) {
 
     private val searchText = SearchTextField()
 
-    private val listModel = DefaultListModel<SearchResult>()
-    private val resultsList = object: JBList<SearchResult>(listModel) {
+    private val listModel = DefaultListModel<JsonValue>()
+    private val resultsList = object: JBList<JsonValue>(listModel) {
         override fun getMinimumSize(): Dimension {
             return Dimension(350, 450)
         }
@@ -44,15 +49,13 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         override fun getToolTipText(event: MouseEvent): String? {
             val idx = locationToIndex(event.point)
             if (idx > -1) {
-                listModel.elementAt(idx)?.let { searchResult ->
-                    return searchResult.description
+                listModel.elementAt(idx)?.let { jsonValue ->
+                    return jsonValue.description
                 }
             }
             return super.getToolTipText(event)
         }
     }
-
-    var selectedResult: SearchResult? = null
 
     private val jsonArray: JSONArray by lazy {
         val searchUrl = widget.attributes["searchUrl"]
@@ -61,10 +64,6 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         } else {
             JSONArray(Fetch(URL(searchUrl)).get())
         }
-    }
-
-    override fun createCenterPanel(): JComponent {
-        return centerPanel
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {
@@ -110,8 +109,10 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
                 resultsList.repaint()
                 val search = e.document.getText(0, e.document.length)
                 if (search.length > 1) {
+
+
                     jsonArray.let { ja ->
-                        val searchResults = mutableListOf<SearchResult>()
+                        val searchResults = mutableListOf<JsonValue>()
                         for (i in 0 until ja.length()) {
                             val json = ja.getJSONObject(i)
                             for (name in JSONObject.getNames(json)) {
@@ -119,7 +120,7 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
                                     val value = json.optString(name)
                                     if (value.toLowerCase().contains(search.toLowerCase())) {
                                         val paths = widget.widgets.map { it.attributes["path"] }
-                                        searchResults.add(SearchResult(json, paths[0]!!, paths[1]))
+                                        searchResults.add(JsonValue(json, paths[0]!!, paths[1]))
                                         break
                                     }
                                 }
@@ -140,16 +141,23 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
         val borderColor = if (UIUtil.isUnderDarcula()) Color.GRAY else JBColor.border()
         resultsList.border = BorderFactory.createLineBorder(borderColor)
         resultsList.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        resultsList.addListSelectionListener { event ->
-            if (event.firstIndex > -1 && !listModel.isEmpty) {
-                selectedResult = listModel.elementAt(event.firstIndex)
-                okButton?.isEnabled = true
+        resultsList.addMouseListener(object: MouseAdapter() {
+            override fun mouseClicked(event: MouseEvent) {
+                val index = resultsList.locationToIndex(event.point)
+                if (index > -1 && !listModel.isEmpty) {
+                    jsonValue = listModel.elementAt(index)
+                    okButton?.isEnabled = true
+                    if (event.clickCount >= 2) {
+                        okButton?.doClick()
+                    }
+                }
+                else {
+                    jsonValue = null
+                    okButton?.isEnabled = false
+                }
             }
-            else {
-                selectedResult = null
-                okButton?.isEnabled = false
-            }
-        }
+        })
+
         listPanel.add(resultsList, BorderLayout.CENTER)
         centerPanel.add(listPanel, BorderLayout.CENTER)
 
@@ -158,64 +166,5 @@ class SearchDialog(projectSetup: ProjectSetup, private val widget: Pagelet.Widge
 
     companion object {
         val LOG = Logger.getInstance(SearchDialog::class.java)
-    }
-}
-
-class SearchResult(val json: JSONObject, val name: String, val descrip: String?) : Comparable<SearchResult> {
-
-    val label: String by lazy {
-        if (isPath(name)) {
-            evalPath(name)
-        } else {
-            name
-        }
-    }
-
-    val description: String? by lazy {
-        descrip?.let {
-            if (isPath(it)) {
-                evalPath(it)
-            } else {
-                it
-            }
-        }
-    }
-
-    private val readContext: ReadContext by lazy {
-        JsonPath.parse(json.toString())
-    }
-
-    override fun toString(): String {
-        return label
-    }
-
-    fun evalPath(path: String): String {
-        return if (isPath(path)) {
-            try {
-                val value = StringBuilder()
-                path.split("/").forEach { segment ->
-                    if (value.isNotEmpty()) {
-                        value.append(" / ")
-                    }
-                    value.append(readContext.read(segment) as String)
-                }
-                return value.toString()
-            }
-            catch (ex: PathNotFoundException) {
-                LOG.warn(ex)
-                return ""
-            }
-        } else {
-            path
-        }
-    }
-
-    override fun compareTo(other: SearchResult): Int {
-        return label.compareTo(other.label)
-    }
-
-    companion object {
-        val LOG = Logger.getInstance(SearchResult::class.java)
-        fun isPath(name: String) = name.contains("\$.")
     }
 }

@@ -19,21 +19,6 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
 
     val assetLink = AssetLink(assetPath, projectSetup)
 
-    /**
-     * Coords are relative to cell origin.
-     * Returns whether the pointer cursor should be displayed.
-     */
-    fun onHover(x: Int, y: Int): Boolean {
-        if (x > HGAP && y > VGAP) {
-            val fontMetrics = assetLink.getFontMetrics(assetLink.font)
-            if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
-                    y < VGAP + fontMetrics.height) {
-                return true
-            }
-        }
-        return false
-    }
-
     init {
         background = UIManager.getColor("EditorPane.background")
 
@@ -72,13 +57,24 @@ class AssetCell(assetPath: String, isReadonly: Boolean, projectSetup: ProjectSet
         }
     }
 
+    fun isHover(x: Int, y: Int): Boolean {
+        if (x > HGAP && y > VGAP) {
+            val fontMetrics = assetLink.getFontMetrics(assetLink.font)
+            if (x < HGAP + fontMetrics.stringWidth(assetLink.assetName) &&
+                    y < VGAP + fontMetrics.height) {
+                return true
+            }
+        }
+        return false
+    }
+
     companion object {
         const val HGAP = 3
         const val VGAP = 3
     }
 }
 
-class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer() {
+class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup) : DefaultTableCellRenderer(), Hoverable {
 
     var assetCell : AssetCell? = null
 
@@ -88,6 +84,10 @@ class AssetCellRenderer(val isReadonly: Boolean, val projectSetup: ProjectSetup)
         assetCell.init(table, isSelected, hasFocus)
         this.assetCell = assetCell
         return assetCell
+    }
+
+    override fun isHover(x: Int, y: Int): Boolean {
+        return assetCell?.isHover(x, y) == true
     }
 }
 
@@ -104,14 +104,14 @@ class AssetCellEditor(val isReadonly: Boolean, val projectSetup: ProjectSetup, v
             if (source == "proc" && !assetPath.isBlank() && !assetPath.endsWith(".proc")) {
                 assetPath += ".proc"
             }
-            if (table.model.columnCount > column + 1) {
+            if (table.model.columnCount > column + 1 && table.model.getColumnName(column + 1).trim() == "Version") {
+                // auto-set smart version
                 if (assetPath.isBlank()) {
                     table.model.setValueAt("", row, column + 1)
                 }
                 else {
                     val asset = projectSetup.getAsset(assetPath)
                     if (asset != null) {
-                        // auto-set smart version
                         val ver = AssetVersionSpec.getDefaultSmartVersionSpec(Asset.formatVersion(asset.version))
                         table.model.setValueAt(ver, row, column + 1)
                     }

@@ -1,9 +1,7 @@
 package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.draw.edit.*
-import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.icons.AllIcons
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
@@ -31,9 +29,6 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         private val withButtons: Boolean = true) : SwingWidget(widget, BorderLayout()) {
 
     constructor(widget: Pagelet.Widget) : this(widget, false, true)
-
-    protected val workflowObj = (widget.adapter as WidgetApplier).workflowObj
-    protected val projectSetup = workflowObj.project as ProjectSetup
 
     private val columnWidgets: List<Pagelet.Widget> by lazy {
         initialColumnWidgets()
@@ -121,17 +116,17 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
                 val colIdx = table.columnAtPoint(e.point)
                 val col = table.columnModel.getColumn(colIdx)
                 val renderer = col.cellRenderer
-                if (renderer is AssetCellRenderer) {
-                    val cellRect = table.getCellRect(table.rowAtPoint(e.point), colIdx, false)
-                    if (renderer.assetCell?.onHover(e.x - cellRect.x, e.y - cellRect.y) == true) {
-                        table.cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                table.cursor = when(renderer) {
+                    is Hoverable -> {
+                        val cellRect = table.getCellRect(table.rowAtPoint(e.point), colIdx, false)
+                        if (renderer.isHover(e.x - cellRect.x, e.y - cellRect.y)) {
+                            Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                        }
+                        else {
+                            Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                        }
                     }
-                    else {
-                        table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
-                    }
-                }
-                else {
-                    table.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
+                    else -> Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
                 }
             }
         })
@@ -241,7 +236,11 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
     private fun getCellRenderer(widget: Pagelet.Widget): TableCellRenderer {
         return when (widget.type) {
             "checkbox" -> CheckboxCellRenderer()
-            "asset" -> AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
+            "asset" -> {
+                AssetCellRenderer(this@Table.widget.isReadonly || widget.isReadonly, projectSetup)
+            }
+            "link" -> LinkCellRenderer(widget.url)
+            "dialog" -> DialogCellRenderer(widget)
             else -> DefaultTableCellRenderer()
         }
     }
@@ -253,8 +252,12 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         return when (widget.type) {
             "checkbox" -> DefaultCellEditor(Checkbox(widget).checkbox)
             "dropdown" -> DefaultCellEditor(Dropdown(widget).combo)
-            "asset" -> AssetCellEditor(this@Table.widget.isReadonly || widget.isReadonly, projectSetup, widget.source)
             "number" -> NumberCellEditor()
+            "asset" -> {
+                AssetCellEditor(this@Table.widget.isReadonly || widget.isReadonly, projectSetup, widget.source)
+            }
+            "link" -> LinkCellEditor(widget.url)
+            "dialog" -> DialogCellEditor(widget)
             else -> DefaultCellEditor(Text(widget).textComponent as JTextField)
         }
     }

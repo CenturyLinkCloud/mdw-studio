@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.draw.edit.width
 import com.centurylink.mdw.model.asset.Pagelet
@@ -21,8 +20,6 @@ class Expression(widget: Pagelet.Widget) : SwingWidget(widget) {
         isOpaque = false
         border = BorderFactory.createEmptyBorder()
 
-        val applier = widget.adapter as WidgetApplier
-        val workflowObj = applier.workflowObj
         val ext = if (workflowObj.obj.get("implementor") == "com.centurylink.mdw.kotlin.ScriptActivity") {
             "kts"
         } else {

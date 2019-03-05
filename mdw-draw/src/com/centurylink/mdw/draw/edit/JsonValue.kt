@@ -1,8 +1,8 @@
-package com.centurylink.mdw.studio.ui.widgets
+package com.centurylink.mdw.draw.edit
 
-import com.intellij.openapi.diagnostic.Logger
+import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.JsonPath
-import com.jayway.jsonpath.PathNotFoundException
+import com.jayway.jsonpath.Option
 import com.jayway.jsonpath.ReadContext
 import org.json.JSONObject
 
@@ -27,11 +27,16 @@ class JsonValue(val json: JSONObject, val name: String, val descrip: String? = n
     }
 
     private val readContext: ReadContext by lazy {
-        JsonPath.parse(json.toString())
+        val config = Configuration.defaultConfiguration().addOptions(Option.SUPPRESS_EXCEPTIONS)
+        JsonPath.using(config).parse(json.toString())
     }
 
     override fun toString(): String {
         return label
+    }
+
+    fun copy(): JsonValue {
+        return JsonValue(json, name, descrip)
     }
 
     fun evalPath(path: String): String {
@@ -40,23 +45,18 @@ class JsonValue(val json: JSONObject, val name: String, val descrip: String? = n
                 json.toString()
             }
             else {
-                try {
-                    val value = StringBuilder()
-                    path.split("/", "\n").forEach { segment ->
-                        if (value.isNotEmpty()) {
-                            if (path.contains("\n")) {
-                                value.append("\n")
-                            } else {
-                                value.append(" / ")
-                            }
+                val value = StringBuilder()
+                path.split("/", "\n").forEach { segment ->
+                    if (value.isNotEmpty()) {
+                        if (path.contains("\n")) {
+                            value.append("\n")
+                        } else {
+                            value.append(" / ")
                         }
-                        value.append((readContext.read(segment) as Any).toString())
                     }
-                    value.toString()
-                } catch (ex: PathNotFoundException) {
-                    LOG.warn(ex)
-                    ""
+                    value.append((readContext.read(segment) as Any?).toString())
                 }
+                value.toString()
             }
         } else {
             path
@@ -68,7 +68,6 @@ class JsonValue(val json: JSONObject, val name: String, val descrip: String? = n
     }
 
     companion object {
-        val LOG = Logger.getInstance(JsonValue::class.java)
         fun isPath(name: String) = name.contains("\$.") || name == "\$"
     }
 }

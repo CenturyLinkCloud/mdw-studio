@@ -13,7 +13,7 @@ import javax.swing.table.TableCellRenderer
 
 open class LinkCell(val label: String, url: String? = null) : JPanel(FlowLayout(FlowLayout.LEFT, HGAP, VGAP)) {
 
-    private val linkLabel = LinkLabel(label)
+    protected val linkLabel = LinkLabel(label)
 
     init {
         linkLabel.alignmentX = Component.LEFT_ALIGNMENT

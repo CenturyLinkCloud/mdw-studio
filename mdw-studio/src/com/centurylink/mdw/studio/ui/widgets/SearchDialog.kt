@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.cli.Fetch
+import com.centurylink.mdw.draw.edit.JsonValue
 import com.centurylink.mdw.draw.edit.label
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.proj.ProjectSetup
@@ -25,7 +26,7 @@ import javax.swing.event.DocumentEvent
 
 class SearchDialog(widget: Pagelet.Widget) : Dialog(widget) {
 
-    override fun showAndGet(): JsonValue? {
+    fun showAndGet(): JsonValue? {
         val dialogWrapper = SearchDialogWrapper(widget, projectSetup)
         return if (dialogWrapper.showAndGet()) {
             dialogWrapper.jsonValue

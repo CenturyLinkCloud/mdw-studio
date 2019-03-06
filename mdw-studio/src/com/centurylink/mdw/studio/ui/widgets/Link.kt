@@ -1,14 +1,11 @@
 package com.centurylink.mdw.studio.ui.widgets
 
-import com.centurylink.mdw.draw.edit.isReadonly
-import com.centurylink.mdw.draw.edit.valueString
-import com.centurylink.mdw.draw.edit.width
+import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.BrowserUtil
 import com.intellij.ui.DocumentAdapter
 import java.awt.Component
-import java.awt.Cursor
 import java.awt.Dimension
 import javax.swing.BorderFactory
 import javax.swing.JTextField
@@ -26,7 +23,7 @@ class Link(widget: Pagelet.Widget) : SwingWidget(widget) {
         border = BorderFactory.createEmptyBorder()
 
         if (widget.isReadonly) {
-            val linkLabel = LinkLabel(widget.attributes["label"] ?: widget.valueString ?: "")
+            val linkLabel = LinkLabel(widget.url ?: widget.label ?: widget.valueString ?: "")
             linkLabel.alignmentX = Component.LEFT_ALIGNMENT
             linkLabel.clickListener = {
                 widget.valueString?.let { BrowserUtil.browse(it) }

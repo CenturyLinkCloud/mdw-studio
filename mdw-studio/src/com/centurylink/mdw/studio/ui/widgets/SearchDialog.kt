@@ -11,6 +11,7 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.concurrency.SwingWorker
 import com.intellij.util.ui.UIUtil
 import org.json.JSONArray
@@ -20,7 +21,9 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.File
 import java.net.URL
+import java.nio.file.Files
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
@@ -43,10 +46,6 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
 
     private val listModel = DefaultListModel<JsonValue>()
     private val resultsList = object: JBList<JsonValue>(listModel) {
-        override fun getMinimumSize(): Dimension {
-            return Dimension(350, 450)
-        }
-
         override fun getToolTipText(event: MouseEvent): String? {
             val idx = locationToIndex(event.point)
             if (idx > -1) {
@@ -62,9 +61,14 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
         val searchUrl = widget.attributes["searchUrl"]
         if (searchUrl == null) {
             JSONArray()
+        } else if (searchUrl.startsWith("file://")) {
+            JSONArray(String(Files.readAllBytes(File(searchUrl.substring(6)).toPath())))
+
         } else {
             JSONArray(Fetch(URL(searchUrl)).get())
+
         }
+
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {
@@ -110,8 +114,6 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
                 resultsList.repaint()
                 val search = e.document.getText(0, e.document.length)
                 if (search.length > 1) {
-
-
                     jsonArray.let { ja ->
                         val searchResults = mutableListOf<JsonValue>()
                         for (i in 0 until ja.length()) {
@@ -141,6 +143,7 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
         listPanel.border = BorderFactory.createEmptyBorder(4, 4, 4, 4)
         val borderColor = if (UIUtil.isUnderDarcula()) Color.GRAY else JBColor.border()
         resultsList.border = BorderFactory.createLineBorder(borderColor)
+        resultsList.minimumSize = Dimension()
         resultsList.selectionMode = ListSelectionModel.SINGLE_SELECTION
         resultsList.addMouseListener(object: MouseAdapter() {
             override fun mouseClicked(event: MouseEvent) {
@@ -160,7 +163,9 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
         })
 
         listPanel.add(resultsList, BorderLayout.CENTER)
-        centerPanel.add(listPanel, BorderLayout.CENTER)
+        val scrollPane = JBScrollPane(listPanel)
+        scrollPane.minimumSize = Dimension(350, 450)
+        centerPanel.add(scrollPane, BorderLayout.CENTER)
 
         resultsList.setEmptyText("Loading...")
     }

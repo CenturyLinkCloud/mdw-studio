@@ -1,5 +1,6 @@
 package com.centurylink.mdw.studio.vcs
 
+import com.centurylink.mdw.studio.action.AssetVercheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
@@ -19,7 +20,7 @@ class AssetCheckinHandler(private val project: Project) : CheckinHandler() {
     override fun beforeCheckin(): ReturnResult {
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
             if (projectSetup.isMdwProject) {
-                // TODO: perform vercheck
+                AssetVercheck(projectSetup).performCheck()
             }
         }
 

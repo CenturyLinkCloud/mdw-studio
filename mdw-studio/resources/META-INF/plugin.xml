@@ -200,6 +200,11 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.UpdateAssets">
                 <add-to-group group-id="mdwAssetActions" anchor="first" />
             </action>
+            <action id="mdwAssetVercheck" text="Check Asset Versions" icon="AllIcons.General.InspectionsOK"
+                    description="Check/fix MDW asset versions"
+                    class="com.centurylink.mdw.studio.action.VercheckAssets">
+                <add-to-group group-id="mdwAssetActions" anchor="first" />
+            </action>
             <separator/>
         </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"

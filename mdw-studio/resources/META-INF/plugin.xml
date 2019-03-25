@@ -51,6 +51,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <virtualFileSystem id="mdwVirtualFileSystem"
                            implementationClass="com.centurylink.mdw.studio.file.AttributeVirtualFileSystem" key="mdw"/>
         <java.elementFinder id="mdwAttributeElementFinder" implementation="com.centurylink.mdw.studio.file.AttributeElementFinder"/>
+        <checkinHandlerFactory id="mdwCheckinHandler" implementation="com.centurylink.mdw.studio.vcs.AssetCheckinHandlerFactory" />
     </extensions>
 
     <!--

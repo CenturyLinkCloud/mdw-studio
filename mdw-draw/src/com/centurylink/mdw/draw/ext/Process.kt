@@ -36,9 +36,9 @@ fun Process.maxActivityId(): Long {
     return if (maxAct == null) 0 else maxAct!!.id
 }
 
-fun Process.addActivity(x: Int, y: Int, implementor: ActivityImplementor, boxed: Boolean = true): Activity {
+fun Process.addActivity(x: Int, y: Int, implementor: ActivityImplementor, id: Long, boxed: Boolean = true): Activity {
     val activity = Activity()
-    activity.id = maxActivityId() + 1
+    activity.id = id
     activity.name = when (implementor.implementorClass) {
         Data.Implementors.START_IMPL -> "Start"
         Data.Implementors.STOP_IMPL -> "Stop"
@@ -82,9 +82,9 @@ fun Process.maxTransitionId(): Long {
     return if (maxTrans == null) 0 else maxTrans!!.id
 }
 
-fun Process.addTransition(fromActivity: Activity, toActivity: Activity): Transition {
+fun Process.addTransition(fromActivity: Activity, toActivity: Activity, id: Long): Transition {
     val transition = Transition()
-    transition.id = maxTransitionId() + 1
+    transition.id = id
     transition.eventType = EventType.FINISH
     transition.fromId = fromActivity.id
     transition.toId = toActivity.id

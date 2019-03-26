@@ -3,8 +3,8 @@ package com.centurylink.mdw.studio.ui.widgets
 import com.centurylink.mdw.draw.edit.isReadonly
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
+import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.event.DocumentEvent
@@ -12,10 +12,6 @@ import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
-import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
-import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
-import com.intellij.openapi.ui.DialogBuilder
-import java.awt.Dimension
 import java.io.IOException
 import javax.swing.BorderFactory
 
@@ -32,18 +28,23 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         val linkLabel = LinkLabel(if (widget.isReadonly) "View" else "Edit")
         linkLabel.toolTipText = "Open ${widget.attributes["languages"]}"
         linkLabel.clickListener = {
-            showEditDialog()
+            openEditor()
         }
         add(linkLabel)
     }
 
-    private fun showEditDialog() {
+    private fun openEditor() {
         val qualifier = when(widget.name) {
             "PreScript" -> "Pre"
             "PostScript" -> "Post"
             else -> null
         }
-        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString, qualifier = qualifier)
+
+        val fileSystem = AttributeVirtualFileSystem.instance
+        val javaOrScriptFile = fileSystem.getJavaOrScriptFile(workflowObj, widget.valueString, qualifier)
+        // TODO: reuse non Java or Script files
+        val virtualFile = javaOrScriptFile ?: AttributeVirtualFile(workflowObj, widget.valueString, qualifier = qualifier)
+
         if (virtualFile.contents != widget.valueString) {
             // might have been set from template
             widget.value = virtualFile.contents
@@ -70,20 +71,7 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
             }
         }
 
-        if (MdwSettings.instance.isOpenAttributeContentInEditorTab) {
-            val descriptor = OpenFileDescriptor(project, virtualFile)
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
-        }
-        else {
-            FileDocumentManagerImpl.registerDocument(document, virtualFile)
-            val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile)
-            editor.component.preferredSize = Dimension(800, 600)
-            val dialogBuilder = DialogBuilder(parent)
-            dialogBuilder.setTitle(workflowObj.titlePath)
-            dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
-            dialogBuilder.setCenterPanel(editor.component)
-            dialogBuilder.setDimensionServiceKey("mdw.AttributeSourceDialog")
-            dialogBuilder.showNotModal()
-        }
+        val descriptor = OpenFileDescriptor(project, virtualFile)
+        FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
     }
 }

@@ -27,8 +27,8 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.packageName = pkg
                         process.id = asset.id
                         process.activities.find { it.logicalId == activityId }?.let { activity ->
-                            activity.getAttribute("Java")?.let { java ->
-                                AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java")?.let { file ->
+                            activity.getAttribute("Java")?.let { _ ->
+                                AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java", project)?.let { file ->
                                         (file as AttributeVirtualFile).psiFile?.let { psiFile ->
                                         if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
                                             return psiFile.classes[0]
@@ -36,10 +36,10 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                                     }
                                 }
                             }
-                            activity.getAttribute("Rule")?.let { rule ->
+                            activity.getAttribute("Rule")?.let { _ ->
                                 activity.getAttribute("SCRIPT")?.let { scriptAttr ->
                                     AttributeVirtualFile.getScriptExt(scriptAttr)?.let { ext ->
-                                        AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext")?.let { file ->
+                                        AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext", project)?.let { file ->
                                             (file as AttributeVirtualFile).psiFile?.let { psiFile ->
                                                 if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
                                                     return psiFile.classes[0]

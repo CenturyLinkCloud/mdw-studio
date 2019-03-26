@@ -27,12 +27,10 @@ import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.tabs.TabsUtil
 import com.intellij.util.ui.JBUI
 import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Cursor
-import java.awt.Dimension
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.BorderFactory
@@ -70,7 +68,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         set(value) {
             _process = value
             _process.name = procFile.nameWithoutExtension
-            var procAsset = projectSetup.getAsset(procFile)
+            val procAsset = projectSetup.getAsset(procFile)
             if (procAsset == null) {
                 // can happen if no pkg meta
                 asset = projectSetup.createAsset(procFile)

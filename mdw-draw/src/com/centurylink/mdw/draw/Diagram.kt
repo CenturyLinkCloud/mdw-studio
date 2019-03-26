@@ -201,7 +201,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                 return subflow.addStep(implementor, x, y)
             }
         }
-        val activity = process.addActivity(x, y, implementor)
+        val activity = process.addActivity(x, y, implementor, process.maxActivityId() + 1)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn
         return step
@@ -223,7 +223,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                 return subflow.addLink(from, to)
             }
         }
-        val transition = process.addTransition(from.activity, to.activity)
+        val transition = process.addTransition(from.activity, to.activity, process.maxTransitionId() + 1)
         val link = Link(g2d, project, process, transition, from, to)
         link.calc()
         links.add(link) // unnecessary if redrawn

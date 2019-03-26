@@ -9,35 +9,19 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
 
-class UpdateAssets : AnAction() {
+class UpdateAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).getProjectSetup()?.let { projectSetup ->
             AssetUpdate(projectSetup).doUpdate()
         }
-    }
-
-    override fun update(event: AnActionEvent) {
-        var applicable = false
-        Locator(event).getProjectSetup()?.let { projectSetup ->
-            applicable = if (event.place == "MainMenu") {
-                true
-            } else {
-                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-                file == projectSetup.project.baseDir || file == projectSetup.assetDir
-            }
-        }
-        event.presentation.isVisible = applicable
-        event.presentation.isEnabled = applicable
     }
 }
 

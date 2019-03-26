@@ -3,6 +3,8 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.ext.addActivity
 import com.centurylink.mdw.draw.ext.addTransition
+import com.centurylink.mdw.draw.ext.maxActivityId
+import com.centurylink.mdw.draw.ext.maxTransitionId
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.Project
@@ -62,7 +64,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
     }
 
     fun addStep(implementor: ActivityImplementor, x: Int, y: Int): Step {
-        val activity = subprocess.addActivity(x, y, implementor)
+        val activity = subprocess.addActivity(x, y, implementor, process.maxActivityId() + 1)
         val step = Step(g2d, project, process, activity, implementor)
         steps.add(step) // unnecessary if redrawn
         return step
@@ -79,7 +81,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
     }
 
     fun addLink(from: Step, to: Step): Link {
-        val transition = subprocess.addTransition(from.activity, to.activity)
+        val transition = subprocess.addTransition(from.activity, to.activity, process.maxTransitionId() + 1)
         val link = Link(g2d, project, process, transition, from, to)
         link.calc()
         links.add(link) // unnecessary if redrawn

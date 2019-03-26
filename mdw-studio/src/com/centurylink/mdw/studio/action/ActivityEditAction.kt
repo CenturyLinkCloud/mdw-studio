@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.intellij.openapi.actionSystem.AnAction
@@ -28,7 +29,16 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
         UpdateListeners by UpdateListenersDelegate() {
 
     val attributeName: String
-        get() = if (workflowObj.getAttribute("Java") != null) "Java" else "Rule"
+        get() {
+            val isJava = workflowObj.getAttribute("Java") != null ||
+                    workflowObj.obj.optString("implementor") == Data.Implementors.DYNAMIC_JAVA
+            return if (isJava) {
+                "Java"
+            }
+            else {
+                "Rule"
+            }
+        }
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.let { project ->

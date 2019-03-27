@@ -40,7 +40,6 @@ class MdwConfig : SearchableConfigurable {
     }
 
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
-    private val attributeContentInEditorTabCheckbox = CheckBox("Open dynamic Java and script activity content in editor tab")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
 
     private val discoveryRepoUrlsList = object: JBList<String>() {
@@ -149,15 +148,6 @@ class MdwConfig : SearchableConfigurable {
             modified = true
         }
         editPanel.add(syncDynamicJavaCheckbox)
-
-        // open attribute content in editor tab
-        attributeContentInEditorTabCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        attributeContentInEditorTabCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
-        attributeContentInEditorTabCheckbox.isSelected = MdwSettings.instance.isOpenAttributeContentInEditorTab
-        attributeContentInEditorTabCheckbox.addActionListener {
-            modified = true
-        }
-        editPanel.add(attributeContentInEditorTabCheckbox)
 
         // create and associate task template
         createAndAssociateTaskCheckbox.alignmentX = Component.LEFT_ALIGNMENT
@@ -284,7 +274,6 @@ class MdwConfig : SearchableConfigurable {
         mdwSettings.canvasZoom = zoomSlider.value
 
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
-        mdwSettings.isOpenAttributeContentInEditorTab = attributeContentInEditorTabCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
 
         mdwSettings.discoveryRepoUrls = discoveryRepoUrls

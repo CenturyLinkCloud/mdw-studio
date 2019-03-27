@@ -186,31 +186,16 @@ val Step.associatedAsset: Asset?
 
 val Step.associatedEdit: AttributeVirtualFile?
     get() {
-        val process = workflowObj.asset as Process
-        if (implementor.category == ScriptActivity::class.qualifiedName) {
-            val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-            workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
-                AttributeVirtualFile.getScriptExt(scriptAttr)?.let { ext ->
-                    val filePath = "${process.packageName}/$name.$ext"
-                    val file = AttributeVirtualFileSystem.instance.findFileByPath(filePath)
-                    if (file is AttributeVirtualFile) {
-                        return file
-                    }
-                }
-            }
+
+        val isScript = implementor.category == ScriptActivity::class.qualifiedName
+        val isJava = implementor.category == GeneralActivity::class.qualifiedName &&
+                (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA || activity.getAttribute("Java") != null)
+
+        return if (isScript || isJava) {
+            val content = if (isJava) activity.getAttribute("Java") else activity.getAttribute("Rule")
+            AttributeVirtualFileSystem.instance.getJavaOrScriptFile(workflowObj, content)
         }
-        if (implementor.category == GeneralActivity::class.qualifiedName &&
-                (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA ||
-                        activity.getAttribute("Java") != null)) {
-            var name = activity.getAttribute("ClassName")
-            if (name == null) {
-                name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
-            }
-            val filePath = "${process.packageName}/$name.java"
-            val file = AttributeVirtualFileSystem.instance.findFileByPath(filePath)
-            if (file is AttributeVirtualFile) {
-                return file
-            }
+        else {
+            null
         }
-        return null
     }

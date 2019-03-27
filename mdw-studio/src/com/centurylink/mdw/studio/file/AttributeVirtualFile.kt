@@ -1,7 +1,11 @@
 package com.centurylink.mdw.studio.file
 
+import com.centurylink.mdw.activity.types.GeneralActivity
+import com.centurylink.mdw.activity.types.ScriptActivity
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.ext.JsonObject
+import com.centurylink.mdw.draw.ext.rootName
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
@@ -32,7 +36,7 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String?,
+class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
         private val fileExtension: String? = null, private val qualifier: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
@@ -242,12 +246,13 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String?,
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
         val attrFileSystem = AttributeVirtualFileSystem()
-        fun getScriptExt(scriptAttr: String): String? {
+        const val DEFAULT_SCRIPT_EXT = "groovy"
+        fun getScriptExt(scriptAttr: String): String {
             return when(scriptAttr) {
                 "Kotlin Script" -> "kts"
                 "Groovy" -> "groovy"
                 "JavaScript" -> "js"
-                else -> null
+                else -> DEFAULT_SCRIPT_EXT
             }
         }
     }
@@ -266,10 +271,68 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
     }
 
     /**
+     * Finds or creates a dynamic Java/Script file.
+     */
+    fun getJavaOrScriptFile(workflowObj: WorkflowObj, contents: String? = null, qualifier: String? = null): AttributeVirtualFile? {
+        assert(workflowObj.type == WorkflowType.activity)
+        val projectSetup = workflowObj.project as ProjectSetup
+        val process = workflowObj.asset as Process
+        val implClass = workflowObj.obj.getString("implementor")
+        projectSetup.implementors[implClass]?.let { implementor ->
+            if (implementor.category == GeneralActivity::class.qualifiedName &&
+                    (implClass == Data.Implementors.DYNAMIC_JAVA || workflowObj.getAttribute("Java") != null)) {
+                var name = workflowObj.getAttribute("ClassName")
+                if (name == null) {
+                    name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
+                }
+                val filePath = "${process.packageName}/$name.java"
+                val virtualFile = virtualFiles[filePath]
+                return if (virtualFile == null) {
+                    createFile(filePath, workflowObj, contents, "java", qualifier)
+                }
+                else {
+                    if (contents != null) {
+                        virtualFile.contents = contents
+                    }
+                    virtualFile
+                }
+            }
+            else if (implementor.category == ScriptActivity::class.qualifiedName) {
+                var name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                qualifier?.let { name += "_$it" }
+                var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
+                    ext = AttributeVirtualFile.getScriptExt(scriptAttr)
+                    val file = virtualFiles["${process.packageName}/$name.$ext"]
+                    if (file != null) {
+                        if (contents != null) {
+                            file.contents = contents
+                        }
+                        return file
+                    }
+                }
+                return createFile("${process.packageName}/$name.$ext", workflowObj, contents, ext, qualifier)
+            }
+        }
+        return null
+    }
+
+    override fun findFileByPath(path: String): VirtualFile? {
+        val activeProject = ProjectSetup.activeProject
+        if (activeProject == null) {
+            LOG.warn("Cannot find active project for: $path")
+            return null
+        }
+        else {
+            return findFileByPath(path, activeProject)
+        }
+    }
+
+    /**
      * Caches found VirtualFiles to avoid this:
      * https://youtrack.jetbrains.com/issue/IDEA-203751
      */
-    override fun findFileByPath(path: String): VirtualFile? {
+    fun findFileByPath(path: String, project: Project): VirtualFile? {
         var virtualFile = virtualFiles[path]
         val withoutExt = path.substring(0, path.lastIndexOf("."))
         val pkg = withoutExt.substring(0, withoutExt.indexOf("/"))
@@ -277,50 +340,49 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         val processName = withoutExt.substring(pkg.length + 1, underscore)
         val activityId = withoutExt.substring(underscore + 1)
 
-        val activeProject = ProjectSetup.activeProject
-        if (activeProject == null) {
-            LOG.warn("Cannot find active project for: $path")
-        }
-        else {
-            val projectSetup = activeProject.getComponent(ProjectSetup::class.java)
+        val projectSetup = project.getComponent(ProjectSetup::class.java)
 
-            projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
-                val process = Process(JSONObject(String(asset.contents)))
-                process.name = processName
-                process.packageName = pkg
-                process.id = asset.id
-                process.activities.find { it.logicalId == activityId }?.let { activity ->
-                    activity.getAttribute("Java")?.let { java ->
-                        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
-                        val file = virtualFile
-                        if (file == null) {
-                            val vFile = AttributeVirtualFile(workflowObj, java)
-                            virtualFiles[path] = vFile
-                        }
-                        else {
-                            file.workflowObj = workflowObj
-                            file.contents = java
-                            file._psiFile = null
-                        }
+        projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
+            val process = Process(JSONObject(String(asset.contents)))
+            process.name = processName
+            process.packageName = pkg
+            process.id = asset.id
+            process.activities.find { it.logicalId == activityId }?.let { activity ->
+                activity.getAttribute("Java")?.let { java ->
+                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                    val file = virtualFile
+                    if (file == null) {
+                        createFile(path, workflowObj, java)
                     }
-                    activity.getAttribute("Rule")?.let { rule ->
-                        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
-                        val file = virtualFile
-                        if (file == null) {
-                            val vFile = AttributeVirtualFile(workflowObj, rule)
-                            virtualFiles[path] = vFile
-                        }
-                        else {
-                            file.workflowObj = workflowObj
-                            file.contents = rule
-                            file._psiFile = null
-                        }
+                    else {
+                        file.workflowObj = workflowObj
+                        file.contents = java
+                        file._psiFile = null
+                    }
+                }
+                activity.getAttribute("Rule")?.let { rule ->
+                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                    val file = virtualFile
+                    if (file == null) {
+                        createFile(path, workflowObj, rule)
+                    }
+                    else {
+                        file.workflowObj = workflowObj
+                        file.contents = rule
+                        file._psiFile = null
                     }
                 }
             }
         }
 
         return virtualFile
+    }
+
+    fun createFile(path: String, workflowObj: WorkflowObj, contents: String? = null, ext: String? = null,
+            qualifier: String? = null): AttributeVirtualFile {
+        val vFile = AttributeVirtualFile(workflowObj, contents, ext, qualifier)
+        virtualFiles[path] = vFile
+        return vFile
     }
 
     override fun refreshAndFindFileByPath(path: String): VirtualFile? {

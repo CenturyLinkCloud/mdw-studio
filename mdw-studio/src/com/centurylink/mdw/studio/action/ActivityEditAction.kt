@@ -2,8 +2,8 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
-import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -15,13 +15,9 @@ import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
-import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
-import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorProvider
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.DialogBuilder
 import java.awt.Component
-import java.awt.Dimension
 import java.io.IOException
 
 /**
@@ -33,7 +29,16 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
         UpdateListeners by UpdateListenersDelegate() {
 
     val attributeName: String
-        get() = if (workflowObj.getAttribute("Java") != null) "Java" else "Rule"
+        get() {
+            val isJava = workflowObj.getAttribute("Java") != null ||
+                    workflowObj.obj.optString("implementor") == Data.Implementors.DYNAMIC_JAVA
+            return if (isJava) {
+                "Java"
+            }
+            else {
+                "Rule"
+            }
+        }
 
     override fun actionPerformed(event: AnActionEvent) {
         event.getData(CommonDataKeys.PROJECT)?.let { project ->
@@ -48,8 +53,6 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
     }
 
     internal fun openEditor(project: Project) {
-        // virtualFile.psiFile // trigger load
-
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
 
@@ -77,20 +80,7 @@ class ActivityEditAction(private val parent: Component, var workflowObj: Workflo
             }
         }
 
-        if (MdwSettings.instance.isOpenAttributeContentInEditorTab) {
-            val descriptor = OpenFileDescriptor(project, virtualFile)
-            FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
-        }
-        else {
-            FileDocumentManagerImpl.registerDocument(document, virtualFile);
-            val editor = PsiAwareTextEditorProvider.getInstance().createEditor(project, virtualFile);
-            editor.component.preferredSize = Dimension(800, 600)
-            val dialogBuilder = DialogBuilder(parent)
-            dialogBuilder.setTitle(workflowObj.titlePath)
-            dialogBuilder.setActionDescriptors(DialogBuilder.CloseDialogAction())
-            dialogBuilder.setCenterPanel(editor.component)
-            dialogBuilder.setDimensionServiceKey("mdw.AttributeSourceDialog")
-            dialogBuilder.showNotModal()
-        }
+        val descriptor = OpenFileDescriptor(project, virtualFile)
+        FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
     }
 }

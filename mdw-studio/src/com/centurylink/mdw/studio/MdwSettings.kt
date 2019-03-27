@@ -59,6 +59,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
+    var isAssetVercheckBeforeCommit: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(ASSET_VERCHECK_BEFORE_COMMIT, true)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(ASSET_VERCHECK_BEFORE_COMMIT, value)
+        }
+
     var discoveryRepoUrls: List<String>
         get() {
             val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
@@ -98,11 +104,13 @@ class MdwSettings {
 
         // editing
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
-        private const val OPEN_ATTRIBUTE_CONTENT_IN_EDITOR_TAB = "$ID.isOpenAttributeContentInContentInEditorTab"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
 
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"
         private const val DISCOVERY_MAX_BRANCHES_TAGS = "$ID.discoveryMaxBranchesTags"
+
+        // vcs
+        private const val ASSET_VERCHECK_BEFORE_COMMIT = "$ID.assetVercheckBeforeCommit"
     }
 }

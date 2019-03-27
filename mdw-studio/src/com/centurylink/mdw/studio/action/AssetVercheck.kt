@@ -1,7 +1,6 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 
 class VercheckAssets : AssetToolsAction() {

@@ -29,7 +29,9 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.activities.find { it.logicalId == activityId }?.let { activity ->
                             activity.getAttribute("Java")?.let { _ ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java", project)?.let { file ->
-                                        (file as AttributeVirtualFile).psiFile?.let { psiFile ->
+                                    val attributeVirtualFile = file as AttributeVirtualFile
+                                    attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
+                                    attributeVirtualFile.psiFile?.let { psiFile ->
                                         if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
                                             return psiFile.classes[0]
                                         }
@@ -38,9 +40,11 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                             }
                             activity.getAttribute("Rule")?.let { _ ->
                                 activity.getAttribute("SCRIPT")?.let { scriptAttr ->
-                                    AttributeVirtualFile.getScriptExt(scriptAttr)?.let { ext ->
+                                    AttributeVirtualFile.getScriptExt(scriptAttr).let { ext ->
                                         AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext", project)?.let { file ->
-                                            (file as AttributeVirtualFile).psiFile?.let { psiFile ->
+                                            val attributeVirtualFile = file as AttributeVirtualFile
+                                            attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
+                                            attributeVirtualFile.psiFile?.let { psiFile ->
                                                 if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
                                                     return psiFile.classes[0]
                                                 }

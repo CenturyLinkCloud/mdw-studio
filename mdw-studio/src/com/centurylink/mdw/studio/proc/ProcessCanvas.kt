@@ -125,7 +125,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                                     actions.add(0, ActivityAssetAction(asset))
                                 }
                                 step.associatedEdit?.let { edit ->
-                                    val editAction = ActivityEditAction(this@ProcessCanvas, step.workflowObj, edit)
+                                    val editAction = ActivityEditAction(step.workflowObj, edit)
                                     editAction.addUpdateListener { obj ->
                                         obj.updateAsset()
                                         notifyUpdateListeners(obj)

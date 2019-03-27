@@ -36,7 +36,7 @@ open class WorkflowObj(val project: Project, var asset: Asset, val type: Workflo
     val titlePath: String
         get() = asset.packageName + "/" + asset.name + ": " + name.lines().joinToString(" ")
 
-    var isReadonly = false
+    var isReadOnly = false
 
     init {
         if (obj.has("id")) {

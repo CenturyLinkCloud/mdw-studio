@@ -209,7 +209,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
     }
 
     override fun isWritable(): Boolean {
-        return !workflowObj.isReadonly
+        return !workflowObj.isReadOnly
     }
 
     override fun getInputStream(): InputStream {
@@ -291,6 +291,7 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
                     createFile(filePath, workflowObj, contents, "java", qualifier)
                 }
                 else {
+                    virtualFile.workflowObj = workflowObj
                     if (contents != null) {
                         virtualFile.contents = contents
                     }
@@ -303,12 +304,13 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
                 var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
                 workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
                     ext = AttributeVirtualFile.getScriptExt(scriptAttr)
-                    val file = virtualFiles["${process.packageName}/$name.$ext"]
-                    if (file != null) {
+                    val virtualFile = virtualFiles["${process.packageName}/$name.$ext"]
+                    if (virtualFile != null) {
+                        virtualFile.workflowObj = workflowObj
                         if (contents != null) {
-                            file.contents = contents
+                            virtualFile.contents = contents
                         }
-                        return file
+                        return virtualFile
                     }
                 }
                 return createFile("${process.packageName}/$name.$ext", workflowObj, contents, ext, qualifier)
@@ -319,12 +321,12 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
 
     override fun findFileByPath(path: String): VirtualFile? {
         val activeProject = ProjectSetup.activeProject
-        if (activeProject == null) {
+        return if (activeProject == null) {
             LOG.warn("Cannot find active project for: $path")
-            return null
+            null
         }
         else {
-            return findFileByPath(path, activeProject)
+            findFileByPath(path, activeProject)
         }
     }
 
@@ -333,7 +335,7 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
      * https://youtrack.jetbrains.com/issue/IDEA-203751
      */
     fun findFileByPath(path: String, project: Project): VirtualFile? {
-        var virtualFile = virtualFiles[path]
+        val virtualFile = virtualFiles[path]
         val withoutExt = path.substring(0, path.lastIndexOf("."))
         val pkg = withoutExt.substring(0, withoutExt.indexOf("/"))
         val underscore = withoutExt.lastIndexOf("_")
@@ -378,7 +380,7 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
         return virtualFile
     }
 
-    fun createFile(path: String, workflowObj: WorkflowObj, contents: String? = null, ext: String? = null,
+    private fun createFile(path: String, workflowObj: WorkflowObj, contents: String? = null, ext: String? = null,
             qualifier: String? = null): AttributeVirtualFile {
         val vFile = AttributeVirtualFile(workflowObj, contents, ext, qualifier)
         virtualFiles[path] = vFile

@@ -23,7 +23,7 @@ import java.io.IOException
 /**
  * For activities whose main attribute can be opened in an inline editor.
  */
-class ActivityEditAction(private val parent: Component, var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
+class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
         AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).name, null,
                 FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).icon),
         UpdateListeners by UpdateListenersDelegate() {

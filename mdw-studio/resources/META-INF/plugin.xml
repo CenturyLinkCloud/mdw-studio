@@ -41,6 +41,8 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <toolWindow id="Toolbox" anchor="right" icon="/icons/toolbox.png"
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
+        <toolWindow id="MDW" anchor="bottom" icon="AllIcons.Debugger.Console"
+                    factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup"/>
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig" />
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>

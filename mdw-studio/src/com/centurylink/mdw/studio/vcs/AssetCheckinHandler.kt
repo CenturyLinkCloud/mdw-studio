@@ -25,8 +25,8 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
             if (projectSetup.isMdwProject) {
                 return BooleanCommitOption(checkinPanel, "Check MDW Asset Versions", true,
-                        { MdwSettings.instance.isAssetVercheckBeforeCommit },
-                        Consumer { b -> MdwSettings.instance.isAssetVercheckBeforeCommit = b })
+                        { !MdwSettings.instance.isSuppressPreCommitAssetVercheck },
+                        Consumer { b -> MdwSettings.instance.isSuppressPreCommitAssetVercheck = !b })
             }
         }
         return null
@@ -34,11 +34,11 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
 
     override fun beforeCheckin(): ReturnResult {
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
-            if (projectSetup.isMdwProject && MdwSettings.instance.isAssetVercheckBeforeCommit) {
-                AssetVercheck(projectSetup).performCheck()
+            if (projectSetup.isMdwProject && !MdwSettings.instance.isSuppressPreCommitAssetVercheck) {
+                return AssetVercheck(projectSetup).performCheck()
             }
         }
 
-        return ReturnResult.COMMIT
+        return super.beforeCheckin()
     }
 }

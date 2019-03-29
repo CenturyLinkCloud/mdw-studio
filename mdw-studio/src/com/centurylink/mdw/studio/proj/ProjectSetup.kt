@@ -168,6 +168,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     var git: VersionControlGit? = null
+    val gitRoot: File?
+        get() = setup?.gitRoot
 
     var isServerRunning = false
 

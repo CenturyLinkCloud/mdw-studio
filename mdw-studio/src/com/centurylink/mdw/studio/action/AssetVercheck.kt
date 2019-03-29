@@ -1,15 +1,19 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Vercheck
+import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vcs.checkin.CheckinHandler
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.wm.ToolWindowManager
+import java.nio.charset.Charset
+import com.intellij.execution.process.DefaultJavaProcessHandler
+
+
+
 
 class VercheckAssets : AssetToolsAction() {
 
@@ -22,12 +26,11 @@ class VercheckAssets : AssetToolsAction() {
 
 class AssetVercheck(private val projectSetup: ProjectSetup) {
 
-    fun performCheck(): CheckinHandler.ReturnResult {
+    fun performCheck(): Boolean {
         val vercheck = Vercheck()
-        vercheck.configLoc = projectSetup.configLoc
-        vercheck.assetLoc = projectSetup.assetRoot.path
         vercheck.isWarn = true
-        vercheck.isFix = true
+        // vercheck.isFix = true
+
 //        projectSetup.git?.let { git ->
 //            vercheck.branch = git.branch
 //            ProgressManager.getInstance().runProcessWithProgressSynchronously({
@@ -44,9 +47,10 @@ class AssetVercheck(private val projectSetup: ProjectSetup) {
 //            VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
 //        }
 
-        println("VERCHECK VERCHECK VERCHECK")
 
-        return CheckinHandler.ReturnResult.CANCEL
+        MdwConsole.instance.run(vercheck)
+
+        return true
     }
 
     companion object {

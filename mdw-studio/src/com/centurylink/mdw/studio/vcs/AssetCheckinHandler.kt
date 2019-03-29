@@ -35,7 +35,12 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
     override fun beforeCheckin(): ReturnResult {
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
             if (projectSetup.isMdwProject && !MdwSettings.instance.isSuppressPreCommitAssetVercheck) {
-                return AssetVercheck(projectSetup).performCheck()
+                return if (AssetVercheck(projectSetup).performCheck()) {
+                    CheckinHandler.ReturnResult.CANCEL
+                }
+                else {
+                    CheckinHandler.ReturnResult.CANCEL
+                }
             }
         }
 

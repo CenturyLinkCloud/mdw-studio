@@ -12,6 +12,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
 import com.centurylink.mdw.studio.action.UpdateNotificationAction
+import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.util.HttpHelper
@@ -41,7 +42,9 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
+import com.intellij.openapi.wm.impl.ToolWindowImpl
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiManager
@@ -121,7 +124,11 @@ class Startup : StartupActivity {
                 }
             }
 
+            // prime the lateinit console instance (without showing)
+            (ToolWindowManager.getInstance(project).getToolWindow(MdwConsole.ID) as ToolWindowImpl).ensureContentInitialized()
+
             MdwSettings.instance.getOrMakeMdwHome()
+            System.setProperty("mdw.studio.version", pluginVer)
         }
     }
     companion object {

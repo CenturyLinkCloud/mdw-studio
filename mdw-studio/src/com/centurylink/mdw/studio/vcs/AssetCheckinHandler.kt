@@ -5,6 +5,7 @@ import com.centurylink.mdw.studio.action.AssetVercheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageDialogBuilder
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
 import com.intellij.openapi.vcs.changes.ui.BooleanCommitOption
@@ -39,12 +40,25 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
             if (projectSetup.isMdwProject && !MdwSettings.instance.isSuppressPreCommitAssetVercheck) {
                 val errorCount = AssetVercheck(projectSetup).performCheck()
                 return if (errorCount > 0) {
-                    if (MessageDialogBuilder.yesNo("Asset Version Conflict(s)",
-                                    "Vercheck failed with $errorCount errors.  Fix?").isYes) {
-                        AssetVercheck(projectSetup, true).performCheck()
-                        VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+                    val res = MessageDialogBuilder.yesNoCancel("Asset Version Conflict(s)",
+                            "Vercheck failed with $errorCount errors")
+                            .yesText("Auto Fix Versions")
+                            .noText("Commit Anyway")
+                            .show()
+
+                    when (res) {
+                        Messages.YES -> {
+                            AssetVercheck(projectSetup, true).performCheck()
+                            VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+                            CheckinHandler.ReturnResult.CLOSE_WINDOW
+                        }
+                        Messages.NO -> {
+                            CheckinHandler.ReturnResult.COMMIT
+                        }
+                        else -> {
+                            CheckinHandler.ReturnResult.CANCEL
+                        }
                     }
-                    CheckinHandler.ReturnResult.CLOSE_WINDOW
                 }
                 else {
                     CheckinHandler.ReturnResult.COMMIT

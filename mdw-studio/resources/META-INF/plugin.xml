@@ -13,7 +13,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://github.com/CenturyLinkCloud/mdw-studio/blob/master/CHANGELOG.md">Change Log</a>
 ]]></description>
 
-    <idea-version since-build="183.5153" />
+    <idea-version since-build="191.6183" />
 
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>
@@ -41,8 +41,8 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <toolWindow id="Toolbox" anchor="right" icon="/icons/toolbox.png"
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
-        <toolWindow id="MDW" anchor="bottom" icon="AllIcons.Debugger.Console"
-                    factoryClass="com.intellij.execution.dashboard.RunDashboardToolWindowFactory"/>
+        <toolWindow id="MDW" anchor="bottom" icon="/icons/console.png"
+                    factoryClass="com.centurylink.mdw.studio.console.ConsoleToolWindowFactory"/>
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup"/>
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig" />
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>

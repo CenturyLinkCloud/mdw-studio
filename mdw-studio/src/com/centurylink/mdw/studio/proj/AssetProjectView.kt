@@ -3,6 +3,8 @@ package com.centurylink.mdw.studio.proj
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.file.Icons
+import com.intellij.ide.SelectInTarget
+import com.intellij.ide.impl.ProjectPaneSelectInTarget
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.projectView.impl.ProjectAbstractTreeStructureBase
@@ -44,6 +46,14 @@ class AssetProjectView(val project: Project) : ProjectViewPane(project) {
 
     override fun createStructure(): ProjectAbstractTreeStructureBase {
         return AssetViewTreeStructure(project)
+    }
+
+    override fun createSelectInTarget(): SelectInTarget {
+        return object : ProjectPaneSelectInTarget(project) {
+            override fun getMinorViewId(): String? {
+                return ID
+            }
+        }
     }
 
     companion object {

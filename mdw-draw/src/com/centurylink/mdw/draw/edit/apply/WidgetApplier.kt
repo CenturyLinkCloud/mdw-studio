@@ -3,15 +3,15 @@ package com.centurylink.mdw.draw.edit.apply
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 
+/**
+ * Convert widget.value to/from model for persistence.
+ */
 interface WidgetApplier {
     val workflowObj: WorkflowObj
     fun init(widget: Pagelet.Widget, workflowObj: WorkflowObj)
     fun update()
 }
 
-/**
- * Convert widget.value to/from model for persistence.
- */
 abstract class AbstractWidgetApplier() : WidgetApplier {
 
     lateinit var widget: Pagelet.Widget

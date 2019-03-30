@@ -2,6 +2,8 @@ package com.centurylink.mdw.studio.console
 
 import com.centurylink.mdw.cli.Setup
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.tool.ToolboxWindowFactory
+import com.centurylink.mdw.studio.ui.ProgressMonitor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
@@ -12,7 +14,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.IOException
@@ -93,7 +97,10 @@ class MdwConsole(val projectSetup: ProjectSetup, val consoleView: ConsoleView) {
         operation.err = ConsolePrintStream(consoleView, true)
 
         ProgressManager.getInstance().runProcessWithProgressSynchronously({
-            ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
+            val progressMonitor = ProgressManager.getInstance().progressIndicator?.let {
+                ProgressMonitor(it)
+            }
+
             try {
                 print("Running ${operation::class.simpleName}...\n")
                 operation.out.flush()
@@ -103,7 +110,7 @@ class MdwConsole(val projectSetup: ProjectSetup, val consoleView: ConsoleView) {
                     operation.out.flush()
                     operation.err.flush()
                 }
-                operation.run()
+                operation.run(progressMonitor)
             }
             catch (ex: IOException) {
                 val sw = StringWriter()
@@ -120,9 +127,17 @@ class MdwConsole(val projectSetup: ProjectSetup, val consoleView: ConsoleView) {
 
     companion object {
         const val ID = "MDW"
+        val ICON = IconLoader.getIcon("/icons/console.png")
+
         lateinit var instance: MdwConsole
 
         fun show(project: Project) {
+            val toolWindowManager = ToolWindowManager.getInstance(project)
+            if (toolWindowManager.getToolWindow(ID) == null) {
+                val console = toolWindowManager.registerToolWindow(ToolboxWindowFactory.ID, false, ToolWindowAnchor.BOTTOM)
+                console.icon = ICON
+                ToolboxWindowFactory.instance.createToolWindowContent(project, console)
+            }
             ToolWindowManager.getInstance(project).getToolWindow(ID).show(null)
         }
     }

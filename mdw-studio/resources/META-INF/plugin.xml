@@ -107,7 +107,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Run MDW automated test case"
                     class="com.centurylink.mdw.studio.action.RunAutotest">
             </action>
-            <group id="mdwImport" text="Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
+            <group id="mdwImport" text="MDW Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
                     description="Import an MDW process" class="com.centurylink.mdw.studio.action.AssetActionGroup">
                 <action id="mdwImportDrawIo" text="From draw.io Diagram" icon="AllIcons.FileTypes.Xml"
                         description="Import from draw.io diagram"
@@ -118,7 +118,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                         class="com.centurylink.mdw.studio.action.ImportProcess">
                 </action>
             </group>
-            <group id="mdwExport" text="Export As..." icon="AllIcons.ToolbarDecorator.Export" popup="true"
+            <group id="mdwExport" text="MDW Export As..." icon="AllIcons.ToolbarDecorator.Export" popup="true"
                    description="Export an MDW process" class="com.centurylink.mdw.studio.action.AssetActionGroup">
                 <action id="mdwExportPng" text="PNG Image" icon="/icons/image.svg"
                         description="Export PNG format"
@@ -139,6 +139,9 @@ that makes it easy for you to create workflow processes and other assets.<br>
             </group>
             <separator/>
             <add-to-group group-id="ProjectViewPopupMenuModifyGroup" anchor="first" />
+        </group>
+        <group id="mdwAssetToolsActions">
+            <add-to-group group-id="mdwAssetActions" anchor="first" />
         </group>
         <group id="mdwProcessContextActions" text="MDW" icon="/icons/process.gif">
             <separator/>
@@ -192,20 +195,20 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <group id="mdwToolsActions" text="MDW" icon="/icons/mdw.png" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <separator/>
-            <action id="mdwDiscoverAssets" text="Discover New Assets..." icon="AllIcons.Actions.Find"
-                    description="Discover MDW asset packages from Git"
-                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
-                <add-to-group group-id="mdwAssetActions" anchor="first" />
+            <action id="mdwAssetVercheck" text="Check Asset Versions" icon="AllIcons.Actions.Diff"
+                    description="Check/fix MDW asset versions"
+                    class="com.centurylink.mdw.studio.action.VercheckAssets">
+                <add-to-group group-id="mdwAssetToolsActions" anchor="last" />
             </action>
             <action id="mdwUpdateAssets" text="Update MDW Assets" icon="/icons/assetUpdate.png"
                     description="Update MDW asset packages"
                     class="com.centurylink.mdw.studio.action.UpdateAssets">
-                <add-to-group group-id="mdwAssetActions" anchor="first" />
+                <add-to-group group-id="mdwAssetToolsActions" anchor="last" />
             </action>
-            <action id="mdwAssetVercheck" text="Check Asset Versions" icon="AllIcons.Actions.Diff"
-                    description="Check/fix MDW asset versions"
-                    class="com.centurylink.mdw.studio.action.VercheckAssets">
-                <add-to-group group-id="mdwAssetActions" anchor="first" />
+            <action id="mdwDiscoverAssets" text="Discover New Assets..." icon="AllIcons.Actions.Find"
+                    description="Discover MDW asset packages from Git"
+                    class="com.centurylink.mdw.studio.action.DiscoverAssets">
+                <add-to-group group-id="mdwAssetToolsActions" anchor="last" />
             </action>
             <separator/>
         </group>

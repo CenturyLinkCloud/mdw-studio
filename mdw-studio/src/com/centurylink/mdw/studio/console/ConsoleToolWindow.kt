@@ -36,6 +36,7 @@ class ConsoleToolWindowFactory : ToolWindowFactory, Condition<Project> {
             val content = toolWindow.contentManager.factory.createContent(toolWindowPanel, "Console", false)
             toolWindow.contentManager.addContent(content)
             Disposer.register(project, content)
+            Disposer.register(project, consoleView)
         }
     }
 

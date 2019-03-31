@@ -1,5 +1,23 @@
 # Change Log
 
+## [1.3.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.0) (2019-03-31)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.2.1...1.3.0)
+
+**Implemented enhancements:**
+
+- Support IntelliJ 2019 [\#73](https://github.com/CenturyLinkCloud/mdw-studio/issues/73)
+- Automatically mark temp and node\_modules dirs as excluded [\#67](https://github.com/CenturyLinkCloud/mdw-studio/issues/67)
+- Dialog widgets as item types in pagelet [\#64](https://github.com/CenturyLinkCloud/mdw-studio/issues/64)
+- Automatic asset version check/fix to prevent import conflicts [\#55](https://github.com/CenturyLinkCloud/mdw-studio/issues/55)
+
+**Fixed bugs:**
+
+- Incorrect transition delay attributes [\#71](https://github.com/CenturyLinkCloud/mdw-studio/issues/71)
+- Issue with dragging activity into embedded subflow [\#70](https://github.com/CenturyLinkCloud/mdw-studio/issues/70)
+- Cannot debug dynamic java activity [\#69](https://github.com/CenturyLinkCloud/mdw-studio/issues/69)
+- Dynamic java/groovy script contents jump from one editor to another [\#68](https://github.com/CenturyLinkCloud/mdw-studio/issues/68)
+
+
 ## [1.2.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.2.1) (2019-03-04)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.2.0...1.2.1)
 

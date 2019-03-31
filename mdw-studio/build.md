@@ -34,8 +34,6 @@
     git tag
     git push origin --tags
     ```   
-   - Revert PublishTask Channels comment-out
-   - Commit new versions.
 7. Changelog (in top-level mdw-studio):
    - Close milestone in GitHub.
    - Generate changelog for milestone.

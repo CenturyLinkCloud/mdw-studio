@@ -76,9 +76,9 @@ class SyncServer : ServerAction() {
     }
 
     private fun triggerSaveAll() {
-        val saveAllAction = ActionManager.getInstance().getAction("SaveAll")
         val actionEvent = AnActionEvent(null, DataManager.getInstance().getDataContext(), ActionPlaces.UNKNOWN,
                 Presentation(), ActionManager.getInstance(), 0)
+        val saveAllAction = ActionManager.getInstance().getAction("SaveAll")
         saveAllAction.actionPerformed(actionEvent)
     }
 

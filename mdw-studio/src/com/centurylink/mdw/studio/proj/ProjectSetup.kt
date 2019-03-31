@@ -24,7 +24,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
@@ -129,6 +129,22 @@ class Startup : StartupActivity {
 
             MdwSettings.instance.getOrMakeMdwHome()
             System.setProperty("mdw.studio.version", pluginVer)
+
+            // exclude temp and node_modules dirs
+            projectSetup.tempDir?.let { tempDir ->
+                projectSetup.getVirtualFile(tempDir)?.let { tempVirtualFile ->
+                    if (tempVirtualFile.isDirectory) {
+                        projectSetup.markExcluded(tempVirtualFile)
+                    }
+                }
+            }
+            projectSetup.getPackage("com.centurylink.mdw.node")?.let { nodePkg ->
+                nodePkg.dir.findFileByRelativePath("node_modules")?.let { nodeMods ->
+                    if (nodeMods.isDirectory) {
+                        projectSetup.markExcluded(nodeMods)
+                    }
+                }
+            }
         }
     }
     companion object {
@@ -144,6 +160,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     val isMdwProject: Boolean
         get() = setup != null
+
+    val baseDir = project.baseDir
 
     override fun getHubRootUrl(): String? {
         return getMdwProp(PropertyNames.MDW_HUB_URL)
@@ -177,6 +195,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     var git: VersionControlGit? = null
     val gitRoot: File?
         get() = setup?.gitRoot
+
+    var tempDir: File? = null
 
     var isServerRunning = false
 
@@ -277,7 +297,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 throw PropertyException("Missing: ${mdwYaml.absolutePath}")
             }
         }
-        return project.baseDir
+        return baseDir
     }
 
     /**
@@ -292,6 +312,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         val setup = this.setup
         if (setup == null) {
             git = null
+            tempDir = null
         }
         else {
             com.centurylink.mdw.cli.Props.init("mdw.yaml")
@@ -309,6 +330,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                     Notifications.Bus.notify(note, project)
                 }
             }
+            tempDir = setup.tempDir
         }
     }
 
@@ -402,7 +424,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             for (file in pkg.dir.children) {
                 if (file.exists() && !file.isDirectory && !Asset.isIgnore(file) && file.extension == ext) {
                     if (JavaNaming.getValidClassName(file.nameWithoutExtension) == name) {
-                        return Asset(pkg, file);
+                        return Asset(pkg, file)
                     }
                 }
             }
@@ -567,6 +589,40 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return icon
     }
 
+    fun getVirtualFile(file: File): VirtualFile? {
+        val basePath = File(baseDir.path).absolutePath.replace('\\', '/')
+        val filePath = if (file.isAbsolute) {
+            file.absolutePath.replace('\\', '/')
+        }
+        else {
+            File(baseDir.path + "/" + file.path).absolutePath.replace('\\', '/')
+        }
+        return if (filePath.startsWith(basePath) && filePath.length > basePath.length) {
+            baseDir.findFileByRelativePath(filePath.substring(basePath.length))
+        }
+        else {
+            null
+        }
+    }
+
+    fun markExcluded(dir: VirtualFile) {
+        val dataContext = object: DataContext {
+            override fun getData(dataId: String): Any? {
+                return if (dataId == CommonDataKeys.VIRTUAL_FILE_ARRAY.name) {
+                    arrayOf(dir)
+                } else if (dataId == CommonDataKeys.PROJECT.name) {
+                    project
+                } else {
+                    null
+                }
+            }
+        }
+        val markExcludeAction = ActionManager.getInstance().getAction("MarkExcludeRoot")
+        val actionEvent = AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN,
+                Presentation(), ActionManager.getInstance(), 0)
+        markExcludeAction.actionPerformed(actionEvent)
+    }
+
     override fun readData(name: String): String? {
         return YamlProperties(projectYaml).getString(name)
     }
@@ -609,8 +665,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 if (project is Project) {
                     return project
                 }
-                return openProjects.find { project ->
-                    val win = WindowManager.getInstance().suggestParentWindow(project)
+                return openProjects.find { proj ->
+                    val win = WindowManager.getInstance().suggestParentWindow(proj)
                     win?.isActive ?: false
                 }
             }

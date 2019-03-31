@@ -9,7 +9,6 @@ import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.util.*
 
 class AssetPackage(val name: String, val dir: VirtualFile) {

@@ -35,7 +35,7 @@ import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreeSelectionModel
 
-class DiscoverAssets : AnAction() {
+class DiscoverAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).getProjectSetup()?.let { projectSetup ->

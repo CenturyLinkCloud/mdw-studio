@@ -26,16 +26,15 @@
 3. (Release build only) - Comment out the PublishTask Channels entry in mdw-studio/build.gradle.kts (but do not commit)
 4. Run Gradle task intellij/publishPlugin.
 5. After success:
-6. Commit/push changes.
-7. Tag Git master branch (eg: 1.2.0):
+   - Recomment PublishTask Channels in mdw-studio/build.gradle.kts
+   - Commit/push changes.
+6. Tag Git master branch (eg: 1.2.0):
     ```
     git tag -a 1.2.0 -m "1.2.0"
     git tag
     git push origin --tags
     ```   
-   - Revert PublishTask Channels comment-out
-   - Commit new versions.
-8. Changelog (in top-level mdw-studio):
+7. Changelog (in top-level mdw-studio):
    - Close milestone in GitHub.
    - Generate changelog for milestone.
    ```

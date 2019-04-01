@@ -18,4 +18,8 @@ class ProgressMonitor(private val indicator: ProgressIndicator) : com.centurylin
     override fun isCanceled(): Boolean {
         return indicator.isCanceled
     }
+
+    override fun isSupportsMessage(): Boolean {
+        return true
+    }
 }

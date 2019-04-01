@@ -129,13 +129,6 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                                     editAction.addUpdateListener { obj ->
                                         obj.updateAsset()
                                         notifyUpdateListeners(obj)
-                                        if (diagram.selection.selectObj is Step) {
-                                            val step2 = (diagram.selection.selectObj as Step)
-                                            editAction.workflowObj = step2.workflowObj
-                                            for (listener in selectListeners) {
-                                                listener.onSelect(diagram.selection.selectObjs) // keep config tab in sync
-                                            }
-                                        }
                                     }
                                     actions.add(0, editAction)
                                 }

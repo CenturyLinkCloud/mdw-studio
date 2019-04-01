@@ -4,11 +4,11 @@ import org.jetbrains.intellij.tasks.RunIdeTask
 
 plugins {
     kotlin("jvm") version "1.3.0"
-    id("org.jetbrains.intellij") version "0.3.7"
+    id("org.jetbrains.intellij") version "0.4.7"
 }
 
 group = "com.centurylink.mdw"
-version = "1.2.2-SNAPSHOT"
+version = "1.3.1-SNAPSHOT"
 
 java.sourceSets {
     "main" {
@@ -33,7 +33,7 @@ dependencies {
 }
 
 intellij {
-    version = "2018.3.5"
+    version = "2019.1"
     setPlugins("Kotlin","Git4Idea")
 }
 

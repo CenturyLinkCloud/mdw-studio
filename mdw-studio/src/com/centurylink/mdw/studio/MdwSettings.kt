@@ -59,12 +59,6 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
-    var isSuppressPreCommitAssetVercheck: Boolean
-        get() = PropertiesComponent.getInstance().getBoolean(SUPPRESS_PRECOMMIT_ASSET_VERCHECK, false)
-        set(value) {
-            PropertiesComponent.getInstance().setValue(SUPPRESS_PRECOMMIT_ASSET_VERCHECK, value)
-        }
-
     var discoveryRepoUrls: List<String>
         get() {
             val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
@@ -109,8 +103,5 @@ class MdwSettings {
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"
         private const val DISCOVERY_MAX_BRANCHES_TAGS = "$ID.discoveryMaxBranchesTags"
-
-        // vcs
-        private const val SUPPRESS_PRECOMMIT_ASSET_VERCHECK = "$ID.suppressPreSubmitAssetVercheck"
     }
 }

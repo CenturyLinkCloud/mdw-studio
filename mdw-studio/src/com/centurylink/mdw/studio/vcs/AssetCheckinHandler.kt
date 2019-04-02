@@ -1,6 +1,5 @@
 package com.centurylink.mdw.studio.vcs
 
-import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetVercheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.project.Project
@@ -28,8 +27,8 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
             if (projectSetup.isMdwProject) {
                 return BooleanCommitOption(checkinPanel, "Check MDW Asset Versions", true,
-                        { !MdwSettings.instance.isSuppressPreCommitAssetVercheck },
-                        Consumer { b -> MdwSettings.instance.isSuppressPreCommitAssetVercheck = !b })
+                        { !projectSetup.settings.isSuppressPreCommitAssetVercheck },
+                        Consumer { b -> projectSetup.settings.isSuppressPreCommitAssetVercheck = !b })
             }
         }
         return null
@@ -37,7 +36,7 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
 
     override fun beforeCheckin(): ReturnResult {
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup: ProjectSetup ->
-            if (projectSetup.isMdwProject && !MdwSettings.instance.isSuppressPreCommitAssetVercheck) {
+            if (projectSetup.isMdwProject && !projectSetup.settings.isSuppressPreCommitAssetVercheck) {
                 val errorCount = AssetVercheck(projectSetup).performCheck()
                 return if (errorCount > 0) {
                     val res = MessageDialogBuilder.yesNoCancel("Asset Version Conflict(s)",

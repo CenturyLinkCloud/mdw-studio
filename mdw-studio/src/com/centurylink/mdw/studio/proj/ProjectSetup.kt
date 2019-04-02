@@ -42,9 +42,9 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager.VFS_CHANGES
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.openapi.wm.impl.ToolWindowImpl
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiManager
@@ -124,9 +124,6 @@ class Startup : StartupActivity {
                 }
             }
 
-            // prime the lateinit console instance (without showing)
-            (ToolWindowManager.getInstance(project).getToolWindow(MdwConsole.ID) as ToolWindowImpl).ensureContentInitialized()
-
             MdwSettings.instance.getOrMakeMdwHome()
             System.setProperty("mdw.studio.version", pluginVer)
 
@@ -202,6 +199,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     val isFramework: Boolean
       get() = File("${project.basePath}/../mdw-common/src/com/centurylink/mdw/activity/ActivityException.java").isFile
+
+    val settings = ProjectSettings(project)
 
     // pass-through properties
     val configLoc: String?
@@ -622,6 +621,21 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 Presentation(), ActionManager.getInstance(), 0)
         markExcludeAction.actionPerformed(actionEvent)
     }
+
+    @Volatile private var mdwConsole: MdwConsole? = null
+    val console: MdwConsole
+        get() {
+            val toolWindowManager = ToolWindowManager.getInstance(project)
+            var toolWindow = toolWindowManager.getToolWindow(MdwConsole.ID)
+            if (toolWindow == null) {
+                toolWindow = toolWindowManager.registerToolWindow(MdwConsole.ID, false,
+                        ToolWindowAnchor.BOTTOM)
+                toolWindow.icon = MdwConsole.ICON
+            }
+            return mdwConsole ?: synchronized(this) {
+                mdwConsole ?: MdwConsole(this, toolWindow).also { mdwConsole = it }
+            }
+        }
 
     override fun readData(name: String): String? {
         return YamlProperties(projectYaml).getString(name)

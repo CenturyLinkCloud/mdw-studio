@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.3.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.1) (2019-04-02)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.0...1.3.1)
+
+**Fixed bugs:**
+
+- Asset vercheck may require Git credentials [\#74](https://github.com/CenturyLinkCloud/mdw-studio/issues/74)
+
 ## [1.3.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.0) (2019-03-31)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.2.1...1.3.0)
 
@@ -16,7 +23,6 @@
 - Issue with dragging activity into embedded subflow [\#70](https://github.com/CenturyLinkCloud/mdw-studio/issues/70)
 - Cannot debug dynamic java activity [\#69](https://github.com/CenturyLinkCloud/mdw-studio/issues/69)
 - Dynamic java/groovy script contents jump from one editor to another [\#68](https://github.com/CenturyLinkCloud/mdw-studio/issues/68)
-
 
 ## [1.2.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.2.1) (2019-03-04)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.2.0...1.2.1)

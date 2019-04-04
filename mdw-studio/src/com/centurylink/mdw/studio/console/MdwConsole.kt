@@ -48,7 +48,7 @@ class MdwConsole(private val projectSetup: ProjectSetup, toolWindow: ToolWindow)
         consoleView.isOutputPaused = false
     }
 
-    fun run(operation: Setup) {
+    fun run(operation: Setup, title: String = "Executing ${operation::class.simpleName}...") {
         show()
         clear()
         operation.configLoc = projectSetup.configLoc
@@ -84,7 +84,7 @@ class MdwConsole(private val projectSetup: ProjectSetup, toolWindow: ToolWindow)
                 operation.out.flush()
                 operation.err.flush()
             }
-        }, "Executing ${operation::class.simpleName}...", false, projectSetup.project)
+        }, title, false, projectSetup.project)
     }
 
     fun show() {

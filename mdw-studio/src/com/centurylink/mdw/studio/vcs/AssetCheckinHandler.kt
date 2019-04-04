@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.vcs
 
 import com.centurylink.mdw.studio.action.AssetVercheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
@@ -47,8 +48,10 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
 
                     when (res) {
                         Messages.YES -> {
-                            AssetVercheck(projectSetup, true).performCheck()
-                            VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+                            ApplicationManager.getApplication().invokeLater {
+                                AssetVercheck(projectSetup, true).performCheck()
+                                VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
+                            }
                             CheckinHandler.ReturnResult.CLOSE_WINDOW
                         }
                         Messages.NO -> {

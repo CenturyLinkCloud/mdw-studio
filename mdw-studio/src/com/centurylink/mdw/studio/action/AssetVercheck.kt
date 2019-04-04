@@ -39,7 +39,13 @@ class AssetVercheck(private val projectSetup: ProjectSetup, private val isFix: B
             vercheck.setGitPassword(projectSetup.settings.gitPassword)
         }
 
-        projectSetup.console.run(vercheck)
+        val title = if (isFix) {
+            "Fixing asset versions..."
+        }
+        else {
+            "Executing Vercheck..."
+        }
+        projectSetup.console.run(vercheck, title)
         vercheck.exception?.let { ex ->
             if (ex is IOException && ex.cause is InvocationTargetException) {
                 (ex.cause as InvocationTargetException).cause?.let { targetEx ->

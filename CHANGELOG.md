@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.3.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.2) (2019-04-04)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.1...1.3.2)
+
+**Fixed bugs:**
+
+- Activity dynamic Java intermittently becomes read-only [\#75](https://github.com/CenturyLinkCloud/mdw-studio/issues/75)
+- Suppress MDW console tool window for non-MDW projects [\#76](https://github.com/CenturyLinkCloud/mdw-studio/issues/76)
+
 ## [1.3.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.1) (2019-04-02)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.0...1.3.1)
 

@@ -7,11 +7,14 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 
-class ConsoleToolWindowFactory : ToolWindowFactory, Condition<Project>, DumbAware {
+class ConsoleToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
     }
 
+}
+
+class ConsoleToolWindowCondition : Condition<Project> {
     override fun value(project: Project): Boolean {
         project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
             return projectSetup.isMdwProject

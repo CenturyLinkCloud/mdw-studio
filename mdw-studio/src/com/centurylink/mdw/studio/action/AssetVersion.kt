@@ -42,17 +42,6 @@ class AssetVersion() : AssetAction() {
                  Icons.MDWDLG, arrayOf(INCREMENT_MAJOR_VERSION, INCREMENT_MINOR_VERSION), INCREMENT_MAJOR_VERSION)
     }
 
-    override fun update(event: AnActionEvent) {
-        super.update(event)
-        val presentation = event.getPresentation()
-        if (presentation.isVisible && presentation.isEnabled) {
-            val locator = Locator(event)
-            val applicable = locator.getPackage() != null || locator.getAsset() != null
-            presentation.isVisible = applicable
-            presentation.isEnabled = applicable
-        }
-    }
-
     companion object {
         const val INCREMENT_MAJOR_VERSION = "Increment Major Version"
         const val INCREMENT_MINOR_VERSION = "Increment Minor Version"

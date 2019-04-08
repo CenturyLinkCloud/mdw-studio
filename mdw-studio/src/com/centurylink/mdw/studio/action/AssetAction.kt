@@ -7,10 +7,8 @@ abstract class AssetAction : AnAction() {
 
     override fun update(event: AnActionEvent) {
         val presentation = event.presentation
-        var applicable = false
-        Locator(event).getAsset()?.let {
-            applicable = true
-        }
+        val locator = Locator(event)
+        val applicable = locator.getPackage() != null || locator.getAsset() != null
         presentation.isVisible = applicable
         presentation.isEnabled = applicable
     }

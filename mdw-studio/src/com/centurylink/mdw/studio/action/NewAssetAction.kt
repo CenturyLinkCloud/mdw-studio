@@ -92,7 +92,7 @@ abstract class NewAssetAction(val title: String, description: String, icon: Icon
     override fun update(event: AnActionEvent) {
         super.update(event)
         if (event.presentation.isVisible && event.presentation.isEnabled) {
-            val applicable = Locator(event).getPotentialPackageDir() != null
+            val applicable = Locator(event).potentialPackageDir != null
             event.presentation.isVisible = applicable
             event.presentation.isEnabled = applicable
         }

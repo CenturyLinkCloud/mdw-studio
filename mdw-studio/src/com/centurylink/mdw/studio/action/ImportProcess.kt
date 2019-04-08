@@ -10,7 +10,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import java.io.File
 import java.io.IOException
 
-class ImportProcess : AssetAction() {
+class ImportProcess : PackageAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val ext = when (templatePresentation.text) {
@@ -19,9 +19,9 @@ class ImportProcess : AssetAction() {
         }
 
         val locator = Locator(event)
-        val projectSetup = locator.getProjectSetup()
+        val projectSetup = locator.projectSetup
         if (projectSetup != null) {
-            locator.getPackage()?.let { pkg ->
+            locator.selectedPackage?.let { pkg ->
                 val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
                         .withFileFilter { it.extension == ext }
                 FileChooser.chooseFile(descriptor, projectSetup.project, pkg.dir) { file ->
@@ -40,11 +40,5 @@ class ImportProcess : AssetAction() {
                 }
             }
         }
-    }
-
-    override fun update(event: AnActionEvent) {
-        val applicable = Locator(event).getPackage() != null
-        event.presentation.isVisible = applicable
-        event.presentation.isEnabled = applicable
     }
 }

@@ -23,7 +23,7 @@ class ExportProcess : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val locator = Locator(event)
-        val projectSetup = locator.getProjectSetup()
+        val projectSetup = locator.projectSetup
         if (projectSetup != null) {
             val ext = when (templatePresentation.text) {
                 "PNG Image" -> "png"
@@ -31,7 +31,7 @@ class ExportProcess : AssetAction() {
                 "PDF Document" -> "pdf"
                 else -> "bpmn"
             }
-            locator.getAsset()?.let { asset ->
+            locator.asset?.let { asset ->
                 if (asset.ext == "proc") {
                     val process = Process(JSONObject(String(asset.file.contentsToByteArray())))
                     process.name = asset.rootName
@@ -101,8 +101,12 @@ class ExportProcess : AssetAction() {
 
     override fun update(event: AnActionEvent) {
         super.update(event)
-//        val applicable = getAsset(event)?.ext == "proc"
-//        event.presentation.isVisible = applicable
-//        event.presentation.isEnabled = applicable
+        if (event.presentation.isVisible) {
+            Locator(event).asset?.let { asset ->
+                val applicable = asset.ext == "proc"
+                event.presentation.isVisible = applicable
+                event.presentation.isEnabled = applicable
+            }
+        }
     }
 }

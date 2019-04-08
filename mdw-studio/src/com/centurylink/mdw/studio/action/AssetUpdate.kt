@@ -19,7 +19,7 @@ import java.io.File
 class UpdateAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             AssetUpdate(projectSetup).doUpdate()
         }
     }

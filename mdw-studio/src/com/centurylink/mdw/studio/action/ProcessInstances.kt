@@ -9,8 +9,8 @@ class ProcessInstances : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val locator = Locator(event)
-        locator.getAsset()?.let { asset ->
-            locator.getProjectSetup()?.let { projectSetup ->
+        locator.asset?.let { asset ->
+            locator.projectSetup?.let { projectSetup ->
                 val hubUrl = projectSetup.hubRootUrl
                 if (hubUrl == null) {
                     JOptionPane.showMessageDialog(null, "No mdw.hub.url found",
@@ -28,9 +28,9 @@ class ProcessInstances : AssetAction() {
         super.update(event)
         val locator = Locator(event)
         if (event.presentation.isVisible) {
-            locator.getAsset()?.let {
-                event.presentation.isVisible = it.path.endsWith(".proc")
-                event.presentation.isEnabled = locator.getProjectSetup()?.isServerRunning ?: false
+            locator.asset?.let { asset ->
+                event.presentation.isVisible = asset.ext == "proc"
+                event.presentation.isEnabled = locator.projectSetup?.isServerRunning ?: false
             }
         }
     }

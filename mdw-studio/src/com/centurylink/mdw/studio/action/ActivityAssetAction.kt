@@ -12,7 +12,7 @@ class ActivityAssetAction(private val asset: Asset) :
                 null, FileTypeManager.getInstance().getFileTypeByExtension(asset.ext).let { if (it is UnknownFileType) null else it.icon }) {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             AssetOpener(projectSetup, asset).doOpen()
         }
     }

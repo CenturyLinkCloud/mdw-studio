@@ -18,6 +18,13 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
     val verString: String
         get() = Package.formatVersion(version)
 
+    val nextMajorVersion: Int
+        get() = (version / 1000 + 1) * 1000
+    val nextMinorVersion: Int
+        get() = (version / 100 + 1) * 100
+    val nextSubVersion: Int
+        get() = version + 1
+
     var schemaVersion = SCHEMA_VERSION
 
     val metaDir = dir.findChild(META_DIR) ?: throw FileNotFoundException("Missing metaDir: $dir/$META_DIR")

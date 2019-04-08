@@ -8,7 +8,7 @@ abstract class AssetToolsAction : AnAction() {
 
     override fun update(event: AnActionEvent) {
         var applicable = false
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             applicable = if (event.place == "MainMenu") {
                 true
             } else {

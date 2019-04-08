@@ -14,7 +14,7 @@ import java.lang.reflect.InvocationTargetException
 class VercheckAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             val errorCount = AssetVercheck(projectSetup).performCheck()
             if (errorCount > 0) {
                 if (MessageDialogBuilder.yesNo("Asset Version Conflict(s)",

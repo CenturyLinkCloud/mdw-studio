@@ -11,6 +11,7 @@ import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.components.CheckBox
 import java.awt.BorderLayout
@@ -65,19 +66,9 @@ class NewSwaggerApi : AssetAction() {
                     }
                     codeGen.isGenerateOrchestrationFlows = codegenDialog.genWorkflows
 
-                    // run codegen
-                    ProgressManager.getInstance().runProcessWithProgressSynchronously({
-                        try {
-                            ProgressManager.getInstance().progressIndicator?.isIndeterminate = true
-                            codeGen.run()
-                        } catch (ex: Exception) {
-                            LOG.warn(ex)
-                            Notifications.Bus.notify(Notification("MDW", "Swagger Codegen Error", ex.toString(),
-                                    NotificationType.ERROR), projectSetup.project)
-                        }
-                    }, "Generating", false, projectSetup.project)
-
-                    projectSetup.syncPackage(codegenPkg)
+                    // run in console
+                    projectSetup.console.run(codeGen)
+                    VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
                 }
             }
         }

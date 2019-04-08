@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.3.3-SNAPSHOT</version>
     <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description><![CDATA[
@@ -42,8 +42,9 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     factoryClass="com.centurylink.mdw.studio.tool.ToolboxWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.tool.ToolboxWindowCondition"/>
         <toolWindow id="MDW" anchor="bottom" icon="/icons/console.png"
-                    factoryClass="com.centurylink.mdw.studio.console.ConsoleToolWindowFactory"/>
-        <postStartupActivity implementation="com.centurylink.mdw.studio.proj.Startup"/>
+                    factoryClass="com.centurylink.mdw.studio.console.ConsoleToolWindowFactory"
+                    conditionClass="com.centurylink.mdw.studio.console.ConsoleToolWindowCondition" />
+        <postStartupActivity implementation="com.centurylink.mdw.studio.proj.ProjectStartup"/>
         <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig" />
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>
         <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>

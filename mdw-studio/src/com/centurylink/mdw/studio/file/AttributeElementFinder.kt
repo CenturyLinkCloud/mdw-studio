@@ -30,7 +30,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                             activity.getAttribute("Java")?.let { _ ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java", project)?.let { file ->
                                     val attributeVirtualFile = file as AttributeVirtualFile
-                                    attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
+                                    // attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
                                     attributeVirtualFile.psiFile?.let { psiFile ->
                                         if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
                                             return psiFile.classes[0]
@@ -43,7 +43,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                                     AttributeVirtualFile.getScriptExt(scriptAttr).let { ext ->
                                         AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext", project)?.let { file ->
                                             val attributeVirtualFile = file as AttributeVirtualFile
-                                            attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
+                                            // attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
                                             attributeVirtualFile.psiFile?.let { psiFile ->
                                                 if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
                                                     return psiFile.classes[0]

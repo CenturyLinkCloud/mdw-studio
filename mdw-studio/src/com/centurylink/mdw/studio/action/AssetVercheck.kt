@@ -1,12 +1,14 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Vercheck
-import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.vcs.CredentialsDialog
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.vfs.VfsUtil
+import java.io.IOException
+import java.lang.reflect.InvocationTargetException
 
 
 class VercheckAssets : AssetToolsAction() {
@@ -31,8 +33,39 @@ class AssetVercheck(private val projectSetup: ProjectSetup, private val isFix: B
         val vercheck = Vercheck()
         vercheck.isWarn = true
         vercheck.isFix = isFix
+        val gitUser = projectSetup.settings.gitUser
+        if (!gitUser.isBlank()) {
+            vercheck.gitUser = gitUser
+            vercheck.setGitPassword(projectSetup.settings.gitPassword)
+        }
 
-        MdwConsole.instance.run(vercheck)
+        val title = if (isFix) {
+            "Fixing asset versions..."
+        }
+        else {
+            "Executing Vercheck..."
+        }
+        projectSetup.console.run(vercheck, title)
+        vercheck.exception?.let { ex ->
+            if (ex is IOException && ex.cause is InvocationTargetException) {
+                (ex.cause as InvocationTargetException).cause?.let { targetEx ->
+                    targetEx.message?.let { message ->
+                        if (message.endsWith("Authentication is required but no CredentialsProvider has been registered")) {
+                            val dialog = CredentialsDialog(projectSetup)
+                            if (dialog.showAndGet()) {
+                                val retryVercheck = Vercheck()
+                                retryVercheck.isWarn = true
+                                retryVercheck.isFix = isFix
+                                retryVercheck.gitUser = dialog.user
+                                retryVercheck.setGitPassword(dialog.password)
+                                projectSetup.console.run(retryVercheck)
+                                return retryVercheck.errorCount
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return vercheck.errorCount
     }
 

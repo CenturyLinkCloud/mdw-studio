@@ -11,7 +11,7 @@ interface CanvasAction {
 
     fun update(event: AnActionEvent) {
 
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             event.presentation.isVisible = true
             event.presentation.isEnabled = false
             for (editor in FileEditorManager.getInstance(projectSetup.project).selectedEditors) {
@@ -34,7 +34,7 @@ class GridLines : ToggleAction(), CanvasAction {
     }
 
     override fun setSelected(event: AnActionEvent, state: Boolean) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             MdwSettings.instance.isHideCanvasGridLines = !state
             for (editor in FileEditorManager.getInstance(projectSetup.project).selectedEditors) {
                 if (editor is ProcessEditor) {
@@ -53,7 +53,7 @@ class GridLines : ToggleAction(), CanvasAction {
 class ZoomIn : AnAction(), CanvasAction {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             var zoom = MdwSettings.instance.canvasZoom + ZOOM_INT
             if (zoom > ZOOM_MAX)
                 zoom = ZOOM_MAX
@@ -80,7 +80,7 @@ class ZoomIn : AnAction(), CanvasAction {
 class ZoomOut : AnAction(), CanvasAction {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             var zoom = MdwSettings.instance.canvasZoom - ZOOM_INT
             if (zoom < ZOOM_MIN)
                 zoom = ZOOM_MIN

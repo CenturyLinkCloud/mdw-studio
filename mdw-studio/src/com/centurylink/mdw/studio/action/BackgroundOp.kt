@@ -10,6 +10,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 
+/**
+ * Use MdwConsole instead for operations that have meaningful CLI output.
+ */
 class BackgroundOp(title: String, projectSetup: ProjectSetup, val operation: Operation) :
         Task.Backgroundable(projectSetup.project, title) {
 

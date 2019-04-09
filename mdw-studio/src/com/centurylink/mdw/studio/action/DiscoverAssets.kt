@@ -38,7 +38,7 @@ import javax.swing.tree.TreeSelectionModel
 class DiscoverAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             val discoveryDialog = DiscoveryDialog(projectSetup)
             if (discoveryDialog.showAndGet()) {
                 discoveryDialog.selectedDiscoverer?.let { discoverer ->

@@ -11,56 +11,70 @@ import com.intellij.openapi.vfs.VirtualFile
 
 class Locator(private val event: AnActionEvent) {
 
-    fun getProject(): Project? {
-        return event.getData(CommonDataKeys.PROJECT)
-    }
+    val project: Project?
+        get() = event.getData(CommonDataKeys.PROJECT)
 
-    fun getProjectSetup(): ProjectSetup? {
-        val projectSetup = getProject()?.getComponent(ProjectSetup::class.java)
-        return if (projectSetup != null) {
-            return if (projectSetup.isMdwProject) projectSetup else null
-        } else {
-            null
+    val projectSetup: ProjectSetup?
+        get() {
+            return project?.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
+                if (projectSetup.isMdwProject) projectSetup else null
+            }
         }
-    }
 
-    fun getPackage(): AssetPackage? {
-        getProjectSetup()?.let { projectSetup ->
-            val view = event.getData(LangDataKeys.IDE_VIEW)
-            view?.let {
-                if (it.directories.size == 1) {
-                    return projectSetup.getPackage(it.directories[0].virtualFile)
+    val selectedPackage: AssetPackage?
+        get() {
+            return projectSetup?.let { projectSetup ->
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file?.let {
+                    projectSetup.getPackage(it)
                 }
             }
         }
-        return null
-    }
 
-    fun getPotentialPackageDir(): VirtualFile? {
-        val projectSetup = getProjectSetup()
-        if (projectSetup != null) {
-            val view = event.getData(LangDataKeys.IDE_VIEW)
-            if (view != null) {
-                val directories = view.directories
-                for (directory in directories) {
-                    if (projectSetup.isAssetSubdir(directory.virtualFile)) {
-                        return directory.virtualFile
+    /**
+     * Unlike selectedPackage, returns non-null if parent dir represents a package.
+     */
+    val `package`: AssetPackage?
+        get() {
+            return projectSetup?.let { projectSetup ->
+                val view = event.getData(LangDataKeys.IDE_VIEW)
+                view?.let {
+                    if (it.directories.size == 1) {
+                        projectSetup.getPackage(it.directories[0].virtualFile)
+                    } else {
+                        null
                     }
                 }
             }
         }
-        return null
-    }
 
-    fun getAsset(): Asset? {
-        getProjectSetup()?.let { projectSetup ->
-            if (projectSetup.isMdwProject) {
-                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
-                file?.let {
-                    return projectSetup.getAsset(file)
+    /**
+     * A directory under project asset dir.
+     */
+    val potentialPackageDir: VirtualFile?
+        get() {
+            projectSetup?.let{ projectSetup ->
+                event.getData(LangDataKeys.IDE_VIEW)?.let { view ->
+                    val directories = view.directories
+                    for (directory in directories) {
+                        if (projectSetup.isAssetSubdir(directory.virtualFile)) {
+                            return directory.virtualFile
+                        }
+                    }
+                }
+            }
+            return null
+        }
+
+    val asset: Asset?
+        get() {
+            return projectSetup?.let { projectSetup ->
+                if (projectSetup.isMdwProject) {
+                    val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                    file?.let { projectSetup.getAsset(it) }
+                } else {
+                    null
                 }
             }
         }
-        return null
-    }
 }

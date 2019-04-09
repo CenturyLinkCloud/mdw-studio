@@ -31,7 +31,7 @@ import javax.swing.Icon
 class ActivityUsages : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
-        Locator(event).getProjectSetup()?.let { projectSetup ->
+        Locator(event).projectSetup?.let { projectSetup ->
             getImplementor(event)?.let { implementor ->
                 val presentation = UsageViewPresentation()
                 val tabCaptionText = "Activity Usages"
@@ -60,7 +60,7 @@ class ActivityUsages : AnAction() {
     }
 
     override fun update(event: AnActionEvent) {
-        val applicable = getImplementor(event) != null && Locator(event).getProjectSetup() != null
+        val applicable = getImplementor(event) != null && Locator(event).project != null
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
     }

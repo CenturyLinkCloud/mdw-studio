@@ -2,14 +2,10 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Codegen
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.DocumentAdapter
@@ -26,11 +22,11 @@ class NewSwaggerApi : AssetAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val locator = Locator(event)
-        val projectSetup = locator.getProjectSetup()
+        val projectSetup = locator.projectSetup
         if (projectSetup != null) {
-            var pkg = locator.getPackage()
+            var pkg = locator.selectedPackage
             if (pkg == null) {
-                locator.getPotentialPackageDir()?.let { pkgDir ->
+                locator.potentialPackageDir?.let { pkgDir ->
                     pkg = projectSetup.createPackage(pkgDir)
                 }
             }
@@ -75,7 +71,7 @@ class NewSwaggerApi : AssetAction() {
     }
 
     override fun update(event: AnActionEvent) {
-        val applicable = Locator(event).getPotentialPackageDir() != null
+        val applicable = Locator(event).potentialPackageDir != null
         event.presentation.isVisible = applicable
         event.presentation.isEnabled = applicable
     }

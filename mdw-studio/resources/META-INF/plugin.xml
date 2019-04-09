@@ -92,6 +92,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Major version should be incremented to indicate possible breaking changes."
                     class="com.centurylink.mdw.studio.action.AssetVersion">
             </action>
+            <action id="mdwPackageVersion" text="Package Version..." icon="/icons/mdw.png"
+                    description="Major version should be incremented to indicate possible breaking changes."
+                    class="com.centurylink.mdw.studio.action.PackageVersion">
+            </action>
             <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
                     description="Run process via MDWHub"
                     class="com.centurylink.mdw.studio.action.RunProcess">
@@ -109,7 +113,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.RunAutotest">
             </action>
             <group id="mdwImport" text="MDW Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
-                    description="Import an MDW process" class="com.centurylink.mdw.studio.action.AssetActionGroup">
+                    description="Import an MDW process" class="com.centurylink.mdw.studio.action.PackageActionGroup">
                 <action id="mdwImportDrawIo" text="From draw.io Diagram" icon="AllIcons.FileTypes.Xml"
                         description="Import from draw.io diagram"
                         class="com.centurylink.mdw.studio.action.ImportProcess">
@@ -120,7 +124,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                 </action>
             </group>
             <group id="mdwExport" text="MDW Export As..." icon="AllIcons.ToolbarDecorator.Export" popup="true"
-                   description="Export an MDW process" class="com.centurylink.mdw.studio.action.AssetActionGroup">
+                   description="Export an MDW process" class="com.centurylink.mdw.studio.action.ProcessActionGroup">
                 <action id="mdwExportPng" text="PNG Image" icon="/icons/image.svg"
                         description="Export PNG format"
                         class="com.centurylink.mdw.studio.action.ExportProcess">

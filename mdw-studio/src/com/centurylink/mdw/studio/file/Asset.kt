@@ -35,6 +35,11 @@ class Asset(val pkg: AssetPackage, val file: VirtualFile) : Comparable<Asset> {
     val verString: String
         get() = if (version == 0) "0" else (version/1000).toString() + "." + version%1000
 
+    val nextMajorVersion: Int
+        get() = (version / 1000 + 1) * 1000
+    val nextMinorVersion: Int
+        get() = version + 1
+
     val path: String
         get() = "${pkg.name}/$name"
     private val logicalPath: String

@@ -93,13 +93,16 @@ class Data {
                 "Forward"
         )
 
+        val DEFAULT_TASK_NOTIFIER = "com.centurylink.mdw.workflow.task.notifier.TaskEmailNotifier";
         val DEFAULT_TASK_NOTICES = JSONArray()
 
         init {
             for (taskOutcome in TASK_OUTCOMES) {
                 val notices = JSONArray()
                 notices.put(taskOutcome)
-                for (i in 1..4) { notices.put("") }
+                notices.put("") // template
+                notices.put("") // version
+                notices.put(DEFAULT_TASK_NOTIFIER) // notifier
                 DEFAULT_TASK_NOTICES.put(notices)
             }
         }

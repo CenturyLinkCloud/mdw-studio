@@ -72,10 +72,10 @@ class TaskEditorNoticesProvider : TaskEditorProvider() {
     override fun getEditorTypeId() = "task-editor-notices"
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
         val content = String(file.contentsToByteArray())
-        if (!content.isEmpty()) {
+        if (content.isNotEmpty()) {
             val json = JSONObject(content)
             json.optJSONObject("attributes")?.let { attrJson ->
-                var notices = attrJson.optString("Notices")
+                val notices = attrJson.optString("Notices")
                 if (notices.isNullOrBlank() || notices == "\$DefaultNotices") {
                     attrJson.put("Notices", Data.DEFAULT_TASK_NOTICES.toString())
                     WriteAction.run<Throwable> {

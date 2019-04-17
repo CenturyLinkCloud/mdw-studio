@@ -22,7 +22,7 @@ class PackageVersion : PackageAction() {
     }
 
     private fun showDialog(curVer: String): Any? {
-        return JOptionPane.showInputDialog(null, curVer, "MDW Asset Version", JOptionPane.PLAIN_MESSAGE,
+        return JOptionPane.showInputDialog(null, curVer, "MDW Package Version", JOptionPane.PLAIN_MESSAGE,
                 Icons.MDWDLG, arrayOf(INCREMENT_MAJOR, INCREMENT_MINOR, INCREMENT_SUB), INCREMENT_MAJOR)
     }
 

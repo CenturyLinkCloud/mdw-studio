@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio
 
-import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.model.project.Data
 import com.intellij.openapi.help.WebHelpProvider
 
 class MdwHelp : WebHelpProvider() {

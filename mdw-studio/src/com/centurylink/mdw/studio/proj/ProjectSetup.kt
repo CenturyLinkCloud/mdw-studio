@@ -8,6 +8,7 @@ import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
 import com.centurylink.mdw.java.JavaNaming
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
@@ -49,7 +50,7 @@ import java.util.*
 import javax.swing.ImageIcon
 import kotlin.reflect.KClass
 
-class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw.model.Project {
+class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw.model.project.Project {
 
     // setup is null if not an mdw project
     private var setup: Setup? = null
@@ -231,6 +232,11 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
             tempDir = setup.tempDir
         }
+    }
+
+    private val _data : Data by lazy { Data(this) }
+    override fun getData(): Data {
+        return _data
     }
 
     override fun projectOpened() {

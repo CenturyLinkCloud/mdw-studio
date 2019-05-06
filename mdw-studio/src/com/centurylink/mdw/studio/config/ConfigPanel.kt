@@ -7,10 +7,10 @@ import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.Drawable
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.ext.JsonObject
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import com.centurylink.mdw.model.asset.PrePostWidgetProvider
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.monitor.ActivityMonitor
 import com.centurylink.mdw.monitor.AdapterMonitor
 import com.centurylink.mdw.monitor.ProcessMonitor

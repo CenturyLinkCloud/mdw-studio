@@ -1,7 +1,6 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.annotations.Activity
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
@@ -53,7 +52,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                     val assetBytes = asset.file.contentsToByteArray()
                                     var isGitDiff = false
                                     if (gitBytes != null && !Arrays.equals(gitBytes, assetBytes)) {
-                                        isGitDiff = if (Data.getBinaryAssetExts(projectSetup).contains(asset.ext)) {
+                                        isGitDiff = if (projectSetup.data.getBinaryAssetExts().contains(asset.ext)) {
                                             true
                                         } else {
                                             // ignore line ending diffs

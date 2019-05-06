@@ -3,7 +3,7 @@ package com.centurylink.mdw.draw
 import com.centurylink.mdw.constant.WorkAttributeConstant
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
-import com.centurylink.mdw.model.Project
+import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.model.workflow.TextNote
 import java.awt.Color

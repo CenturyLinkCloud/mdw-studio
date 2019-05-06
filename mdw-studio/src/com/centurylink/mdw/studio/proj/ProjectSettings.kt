@@ -32,7 +32,7 @@ class ProjectSettings(private val project: Project) {
         const val ID = "com.centurylink.mdw.studio.proj"
 
         // vcs
-        private const val SUPPRESS_PRECOMMIT_ASSET_VERCHECK = "${MdwSettings.ID}.suppressPreCommitAssetVercheck"
+        private const val SUPPRESS_PRECOMMIT_ASSET_VERCHECK = "${MdwSettings.ID}.suppressPrecommitAssetVercheck"
         private const val GIT_USER = "$ID.gitUser"
         private const val GIT_PASSWORD = "$ID.gitPassword"
     }

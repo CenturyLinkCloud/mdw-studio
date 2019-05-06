@@ -16,8 +16,10 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.util.io.FileUtil
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.File
 import java.io.IOException
 import java.net.URL
 import kotlin.concurrent.thread
@@ -90,9 +92,11 @@ class ProjectStartup : StartupActivity {
 
             // exclude temp and node_modules dirs
             projectSetup.tempDir?.let { tempDir ->
-                projectSetup.getVirtualFile(tempDir)?.let { tempVirtualFile ->
-                    if (tempVirtualFile.isDirectory) {
-                        projectSetup.markExcluded(tempVirtualFile)
+                if (FileUtil.isAncestor(File(projectSetup.baseDir.path), tempDir, true)) {
+                    projectSetup.getVirtualFile(tempDir)?.let { tempVirtualFile ->
+                        if (tempVirtualFile.isDirectory) {
+                            projectSetup.markExcluded(tempVirtualFile)
+                        }
                     }
                 }
             }

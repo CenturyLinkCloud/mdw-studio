@@ -7,9 +7,9 @@ import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.LinkDisplay
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.event.EventType
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.*
 import com.centurylink.mdw.monitor.MonitorAttributes
 import org.json.JSONArray

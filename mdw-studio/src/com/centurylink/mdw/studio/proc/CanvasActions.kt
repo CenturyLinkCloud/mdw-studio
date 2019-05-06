@@ -9,13 +9,9 @@ import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.edit.SelectionBuilder
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
-import com.centurylink.mdw.draw.ext.rootName
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.drawio.MxGraphParser
-import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.script.ScriptNaming
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem

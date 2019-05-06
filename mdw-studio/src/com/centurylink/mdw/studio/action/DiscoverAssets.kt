@@ -3,7 +3,7 @@ package com.centurylink.mdw.studio.action
 import com.centurylink.mdw.discovery.GitDiscoverer
 import com.centurylink.mdw.discovery.GitHubDiscoverer
 import com.centurylink.mdw.discovery.GitLabDiscoverer
-import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.MdwConfig
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.Secrets

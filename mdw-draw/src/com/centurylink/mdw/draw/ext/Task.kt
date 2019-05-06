@@ -1,9 +1,8 @@
 package com.centurylink.mdw.draw.ext
 
-import com.centurylink.mdw.draw.model.Data
-import com.centurylink.mdw.model.Project
 import com.centurylink.mdw.model.asset.Asset
 import com.centurylink.mdw.model.attribute.Attribute
+import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.model.task.TaskType
 import org.json.JSONObject
@@ -17,7 +16,7 @@ fun TaskTemplate.update(project: Project, obj: JSONObject) {
     }
     logicalId = if (obj.has("logicalId")) obj.getString("logicalId") else taskName
     if (obj.has("category")) {
-        taskCategory = Data.getTaskCategories(project).get(obj.getString("category"))
+        taskCategory = project.data.getTaskCategories().get(obj.getString("category"))
         if (taskCategory.isNullOrEmpty()){
             taskCategory = obj.getString("category")
         }

@@ -33,7 +33,7 @@ dependencies {
 }
 
 intellij {
-    version = "2019.1"
+    version = "2019.1.1"
     setPlugins("Kotlin","Git4Idea")
 }
 

@@ -2,8 +2,8 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

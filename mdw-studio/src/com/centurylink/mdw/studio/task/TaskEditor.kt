@@ -4,10 +4,10 @@ import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.edit.*
 import com.centurylink.mdw.draw.edit.apply.ObjectApplier
 import com.centurylink.mdw.draw.ext.toGson
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.studio.config.ConfigPanel
 import com.centurylink.mdw.studio.config.ConfigTab

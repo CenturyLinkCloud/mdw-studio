@@ -1,7 +1,7 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.annotations.Activity
-import com.centurylink.mdw.draw.model.Data
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.file.Asset
 import com.intellij.openapi.actionSystem.DataKey
@@ -24,7 +24,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Activity::class)) {
             getImpl(projectSetup, asset, psiAnnotations[0])?.let { add(it) }
         }
-        for (pseudoImpl in Data.Implementors.PSEUDO_IMPLS) {
+        for (pseudoImpl in Data.Implementors.PSEUDO_IMPLEMENTORS) {
                 if (!pseudoImpl.icon.startsWith("shape:")) {
                     pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
                 }

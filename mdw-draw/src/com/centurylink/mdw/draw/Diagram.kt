@@ -7,7 +7,7 @@ import com.centurylink.mdw.draw.edit.Selection
 import com.centurylink.mdw.draw.ext.*
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
-import com.centurylink.mdw.model.Project
+import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.model.workflow.Process
 import java.awt.Color

@@ -2,7 +2,6 @@ package com.centurylink.mdw.draw.edit
 
 import com.centurylink.mdw.draw.edit.adapt.WidgetAdapter
 import com.centurylink.mdw.draw.edit.apply.*
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.asset.Pagelet
 import com.centurylink.mdw.model.workflow.Process
@@ -75,16 +74,16 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
             options = (workflowObj.asset as Process).variables.map { it.name }
         }
         "DocumentVariables" -> {
-            val docTypes = Data.getDocumentTypes(workflowObj.project).keys
+            val docTypes = workflowObj.project.data.getDocumentTypes().keys
             options = (workflowObj.asset as Process).variables.filter {
                 docTypes.contains(it.type)
             }.map { it.name }
         }
         "UserGroup" -> {
-            options = Data.getWorkgroups(workflowObj.project)
+            options = workflowObj.project.data.getWorkgroups()
         }
         "TaskCategory" -> {
-            options = Data.getTaskCategories(workflowObj.project).keys.toMutableList()
+            options = workflowObj.project.data.getTaskCategories().keys.toMutableList()
         }
     }
 

@@ -36,7 +36,7 @@ class CredentialsDialog(private val projectSetup: ProjectSetup) : DialogWrapper(
             return Dimension(250, super.getPreferredSize().height)
         }
     }
-    private val saveCheckbox = CheckBox("Save to settings")
+    private val saveCheckbox = CheckBox("Remember")
 
     override fun getPreferredFocusedComponent(): JComponent {
         return userText

@@ -5,10 +5,10 @@ import com.centurylink.mdw.activity.types.ScriptActivity
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.ext.JsonObject
 import com.centurylink.mdw.draw.ext.rootName
-import com.centurylink.mdw.draw.model.Data
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.MdwSettings

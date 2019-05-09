@@ -13,9 +13,7 @@ class SelectionBuilder(private val diagram: Diagram) {
 
     private var selection: Selection? = null
     private fun addToSelection(drawable: Drawable) {
-        selection?.let {
-            it.add(drawable)
-        }
+        selection?.add(drawable)
         if (selection == null) {
             selection = Selection(drawable)
         }
@@ -43,7 +41,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 activity.id = activityId
                 activity.setAttribute(WorkAttributeConstant.LOGICAL_ID, "A$activityId")
                 if (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA) {
-                    var name = activity.getAttribute("ClassName")
+                    val name = activity.getAttribute("ClassName")
                     if (name != null) {
                         activity.setAttribute("ClassName", name.substring(0,name.indexOf("_")) + "_A$activityId")
                     }

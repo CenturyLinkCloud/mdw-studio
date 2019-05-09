@@ -211,6 +211,6 @@ class ProcessUsage(private val projectSetup: ProjectSetup, private val processAs
     }
 
     companion object {
-        val PROCESS_USAGE_TYPE = UsageType("Prcoess")
+        val PROCESS_USAGE_TYPE = UsageType("Process")
     }
 }

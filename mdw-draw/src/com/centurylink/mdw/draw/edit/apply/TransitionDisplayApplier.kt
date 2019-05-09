@@ -56,8 +56,8 @@ class TransitionDisplayApplier : AttributeApplier() {
             }
         }
         transition?.let {
-            val fromActivity = process.getActivityById("A${transition.fromId}")
-            val toActivity = process.getActivityById("A${transition.toId}")
+            val fromActivity = process.getActivity("A${transition.fromId}")
+            val toActivity = process.getActivity("A${transition.toId}")
             val fromDisplay = Display(fromActivity.getAttribute(WORK_DISPLAY_INFO))
             val toDisplay = Display(toActivity.getAttribute(WORK_DISPLAY_INFO))
             val calcs = Link.Calcs(linkDisplay)

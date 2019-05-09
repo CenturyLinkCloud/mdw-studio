@@ -112,6 +112,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Run MDW automated test case"
                     class="com.centurylink.mdw.studio.action.RunAutotest">
             </action>
+            <action id="mdwProcessUsages" text="Find Usages" icon="/icons/process.gif"
+                    description="Find process references across all processes"
+                    class="com.centurylink.mdw.studio.action.ProcessUsages">
+            </action>
             <group id="mdwImport" text="MDW Import From..." icon="AllIcons.ToolbarDecorator.Import" popup="true"
                     description="Import an MDW process" class="com.centurylink.mdw.studio.action.PackageActionGroup">
                 <action id="mdwImportDrawIo" text="From draw.io Diagram" icon="AllIcons.FileTypes.Xml"
@@ -157,6 +161,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
             <reference ref="mdwAssetVersion"/>
             <reference ref="mdwRunProcess"/>
             <reference ref="mdwProcessInstances"/>
+            <reference ref="mdwProcessUsages"/>
             <reference ref="mdwImport"/>
             <reference ref="mdwExport"/>
             <separator/>

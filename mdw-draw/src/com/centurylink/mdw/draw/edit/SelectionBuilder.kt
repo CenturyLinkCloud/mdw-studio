@@ -138,7 +138,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                             for (transition in outboundTransitions) {
                                 val transitionJson = transition.json
                                 if (transition.toId < 0) { // newly created
-                                    transitionJson.put("to", diagram.process.getActivityVO(transition.toId).logicalId)
+                                    transitionJson.put("to", diagram.process.getActivity(transition.toId).logicalId)
                                 }
                                 transitionsArr.put(transitionJson)
                             }

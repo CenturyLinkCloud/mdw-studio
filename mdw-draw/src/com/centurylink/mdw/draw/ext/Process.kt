@@ -196,10 +196,10 @@ fun Process.set(process: Process) {
     val displayInfo = getAttribute(WORK_DISPLAY_INFO)
     val processAttributes = mutableListOf<Attribute>()
     for (attribute in process.attributes) {
-        if (attribute.attributeName.startsWith("[activities]_")) {
+        if (attribute.name.startsWith("[activities]_")) {
             // attribute is applied to all activities instead of process
-            val name = attribute.attributeName.substring(13)
-            val value = attribute.attributeValue
+            val name = attribute.name.substring(13)
+            val value = attribute.name
             var allActivities = mutableListOf<Activity>()
             allActivities.addAll(process.activities)
             process.subprocesses?.let { subprocs ->
@@ -225,7 +225,7 @@ fun Process.set(process: Process) {
                         Attribute(name, value)
                     }
                 }
-                activity.setAttribute(activityAttribute.attributeName, activityAttribute.attributeValue)
+                activity.setAttribute(activityAttribute.name, activityAttribute.value)
                 setActivity(activity.logicalId, activity)
             }
         }

@@ -17,7 +17,7 @@ class ProcessAttributeApplier : AttributeApplier() {
             "_captureTimings" -> {
                 var allActivitiesTimed = true
                 val process = workflowObj.asset as Process
-                var allActivities = mutableListOf<Activity>()
+                val allActivities = mutableListOf<Activity>()
                 allActivities.addAll(process.activities)
                 process.subprocesses?.let { subprocs ->
                     for (subproc in subprocs) {
@@ -30,7 +30,7 @@ class ProcessAttributeApplier : AttributeApplier() {
                         false
                     }
                     else {
-                        MonitorAttributes(monitorsStr).isEnabled("com.centurylink.mdw.base.ActivityTimingMonitor")
+                        MonitorAttributes(monitorsStr).isEnabled("com.centurylink.mdw.milestones.ActivityMilestone")
                     }
                     if (!timed) {
                         allActivitiesTimed = false
@@ -49,7 +49,7 @@ class ProcessAttributeApplier : AttributeApplier() {
             }
             "_captureTimings" -> {
                 val enabled = widget.value == "true"
-                val attr = "[\"$enabled\",\"Activity Timing\",\"com.centurylink.mdw.base/ActivityTimingMonitor.java\",\"\"]"
+                val attr = "[\"$enabled\",\"Milestone\",\"com.centurylink.mdw.milestones/ActivityMilestone.java\",\"\"]"
                 workflowObj.setAttribute("[activities]_Monitors", attr)
             }
         }

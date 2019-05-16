@@ -1,25 +1,23 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.model.event.ExternalEvent
+import com.centurylink.mdw.studio.file.EventHandlerFileType
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.SmartPointerManager
 import com.intellij.ui.DocumentAdapter
 import org.jetbrains.kotlin.idea.refactoring.toPsiDirectory
-import org.jetbrains.kotlin.idea.refactoring.toPsiFile
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 
@@ -56,7 +54,7 @@ class NewEventHandler : AssetAction() {
                     externalEvent.packageName = eventHandlerPkg.name
                     val dir = eventHandlerPkg.dir.toPsiDirectory(projectSetup.project)
                     if (dir != null)
-                        createAndOpen(dir, eventHandlerDialog.eventHandlerName, externalEvent.json.toString())
+                        createAndOpen(dir, eventHandlerDialog.eventHandlerName + ".evth", externalEvent.json.toString(2))
                 }
             }
         }
@@ -69,13 +67,15 @@ class NewEventHandler : AssetAction() {
     }
 
     private fun createAndOpen(dir: PsiDirectory, fileName: String, content: String): PsiFile? {
-        val path = Files.write(Paths.get(dir.virtualFile.path + "/" + fileName + ".evth"), content.toByteArray())
-        dir.virtualFile.refresh(false, true)
-        val file = LocalFileSystem.getInstance().findFileByIoFile(File(path.toString()))
-        val psiFile = file?.toPsiFile(dir.project)
-        return if (file != null && psiFile != null) {
-            FileEditorManager.getInstance(dir.project).openFile(file, true)
-            val pointer = SmartPointerManager.getInstance(dir.project).createSmartPsiElementPointer(psiFile)
+        val project = dir.project
+        var psiFile = PsiFileFactory.getInstance(dir.project).createFileFromText(fileName, EventHandlerFileType, content)
+        WriteAction.run<Exception> {
+            psiFile = dir.add(psiFile) as PsiFile
+        }
+        val virtualFile = psiFile.virtualFile
+        return if (virtualFile != null) {
+            FileEditorManager.getInstance(project).openFile(virtualFile, true)
+            val pointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(psiFile)
             pointer.element
         }
         else {

@@ -15,6 +15,7 @@ class Icons {
         val EXCEL = IconLoader.getIcon("/icons/excel.gif")
         val KOTLIN = IconLoader.getIcon("/icons/kotlin_file.png")
         val JAVA = AllIcons.FileTypes.Java
+        val EVENT = IconLoader.getIcon("/icons/extevent.gif")
 
         fun readIcon(path: String): ImageIcon {
             val classLoader = this::class.java.classLoader

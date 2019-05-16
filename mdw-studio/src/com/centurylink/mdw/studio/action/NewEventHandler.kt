@@ -338,7 +338,7 @@ class EventHandlerDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetu
         }
         codeGenPanel.add(codeGenerationPanel)
         codeGenerationPanel.alignmentX = Component.LEFT_ALIGNMENT
-        codeGenerationPanel.border = BorderFactory.createTitledBorder("Code Generation")
+        codeGenerationPanel.border = BorderFactory.createTitledBorder("Code Registration")
         codeGenerationPanel.layout = BoxLayout(codeGenerationPanel, BoxLayout.Y_AXIS)
 
         val customPkgPanel = JPanel()

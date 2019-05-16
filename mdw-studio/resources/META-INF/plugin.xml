@@ -69,6 +69,8 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.NewProcess"  />
             <action id="mdwNewTask" text="MDW Task" icon="/icons/task.gif"
                     class="com.centurylink.mdw.studio.action.NewTask" />
+            <action id="mdwEventHandler" text="MDW Event Handler" icon="/icons/extevent.gif"
+                    class="com.centurylink.mdw.studio.action.NewEventHandler" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
         <group id="mdwNewActivity" text="MDW Activity" icon="/icons/impl.gif" popup="true">

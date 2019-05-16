@@ -18,6 +18,7 @@ class FileTypeFactory : com.intellij.openapi.fileTypes.FileTypeFactory() {
         consumer.consume(ImplFileType, "impl")
         consumer.consume(SpringFileType, "spring")
         consumer.consume(ExcelFileType, "xlsx")
+        consumer.consume(EventHandlerFileType, "evth")
     }
 }
 
@@ -71,3 +72,13 @@ object ExcelFileType : INativeFileType {
         return openAssociatedApplication(file)
     }
 }
+
+object EventHandlerFileType : JsonFileType() {
+    override fun getDefaultExtension() = "evth"
+    override fun getName() = "Event"
+    override fun getDescription() = "Event Handler"
+    override fun getIcon() = Icons.EVENT
+    override fun isReadOnly() = false
+    override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
+}
+

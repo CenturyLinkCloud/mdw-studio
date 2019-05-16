@@ -77,8 +77,8 @@ object EventHandlerFileType : JsonFileType() {
     override fun getDefaultExtension() = "evth"
     override fun getName() = "Event"
     override fun getDescription() = "Event Handler"
-    override fun isReadOnly() = false
     override fun getIcon() = Icons.EVENT
+    override fun isReadOnly() = false
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
 }
 

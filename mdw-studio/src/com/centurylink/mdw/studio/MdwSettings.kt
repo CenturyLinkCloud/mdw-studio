@@ -59,6 +59,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
+    var isAssetVercheckAutofix: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(ASSET_VERCHECK_AUTOFIX, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(ASSET_VERCHECK_AUTOFIX, value)
+        }
+
     var discoveryRepoUrls: List<String>
         get() {
             val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
@@ -99,6 +105,10 @@ class MdwSettings {
         // editing
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
+
+        // assets
+        private const val ASSET_VERCHECK_AUTOFIX = "$ID.isAssetVercheckAutofix"
+        const val SUPPRESS_PROMPT_VERCHECK_AUTOFIX = "$ID.isSuppressPromptVercheckAutofix"
 
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"

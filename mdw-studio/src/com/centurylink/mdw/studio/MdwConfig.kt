@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio
 
 import com.centurylink.mdw.studio.file.Icons
 import com.intellij.icons.AllIcons
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.fileChooser.PathChooserDialog
 import com.intellij.openapi.options.SearchableConfigurable
@@ -41,6 +42,8 @@ class MdwConfig : SearchableConfigurable {
 
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
+
+    private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
 
     private val discoveryRepoUrlsList = object: JBList<String>() {
         override fun getPreferredSize(): Dimension {
@@ -158,8 +161,24 @@ class MdwConfig : SearchableConfigurable {
         }
         editPanel.add(createAndAssociateTaskCheckbox)
 
-        // discovery
+        // assets
         gridConstraints.gridy = 3
+        val assetsPanel = JPanel()
+        assetsPanel.layout = BoxLayout(assetsPanel, BoxLayout.Y_AXIS)
+        assetsPanel.border = IdeBorderFactory.createTitledBorder("Assets")
+        settingsPanel.add(assetsPanel, gridConstraints)
+
+        // vercheck autofix
+        vercheckAutofixCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        vercheckAutofixCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        vercheckAutofixCheckbox.isSelected = MdwSettings.instance.isAssetVercheckAutofix
+        vercheckAutofixCheckbox.addActionListener {
+            modified = true
+        }
+        assetsPanel.add(vercheckAutofixCheckbox)
+
+        // discovery
+        gridConstraints.gridy = 4
         val discoveryPanel = JPanel()
         discoveryPanel.layout = BoxLayout(discoveryPanel, BoxLayout.Y_AXIS)
         discoveryPanel.border = IdeBorderFactory.createTitledBorder("Discovery")
@@ -275,6 +294,12 @@ class MdwConfig : SearchableConfigurable {
 
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
+
+        mdwSettings.isAssetVercheckAutofix = vercheckAutofixCheckbox.isSelected
+        if (!mdwSettings.isAssetVercheckAutofix) {
+            // enable the prompt again
+            PropertiesComponent.getInstance().setValue(MdwSettings.SUPPRESS_PROMPT_VERCHECK_AUTOFIX, false)
+        }
 
         mdwSettings.discoveryRepoUrls = discoveryRepoUrls
         mdwSettings.discoveryMaxBranchesTags = maxBranchesTagsSpinner.number

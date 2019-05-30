@@ -22,12 +22,7 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
         if (it.isNullOrBlank()) {
             return false
         }
-        return try {
-            it.toInt()
-            false
-        } catch (ex: NumberFormatException) {
-            true
-        }
+        return it.toIntOrNull() == null
     }
 
     init {
@@ -36,11 +31,7 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
         var num = 0
         widget.value?.let {
             num = if (it is String) {
-                try {
-                    it.toInt()
-                } catch (ex: NumberFormatException) {
-                    0 // must be an expression
-                }
+                it.toIntOrNull() ?: 0
 
             } else {
                 it as Int
@@ -82,11 +73,11 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
                 applyUpdate()
             }
             buttonGroup.add(radioButton)
-            add(radioButton)
         }
 
         if (hasExpression(widget.valueString)) {
             spinner.isEnabled = false
+            buttonGroup.clearSelection()
             for (radioButton in radioButtons) {
                 radioButton.isSelected = radioButton.text == "Seconds"
                 radioButton.isEnabled = false
@@ -105,9 +96,12 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
                 } else {
                     widget.valueString?.toInt() ?: 0
                 }
+                buttonGroup.clearSelection()
                 for (radioButton in radioButtons) {
-                    if (hasExpr) {
-                        radioButton.isSelected = radioButton.text == "Seconds"
+                    radioButton.isSelected = if (hasExpr) {
+                        radioButton.text == "Seconds"
+                    } else {
+                        radioButton.text == widget.units
                     }
                     radioButton.isEnabled = !hasExpr
                 }
@@ -117,6 +111,11 @@ class Datetime(widget: Pagelet.Widget) : SwingWidget(widget) {
                 hasExpr
             }
             add(expressionEntry)
+        }
+
+        // units come after expression icon button
+        for (radioButton in radioButtons) {
+            add(radioButton)
         }
     }
 }

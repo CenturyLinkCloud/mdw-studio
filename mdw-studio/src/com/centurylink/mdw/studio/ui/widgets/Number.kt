@@ -1,7 +1,9 @@
 package com.centurylink.mdw.studio.ui.widgets
 
+import com.centurylink.mdw.draw.edit.label
 import com.centurylink.mdw.draw.edit.max
 import com.centurylink.mdw.draw.edit.min
+import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet
 import com.intellij.ui.JBIntSpinner
 import java.awt.Dimension
@@ -11,7 +13,12 @@ import javax.swing.text.DefaultFormatter
 @Suppress("unused")
 class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
 
-    val spinner: JBIntSpinner
+    private fun hasExpression(it: String?): Boolean {
+        if (it.isNullOrBlank()) {
+            return false
+        }
+        return it.toIntOrNull() == null
+    }
 
     init {
         isOpaque = false
@@ -27,7 +34,12 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
 
         var num = 0
         widget.value?.let {
-            num = it as Int
+            num = if (it is String) {
+                it.toIntOrNull() ?: 0
+
+            } else {
+                it as Int
+            }
         }
         if (num < min) {
             num = min
@@ -36,7 +48,7 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
             num = max
         }
 
-        spinner = object : JBIntSpinner(num, min, max) {
+        val spinner = object : JBIntSpinner(num, min, max) {
             override fun getPreferredSize(): Dimension {
                 val size = super.getPreferredSize()
                 return Dimension(size.width, size.height - 2)
@@ -53,5 +65,30 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
         }
 
         add(spinner)
+
+        if (hasExpression(widget.valueString)) {
+            spinner.isEnabled = false
+        }
+        // expression (TODO: support expressions in transition delay and retry count)
+        if (widget.name?.startsWith("_") != true && widget.name != "TRANSITION_DELAY" &&
+                widget.name != "TRANSITION_RETRY_COUNT") {
+            val expressionEntry = ExpressionEntry(widget.label, widget.valueString) {
+                val hasExpr = hasExpression(it)
+                // set widget value before triggering spinner listener so that 'true' and 'false' are honored
+                widget.value = it
+                spinner.isEnabled = !hasExpr
+                spinner.value = if (hasExpr || widget.valueString.isNullOrBlank()) {
+                    0
+                } else {
+                    widget.valueString?.toInt() ?: 0
+                }
+                // set widget value again in case spinner listener set to false for expression
+                widget.value = it
+                applyUpdate()
+                hasExpr
+            }
+            add(expressionEntry)
+        }
+
     }
 }

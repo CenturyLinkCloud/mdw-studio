@@ -5,7 +5,6 @@ import com.centurylink.mdw.draw.edit.units
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import java.lang.Integer.parseInt
-import java.text.NumberFormat
 
 /**
  * to/from Int value in seconds
@@ -59,7 +58,12 @@ class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
         if (widget.units == null) {
             widget.units = "Hours"
         }
-        val oldStyleSeconds = getOldStyleSeconds(widget)
+
+        val oldStyleSeconds = try {
+            getOldStyleSeconds(widget)
+        } catch (ex: NumberFormatException) {
+            null
+        }
         if (oldStyleSeconds != null) {
             widget.value = oldStyleSeconds
         }

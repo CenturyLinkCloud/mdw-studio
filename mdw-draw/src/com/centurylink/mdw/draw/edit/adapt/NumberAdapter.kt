@@ -7,7 +7,10 @@ import com.centurylink.mdw.model.asset.Pagelet
 class NumberAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
     override fun didInit(widget: Pagelet.Widget) {
         widget.value?.let {
-            widget.value = Integer.parseInt(it.toString())
+            // not reassigned if expression
+            it.toString().toIntOrNull()?.let { i ->
+                widget.value = i
+            }
         }
     }
 

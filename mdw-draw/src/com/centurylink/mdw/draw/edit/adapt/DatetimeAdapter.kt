@@ -5,6 +5,7 @@ import com.centurylink.mdw.draw.edit.units
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.model.asset.Pagelet.Widget
 import java.lang.Integer.parseInt
+import java.text.NumberFormat
 
 /**
  * to/from Int value in seconds
@@ -63,11 +64,16 @@ class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
             widget.value = oldStyleSeconds
         }
         widget.value?.let {
-            when (widget.units) {
-                "Minutes" -> widget.value = parseInt(it.toString()) / 60
-                "Hours" -> widget.value = parseInt(it.toString()) / 3600
-                "Days" -> widget.value = parseInt(it.toString()) / 86400
+            try {
+                when (widget.units) {
+                    "Minutes" -> widget.value = parseInt(it.toString()) / 60
+                    "Hours" -> widget.value = parseInt(it.toString()) / 3600
+                    "Days" -> widget.value = parseInt(it.toString()) / 86400
+                }
+            } catch (ex: NumberFormatException) {
+                // value must be an expression
             }
+
         }
         workflowObj.setAttribute(oldStyleUnitsAttr, null)
         workflowObj.setAttribute("${widget.name}_DISPLAY_UNITS", widget.units)
@@ -75,10 +81,14 @@ class DatetimeAdapter(val applier: WidgetApplier) : WidgetAdapter(applier) {
 
     override fun willUpdate(widget: Widget) {
         widget.value?.let {
-            when (widget.units) {
-                "Minutes" -> widget.value = parseInt(it.toString()) * 60
-                "Hours" -> widget.value = parseInt(it.toString()) * 3600
-                "Days" -> widget.value = parseInt(it.toString()) * 86400
+            try {
+                when (widget.units) {
+                    "Minutes" -> widget.value = parseInt(it.toString()) * 60
+                    "Hours" -> widget.value = parseInt(it.toString()) * 3600
+                    "Days" -> widget.value = parseInt(it.toString()) * 86400
+                }
+            } catch (ex: NumberFormatException) {
+                // must be an expression
             }
         }
         workflowObj.setAttribute("${widget.name}_DISPLAY_UNITS", widget.units)

@@ -11,7 +11,7 @@ import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.border.Border
 
-class IconButton(icon: Icon, tooltip: String, clickListener: (() -> Unit)? = null) : JLabel(icon) {
+open class IconButton(icon: Icon, tooltip: String, clickListener: (() -> Unit)? = null) : JLabel(icon) {
 
     private val iconCursor: Cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR)
 

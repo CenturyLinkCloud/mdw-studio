@@ -163,7 +163,7 @@ class ProcessUsage(private val projectSetup: ProjectSetup, private val processAs
     override fun getPresentation(): UsagePresentation {
         return object : UsagePresentation {
             override fun getIcon(): Icon {
-                return Icons.PROCESS
+                return Icons.IMPL
             }
             override fun getPlainText(): String {
                 return process.name

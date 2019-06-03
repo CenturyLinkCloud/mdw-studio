@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.3.3"
+version = "1.3.4-SNAPSHOT"
 
 java.sourceSets {
     "main" {
@@ -33,7 +33,7 @@ dependencies {
 }
 
 intellij {
-    version = "2019.1.2"
+    version = "2019.1.3"
     setPlugins("Kotlin","Git4Idea")
 }
 

@@ -1,5 +1,23 @@
 # Change Log
 
+## [1.3.3](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.3) (2019-06-03)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.2...1.3.3)
+
+**Implemented enhancements:**
+
+- Ability to specify package version [\#62](https://github.com/CenturyLinkCloud/mdw-studio/issues/62)
+- Wizard to create external event handler [\#49](https://github.com/CenturyLinkCloud/mdw-studio/issues/49)
+- Checkbox and DateTime widgets should have a way to enter expression values [\#19](https://github.com/CenturyLinkCloud/mdw-studio/issues/19)
+- Process context action: Find Usages [\#15](https://github.com/CenturyLinkCloud/mdw-studio/issues/15)
+
+**Fixed bugs:**
+
+- Cannot render Design tab for Event wait with expression driven timeout value [\#78](https://github.com/CenturyLinkCloud/mdw-studio/issues/78)
+- New project wizard should use import gradle structure [\#60](https://github.com/CenturyLinkCloud/mdw-studio/issues/60)
+- Cannot enter numbers greater 1000 for transition delay [\#85](https://github.com/CenturyLinkCloud/mdw-studio/issues/85)
+- Dynamic Java activity copy/paste results in cross-up source code attributes [\#82](https://github.com/CenturyLinkCloud/mdw-studio/issues/82)
+- Task editor incorrectly populating default notifier class and asset version [\#81](https://github.com/CenturyLinkCloud/mdw-studio/issues/81)
+
 ## [1.3.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.2) (2019-04-04)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.1...1.3.2)
 

@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtil
+import org.eclipse.jgit.api.errors.TransportException
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 
@@ -26,7 +27,7 @@ class VercheckAssets : AssetToolsAction() {
                 VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
             }
             else if (errorCount > 0 && assetVercheck.vercheck.exception == null) {
-                val setting = MdwSettings.SUPPRESS_PROMPT_VERCHECK_AUTOFIX;
+                val setting = MdwSettings.SUPPRESS_PROMPT_VERCHECK_AUTOFIX
                 if (!PropertiesComponent.getInstance().getBoolean(setting, false)) {
                     val res = MessageDialogBuilder
                             .yesNoCancel("Asset Version Conflict(s)",
@@ -75,9 +76,11 @@ class AssetVercheck(private val projectSetup: ProjectSetup, private val isFix: B
         projectSetup.console.run(vercheck, title)
         vercheck.exception?.let { ex ->
             if (ex is IOException && ex.cause is InvocationTargetException) {
-                (ex.cause as InvocationTargetException).cause?.let { targetEx ->
-                    targetEx.message?.let { message ->
-                        if (message.endsWith("Authentication is required but no CredentialsProvider has been registered")) {
+                val itex = ex.cause as InvocationTargetException
+                if (itex.targetException is TransportException) {
+                    itex.targetException.message?.let { message ->
+                        if (message.endsWith(" not authorized") ||
+                                message.endsWith("Authentication is required but no CredentialsProvider has been registered")) {
                             val dialog = CredentialsDialog(projectSetup)
                             if (dialog.showAndGet()) {
                                 val retryVercheck = Vercheck()

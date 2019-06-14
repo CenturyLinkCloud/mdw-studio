@@ -64,7 +64,12 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
     init {
         Display.DEFAULT_COLOR = UIManager.getColor("EditorPane.foreground")
-        Display.GRID_COLOR = Color.LIGHT_GRAY
+        Display.GRID_COLOR = if (UIUtil.isUnderDarcula()) {
+            Color(120, 120, 120)
+        }
+        else {
+            Color.LIGHT_GRAY
+        }
         Display.OUTLINE_COLOR = UIManager.getColor("EditorPane.foreground")
         Display.SHADOW_COLOR = Color(0, 0, 0, 50)
         Display.META_COLOR = Color.GRAY

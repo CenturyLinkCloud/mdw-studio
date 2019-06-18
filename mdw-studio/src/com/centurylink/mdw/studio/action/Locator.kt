@@ -1,7 +1,9 @@
 package com.centurylink.mdw.studio.action
 
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -75,6 +77,13 @@ class Locator(private val event: AnActionEvent) {
                 } else {
                     null
                 }
+            }
+        }
+
+    val implementor: ActivityImplementor?
+        get() {
+            return projectSetup?.let { _ ->
+                Implementors.IMPLEMENTOR_DATA_KEY.getData(event.dataContext)
             }
         }
 }

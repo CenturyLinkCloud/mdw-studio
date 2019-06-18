@@ -18,6 +18,7 @@ class ExpressionEntry(label: String, private var value: String?,
     private fun indicatorText(isExpression: Boolean) = if (isExpression) "*" else ""
 
     init {
+        isOpaque = false
         val expressionIndicator = JLabel(indicatorText(updateListener(value)))
 
         val iconBtn = IconButton(AllIcons.Debugger.EvaluateExpression, "Expression...") {

@@ -182,6 +182,14 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Find activity occurrences across all processes"
                     class="com.centurylink.mdw.studio.action.ActivityUsages">
                 <keyboard-shortcut first-keystroke="alt F7" keymap="$default" />
+                <keyboard-shortcut first-keystroke="alt F7" keymap="Mac OS X 10.5+" />
+            </action>
+            <separator/>
+            <action id="mdwActivityHelp" text="Activity Help" icon="AllIcons.Actions.Help"
+                    description="MDW activity online documentation"
+                    class="com.centurylink.mdw.studio.action.ActivityHelp">
+                <keyboard-shortcut first-keystroke="shift F1" keymap="$default" />
+                <keyboard-shortcut first-keystroke="shift F1" keymap="Mac OS X 10.5+" />
             </action>
         </group>
         <group id="mdwCanvasActions">

@@ -31,7 +31,7 @@ class TransferHandler(private val diagram: Diagram) : javax.swing.TransferHandle
         UpdateListeners by UpdateListenersDelegate() {
 
     override fun canImport(support: TransferSupport): Boolean {
-        if (support.transferable.isDataFlavorSupported(DATA_FLAVOR_JSON)) {
+        if (!diagram.isReadonly && support.transferable.isDataFlavorSupported(DATA_FLAVOR_JSON)) {
             val data = JSONObject(support.transferable.getTransferData(DATA_FLAVOR_JSON).toString())
             val impl = getImplementor(data)
             if (impl != null) {

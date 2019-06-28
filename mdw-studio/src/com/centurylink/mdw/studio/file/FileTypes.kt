@@ -81,4 +81,3 @@ object EventHandlerFileType : JsonFileType() {
     override fun isReadOnly() = false
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
 }
-

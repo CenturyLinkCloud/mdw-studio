@@ -351,7 +351,7 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
             process.id = asset.id
             process.activities.find { it.logicalId == activityId }?.let { activity ->
                 activity.getAttribute("Java")?.let { java ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, isReadOnly)
                     val file = virtualFile
                     if (file == null) {
                         createFile(path, workflowObj, java)
@@ -363,7 +363,7 @@ class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalF
                     }
                 }
                 activity.getAttribute("Rule")?.let { rule ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
+                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, isReadOnly)
                     val file = virtualFile
                     if (file == null) {
                         createFile(path, workflowObj, rule)

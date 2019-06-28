@@ -10,10 +10,11 @@ import com.centurylink.mdw.model.workflow.Process
 import java.awt.Graphics2D
 
 class Step(private val g2d: Graphics2D, val project: Project, process: Process, val activity: Activity,
-        val implementor: ActivityImplementor, private val boxStyle: Boolean = true) :
+        val implementor: ActivityImplementor, isReadonly: Boolean) :
         Shape(g2d, Display(activity.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
-    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json)
+    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json, isReadonly)
+    private val boxStyle: Boolean = true
 
     override fun draw(): Display {
 

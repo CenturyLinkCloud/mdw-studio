@@ -20,7 +20,8 @@ enum class WorkflowType {
     task
 }
 
-open class WorkflowObj(val project: Project, var asset: Asset, val type: WorkflowType, var obj: JSONObject) {
+open class WorkflowObj(val project: Project, var asset: Asset, val type: WorkflowType, var obj: JSONObject,
+        val isReadOnly: Boolean) {
 
     open var id: String
         get() = if (obj.has("id")) obj.getString("id") else "-1"
@@ -35,8 +36,6 @@ open class WorkflowObj(val project: Project, var asset: Asset, val type: Workflo
 
     val titlePath: String
         get() = asset.packageName + "/" + asset.name + ": " + name.lines().joinToString(" ")
-
-    var isReadOnly = false
 
     init {
         if (obj.has("id")) {

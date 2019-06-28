@@ -46,7 +46,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                         activity.setAttribute("ClassName", name.substring(0,name.indexOf("_")) + "_A$activityId")
                     }
                 }
-                val step = Step(diagram.g2d, diagram.project, process, activity, implementor)
+                val step = Step(diagram.g2d, diagram.project, process, activity, implementor, diagram.isReadonly)
                 addToSelection(step)
                 activityJson.optJSONArray("transitions")?.let {
                     for (j in 0 until it.length()) {
@@ -69,7 +69,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 it is Step && it.activity.id == transition.toId
             }
             if (fromStep != null && toStep != null) {
-                val link = Link(diagram.g2d, diagram.project, diagram.process, transition, fromStep as Step, toStep as Step)
+                val link = Link(diagram.g2d, diagram.project, diagram.process, transition, fromStep as Step, toStep as Step, diagram.isReadonly)
                 addToSelection(link)
             }
         }
@@ -81,7 +81,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 val subprocess = Process(it.getJSONObject(i))
                 subprocess.id = subprocessId
                 subprocess.setAttribute(WorkAttributeConstant.LOGICAL_ID, "P$subprocessId")
-                val subflow = Subflow(diagram.g2d, diagram.project, diagram.process, subprocess, diagram.implementors)
+                val subflow = Subflow(diagram.g2d, diagram.project, diagram.process, subprocess, diagram.implementors, diagram.isReadonly)
                 addToSelection(subflow)
             }
         }
@@ -92,7 +92,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 textNoteId++
                 val textNote = TextNote(it.getJSONObject(i))
                 textNote.logicalId = "N$textNoteId"
-                val note = Note(diagram.g2d, diagram.project, diagram.process, textNote)
+                val note = Note(diagram.g2d, diagram.project, diagram.process, textNote, diagram.isReadonly)
                 addToSelection(note)
             }
         }

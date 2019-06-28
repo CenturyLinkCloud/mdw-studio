@@ -17,7 +17,7 @@ import java.awt.Graphics2D
 class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, val process: Process,
         val implementors: Map<String, ActivityImplementor>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json, isReadonly) {
         init {
             id = process.id?.toString() ?: "-1"
             name = process.name
@@ -45,7 +45,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         // activities
         for (activity in process.activities) {
             val impl = implementors[activity.implementor] ?: ActivityImplementor(activity.implementor)
-            val step = Step(g2d, project, process, activity, impl)
+            val step = Step(g2d, project, process, activity, impl, isReadonly)
             steps.add(step)
         }
 
@@ -54,20 +54,20 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             for (transition in process.getAllTransitions(step.activity.id)) {
                 val link = Link(g2d, project, process, transition, step, steps.find {
                     it.workflowObj.id == "A${transition.toId}"
-                }!!)
+                }!!, isReadonly)
                 links.add(link)
             }
         }
 
         // subflows
         for (subprocess in process.subprocesses) {
-            val subflow = Subflow(g2d, project, process, subprocess, implementors)
+            val subflow = Subflow(g2d, project, process, subprocess, implementors, isReadonly)
             subflows.add(subflow)
         }
 
         // notes
         for (textNote in process.textNotes) {
-            val note = Note(g2d, project, process, textNote)
+            val note = Note(g2d, project, process, textNote, isReadonly)
             notes.add(note)
         }
     }
@@ -202,7 +202,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             }
         }
         val activity = process.addActivity(x, y, implementor, process.maxActivityId() + 1)
-        val step = Step(g2d, project, process, activity, implementor)
+        val step = Step(g2d, project, process, activity, implementor, isReadonly)
         steps.add(step) // unnecessary if redrawn
         return step
     }
@@ -224,7 +224,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             }
         }
         val transition = process.addTransition(from.activity, to.activity, process.maxTransitionId() + 1)
-        val link = Link(g2d, project, process, transition, from, to)
+        val link = Link(g2d, project, process, transition, from, to, isReadonly)
         link.calc()
         links.add(link) // unnecessary if redrawn
         return link
@@ -232,14 +232,14 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
     private fun addSubflow(x: Int, y: Int, type: String): Subflow {
         val subprocess = process.addSubprocess(x, y, type)
-        val subflow = Subflow(g2d, project, process, subprocess, implementors)
+        val subflow = Subflow(g2d, project, process, subprocess, implementors, isReadonly)
         subflows.add(subflow)
         return subflow
     }
 
     private fun addNote(x: Int, y: Int): Note {
         val textNote = process.addTextNote(x, y)
-        val note = Note(g2d, project, process, textNote)
+        val note = Note(g2d, project, process, textNote, isReadonly)
         notes.add(note) // unnecessary if redrawn
         return note
     }

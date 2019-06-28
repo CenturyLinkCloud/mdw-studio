@@ -81,10 +81,10 @@ class Pt(val x: Int, val y: Int) { }
 
 class Seg(val from: Pt, val to: Pt) { }
 
-class Link(val g2d: Graphics2D, project: Project, process: Process, val transition: Transition, var from: Step, var to: Step) :
-        Drawable, Selectable by Select() {
+class Link(val g2d: Graphics2D, project: Project, process: Process, val transition: Transition, var from: Step,
+        var to: Step, isReadonly: Boolean) : Drawable, Selectable by Select() {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.transition, transition.json) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.transition, transition.json, isReadonly) {
         override var name: String = ""
             get() = if (labelText.length > 0) labelText else ""
     }

@@ -65,10 +65,12 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
             }
         })
 
-        workflowObj.getAttribute(attributeName)?.let { attr ->
-            WriteAction.compute<Boolean,Throwable> {
-                document.setText(attr.replace("\r", ""))
-                true
+        if (document.isWritable) {
+            workflowObj.getAttribute(attributeName)?.let { attr ->
+                WriteAction.compute<Boolean, Throwable> {
+                    document.setText(attr.replace("\r", ""))
+                    true
+                }
             }
         }
 

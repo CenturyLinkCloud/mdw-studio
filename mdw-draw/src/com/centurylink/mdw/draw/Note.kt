@@ -10,10 +10,10 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
 
-class Note (private val g2d: Graphics2D, project: Project, process: Process, val textNote: TextNote) :
+class Note (private val g2d: Graphics2D, project: Project, process: Process, val textNote: TextNote, isReadonly: Boolean) :
         Shape(g2d, Display(textNote.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.textNote, textNote.json) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.textNote, textNote.json, isReadonly) {
         override var name: String = "Note"
             get() = "Note ${textNote.logicalId}"
     }

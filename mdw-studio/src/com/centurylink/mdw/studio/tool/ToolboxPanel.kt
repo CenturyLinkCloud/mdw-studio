@@ -199,7 +199,7 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
     inner class IconShape(private val g2d: Graphics2D, val implementor: ActivityImplementor) :
             Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
 
-        override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json) {
+        override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json, true) {
             override var id = implementor.implementorClass
             override var name = implementor.label
         }

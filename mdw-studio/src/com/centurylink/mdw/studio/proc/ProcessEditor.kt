@@ -44,7 +44,8 @@ class ProcessEditorProvider : FileEditorProvider, DumbAware {
 
     override fun accept(project: Project, file: VirtualFile): Boolean {
         val projectSetup = project.getComponent(ProjectSetup::class.java)
-        return file.fileType == ProcessFileType && projectSetup.isMdwProject && projectSetup.isAssetSubdir(file.parent)
+        return file.fileType == ProcessFileType && projectSetup.isMdwProject &&
+                (projectSetup.isAssetSubdir(file.parent) || !file.isInLocalFileSystem)
     }
 
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
@@ -68,17 +69,21 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         set(value) {
             _process = value
             _process.name = procFile.nameWithoutExtension
-            val procAsset = projectSetup.getAsset(procFile)
-            if (procAsset == null) {
-                // can happen if no pkg meta
-                asset = projectSetup.createAsset(procFile)
+            if (procFile.isInLocalFileSystem) {
+                val procAsset = projectSetup.getAsset(procFile)
+                if (procAsset == null) {
+                    // can happen if no pkg meta
+                    asset = projectSetup.createAsset(procFile)
+                } else {
+                    asset = procAsset
+                }
+                _process.id = asset.id
+                _process.version = asset.version
+                _process.packageName = asset.pkg.name
             }
             else {
-                asset = procAsset
+                procDoc.setReadOnly(true);
             }
-            _process.id = asset.id
-            _process.version = asset.version
-            _process.packageName = asset.pkg.name
         }
     private lateinit var asset: Asset
     private var modified: Boolean = false
@@ -94,7 +99,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         // initialize backing property and then invoke setter
         _process = Process(JSONObject(procDoc.text))
         process = _process
-        canvas = ProcessCanvas(projectSetup, process)
+        canvas = ProcessCanvas(projectSetup, process, !procDoc.isWritable)
         canvasScrollPane = JBScrollPane(canvas)
 
         editPanel = JPanel(BorderLayout())
@@ -164,7 +169,9 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             }
             override fun beforeAllDocumentsSaving() {
                 // react to Save All and build events
-                saveToFile()
+                if (procDoc.isWritable) {
+                    saveToFile()
+                }
             }
         })
 
@@ -224,7 +231,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         configPanel.hideShowListener = this
         panelBar.hideShowListener = this
 
-        if (GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
+        if (procDoc.isWritable && GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
             saveToFile()
         }
         putUserData(CONFIG_PANEL_IS_SHOWN, show)
@@ -262,7 +269,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun deselectNotify() {
-        if (GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
+        if (procDoc.isWritable && GeneralSettings.getInstance().isSaveOnFrameDeactivation) {
             saveToFile()
         }
     }

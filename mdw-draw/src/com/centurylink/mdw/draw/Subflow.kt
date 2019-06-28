@@ -14,10 +14,10 @@ import java.awt.Color
 import java.awt.Graphics2D
 
 class Subflow(private val g2d: Graphics2D, private val project: Project, private val process: Process,
-        val subprocess: Process, val implementors: Map<String,ActivityImplementor>) :
+        val subprocess: Process, val implementors: Map<String,ActivityImplementor>, val isReadonly: Boolean) :
         Shape(g2d, Display(subprocess.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable  {
 
-    override val workflowObj = object: WorkflowObj(project, process, WorkflowType.subprocess, subprocess.json) {
+    override val workflowObj = object: WorkflowObj(project, process, WorkflowType.subprocess, subprocess.json, isReadonly) {
         init {
             id = if (subprocess.id == null) "-1" else "P" + subprocess.id
             name = subprocess.name
@@ -41,14 +41,14 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
             if (impl == null) {
                 impl = ActivityImplementor(activity.implementor)
             }
-            val step = Step(g2d, project, process, activity, impl)
+            val step = Step(g2d, project, process, activity, impl, isReadonly)
             steps.add(step)
         }
 
         // transitions
         for (step in steps) {
             for (transition in subprocess.getAllTransitions(step.activity.id)) {
-                val link = Link(g2d, project, process, transition, step, findStep("A${transition.toId}")!!)
+                val link = Link(g2d, project, process, transition, step, findStep("A${transition.toId}")!!, isReadonly)
                 links.add(link)
             }
         }
@@ -65,7 +65,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
 
     fun addStep(implementor: ActivityImplementor, x: Int, y: Int): Step {
         val activity = subprocess.addActivity(x, y, implementor, process.maxActivityId() + 1)
-        val step = Step(g2d, project, process, activity, implementor)
+        val step = Step(g2d, project, process, activity, implementor, isReadonly)
         steps.add(step) // unnecessary if redrawn
         return step
     }
@@ -82,7 +82,7 @@ class Subflow(private val g2d: Graphics2D, private val project: Project, private
 
     fun addLink(from: Step, to: Step): Link {
         val transition = subprocess.addTransition(from.activity, to.activity, process.maxTransitionId() + 1)
-        val link = Link(g2d, project, process, transition, from, to)
+        val link = Link(g2d, project, process, transition, from, to, isReadonly)
         link.calc()
         links.add(link) // unnecessary if redrawn
         return link

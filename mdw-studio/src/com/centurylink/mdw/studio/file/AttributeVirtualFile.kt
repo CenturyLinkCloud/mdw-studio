@@ -1,14 +1,9 @@
 package com.centurylink.mdw.studio.file
 
-import com.centurylink.mdw.activity.types.GeneralActivity
-import com.centurylink.mdw.activity.types.ScriptActivity
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.ext.JsonObject
-import com.centurylink.mdw.draw.ext.rootName
 import com.centurylink.mdw.draw.model.WorkflowObj
-import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
-import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.MdwSettings
@@ -17,17 +12,15 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.lang.Language
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.*
+import com.intellij.openapi.vfs.VirtualFileSystem
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -245,7 +238,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
 
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
-        val attrFileSystem = AttributeVirtualFileSystem()
+        lateinit var attrFileSystem: AttributeVirtualFileSystem
         const val DEFAULT_SCRIPT_EXT = "groovy"
         fun getScriptExt(scriptAttr: String): String {
             return when(scriptAttr) {
@@ -255,149 +248,5 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
                 else -> DEFAULT_SCRIPT_EXT
             }
         }
-    }
-}
-
-class AttributeVirtualFileSystem() : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
-
-    private val virtualFiles = mutableMapOf<String,AttributeVirtualFile>()
-
-    init {
-        startEventPropagation()
-    }
-
-    override fun getProtocol(): String {
-        return PROTOCOL
-    }
-
-    /**
-     * Finds or creates a dynamic Java/Script file.
-     */
-    fun getJavaOrScriptFile(workflowObj: WorkflowObj, contents: String? = null, qualifier: String? = null): AttributeVirtualFile? {
-        assert(workflowObj.type == WorkflowType.activity)
-        val projectSetup = workflowObj.project as ProjectSetup
-        val process = workflowObj.asset as Process
-        val implClass = workflowObj.obj.getString("implementor")
-        projectSetup.implementors[implClass]?.let { implementor ->
-            if (implementor.category == GeneralActivity::class.qualifiedName &&
-                    (implClass == Data.Implementors.DYNAMIC_JAVA || workflowObj.getAttribute("Java") != null)) {
-                var name = workflowObj.getAttribute("ClassName")
-                if (name == null) {
-                    name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
-                }
-                val filePath = "${process.packageName}/$name.java"
-                val virtualFile = virtualFiles[filePath]
-                return if (virtualFile == null) {
-                    createFile(filePath, workflowObj, contents, "java", qualifier)
-                }
-                else {
-                    virtualFile.workflowObj = workflowObj
-                    if (contents != null) {
-                        virtualFile.contents = contents
-                    }
-                    virtualFile
-                }
-            }
-            else if (implementor.category == ScriptActivity::class.qualifiedName) {
-                var name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                qualifier?.let { name += "_$it" }
-                var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
-                    ext = AttributeVirtualFile.getScriptExt(scriptAttr)
-                    val virtualFile = virtualFiles["${process.packageName}/$name.$ext"]
-                    if (virtualFile != null) {
-                        virtualFile.workflowObj = workflowObj
-                        if (contents != null) {
-                            virtualFile.contents = contents
-                        }
-                        return virtualFile
-                    }
-                }
-                return createFile("${process.packageName}/$name.$ext", workflowObj, contents, ext, qualifier)
-            }
-        }
-        return null
-    }
-
-    override fun findFileByPath(path: String): VirtualFile? {
-        val activeProject = ProjectSetup.activeProject
-        return if (activeProject == null) {
-            LOG.warn("Cannot find active project for: $path")
-            null
-        }
-        else {
-            findFileByPath(path, activeProject)
-        }
-    }
-
-    /**
-     * Caches found VirtualFiles to avoid this:
-     * https://youtrack.jetbrains.com/issue/IDEA-203751
-     */
-    fun findFileByPath(path: String, project: Project): VirtualFile? {
-        val virtualFile = virtualFiles[path]
-        val withoutExt = path.substring(0, path.lastIndexOf("."))
-        val pkg = withoutExt.substring(0, withoutExt.indexOf("/"))
-        val underscore = withoutExt.lastIndexOf("_")
-        val processName = withoutExt.substring(pkg.length + 1, underscore)
-        val activityId = withoutExt.substring(underscore + 1)
-
-        val projectSetup = project.getComponent(ProjectSetup::class.java)
-
-        projectSetup.findAssetFromNormalizedName(pkg, processName, "proc")?.let { asset ->
-            val process = Process(JSONObject(String(asset.contents)))
-            process.name = processName
-            process.packageName = pkg
-            process.id = asset.id
-            process.activities.find { it.logicalId == activityId }?.let { activity ->
-                activity.getAttribute("Java")?.let { java ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, isReadOnly)
-                    val file = virtualFile
-                    if (file == null) {
-                        createFile(path, workflowObj, java)
-                    }
-                    else {
-                        file.workflowObj = workflowObj
-                        file.contents = java
-                        file._psiFile = null
-                    }
-                }
-                activity.getAttribute("Rule")?.let { rule ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, isReadOnly)
-                    val file = virtualFile
-                    if (file == null) {
-                        createFile(path, workflowObj, rule)
-                    }
-                    else {
-                        file.workflowObj = workflowObj
-                        file.contents = rule
-                        file._psiFile = null
-                    }
-                }
-            }
-        }
-
-        return virtualFile
-    }
-
-    private fun createFile(path: String, workflowObj: WorkflowObj, contents: String? = null, ext: String? = null,
-            qualifier: String? = null): AttributeVirtualFile {
-        val vFile = AttributeVirtualFile(workflowObj, contents, ext, qualifier)
-        virtualFiles[path] = vFile
-        return vFile
-    }
-
-    override fun refreshAndFindFileByPath(path: String): VirtualFile? {
-        return findFileByPath(path)
-    }
-
-    override fun refresh(asynchronous: Boolean) {
-    }
-
-    companion object {
-        val LOG = Logger.getInstance(AttributeVirtualFileSystem::class.java)
-        const val PROTOCOL = "mdw"
-        val instance: AttributeVirtualFileSystem
-            get() = VirtualFileManager.getInstance().getFileSystem(PROTOCOL) as AttributeVirtualFileSystem
     }
 }

@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
 import com.centurylink.mdw.studio.action.UpdateNotificationAction
+import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.util.HttpHelper
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.notification.Notification
@@ -49,6 +50,8 @@ class ProjectStartup : StartupActivity {
 
             // reload implementors (after dumb) to pick up annotation-driven impls
             projectSetup.reloadImplementors()
+            // initialize virtual file system
+            AttributeVirtualFileSystem.instance.refresh(projectSetup)
 
             if (!projectSetup.isFramework) {
                 // check mdw assets

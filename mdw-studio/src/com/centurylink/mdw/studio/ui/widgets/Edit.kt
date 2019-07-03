@@ -43,7 +43,7 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
         val fileSystem = AttributeVirtualFileSystem.instance
         val javaOrScriptFile = fileSystem.getJavaOrScriptFile(workflowObj, widget.valueString, qualifier)
         // TODO: reuse non Java or Script files
-        val virtualFile = javaOrScriptFile ?: AttributeVirtualFile(workflowObj, widget.valueString, qualifier = qualifier)
+        val virtualFile = javaOrScriptFile ?: AttributeVirtualFile(workflowObj, widget.name, widget.valueString, qualifier = qualifier)
 
         if (virtualFile.contents != widget.valueString) {
             // might have been set from template

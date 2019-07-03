@@ -29,7 +29,7 @@ import java.io.OutputStream
 /**
  * name and file type are determined based on workflowObj
  */
-class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
+class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: String, value: String? = null,
         private val fileExtension: String? = null, private val qualifier: String? = null) :
         LightVirtualFileBase(workflowObj.name, FileTypes.PLAIN_TEXT, System.currentTimeMillis()) {
 
@@ -213,7 +213,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
         return ByteArrayOutputStream()
     }
     override fun getFileSystem(): VirtualFileSystem {
-        return attrFileSystem
+        return AttributeVirtualFileSystem.instance
     }
 
     override fun getName(): String {
@@ -238,7 +238,6 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, value: String? = null,
 
     companion object {
         val attrEditsJson = JsonObject(Templates.get("configurator/attribute-edits.json"))
-        lateinit var attrFileSystem: AttributeVirtualFileSystem
         const val DEFAULT_SCRIPT_EXT = "groovy"
         fun getScriptExt(scriptAttr: String): String {
             return when(scriptAttr) {

@@ -4,6 +4,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
 import com.centurylink.mdw.studio.action.UpdateNotificationAction
+import com.centurylink.mdw.studio.file.AttributeDocumentListener
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.util.HttpHelper
 import com.intellij.ide.plugins.PluginManager
@@ -13,6 +14,7 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
@@ -35,7 +37,7 @@ class ProjectStartup : StartupActivity {
             projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
-            val pluginVer = projectSetup.getPluginVersion()
+            val pluginVer = projectSetup.getPluginVersion() ?: "Unknown"
             try {
                 LOG.info("MDW Studio: $pluginVer (${MdwVersion.getRuntimeVersion()})")
                 val ideaVer = ApplicationInfo.getInstance().build.asString()
@@ -52,6 +54,7 @@ class ProjectStartup : StartupActivity {
             projectSetup.reloadImplementors()
             // initialize virtual file system
             AttributeVirtualFileSystem.instance.refresh(projectSetup)
+            EditorFactory.getInstance().eventMulticaster.addDocumentListener(AttributeDocumentListener(projectSetup))
 
             if (!projectSetup.isFramework) {
                 // check mdw assets

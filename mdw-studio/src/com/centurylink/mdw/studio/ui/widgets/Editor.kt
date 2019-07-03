@@ -25,7 +25,7 @@ class Editor(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         background = UIManager.getColor("EditorPane.background")
         border = BorderFactory.createEmptyBorder()
 
-        val virtualFile = AttributeVirtualFile(workflowObj, widget.valueString, widget.attributes["ext"])
+        val virtualFile = AttributeVirtualFile(workflowObj, widget.name, widget.valueString, widget.attributes["ext"])
         val project = (workflowObj.project as ProjectSetup).project
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)

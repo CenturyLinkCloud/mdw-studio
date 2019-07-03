@@ -11,11 +11,8 @@ import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.event.DocumentEvent
-import com.intellij.openapi.editor.event.DocumentListener
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
@@ -28,7 +25,6 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     internal val virtualFiles = mutableMapOf<String,AttributeVirtualFile>()
 
     init {
-        AttributeVirtualFile.attrFileSystem = this
         startEventPropagation()
     }
 
@@ -54,7 +50,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                 val filePath = "${process.packageName}/$name.java"
                 val virtualFile = virtualFiles[filePath]
                 return if (virtualFile == null) {
-                    createFile(filePath, workflowObj, contents, "java", qualifier)
+                    createFile(filePath, workflowObj, "Java", contents, "java", qualifier)
                 }
                 else {
                     virtualFile.workflowObj = workflowObj
@@ -79,7 +75,12 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                         return virtualFile
                     }
                 }
-                return createFile("${process.packageName}/$name.$ext", workflowObj, contents, ext, qualifier)
+                val attrName = when (qualifier) {
+                    "Pre" -> "PreScript"
+                    "Post" -> "PostScript"
+                    else -> "Rule"
+                }
+                return createFile("${process.packageName}/$name.$ext", workflowObj, attrName, contents, ext, qualifier)
             }
         }
         return null
@@ -120,7 +121,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                     val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     val file = virtualFile
                     if (file == null) {
-                        createFile(path, workflowObj, java)
+                        createFile(path, workflowObj, "Java", java)
                     }
                     else {
                         file.workflowObj = workflowObj
@@ -132,7 +133,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                     val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     val file = virtualFile
                     if (file == null) {
-                        createFile(path, workflowObj, rule)
+                        createFile(path, workflowObj, "Rule", rule)
                     }
                     else {
                         file.workflowObj = workflowObj
@@ -146,22 +147,9 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
         return virtualFile
     }
 
-    private fun createFile(path: String, workflowObj: WorkflowObj, contents: String? = null, ext: String? = null,
-            qualifier: String? = null): AttributeVirtualFile {
-        val vFile = AttributeVirtualFile(workflowObj, contents, ext, qualifier)
-
-        ApplicationManager.getApplication().runReadAction {
-            val document = FileDocumentManager.getInstance().getDocument(vFile)
-            document?.addDocumentListener(
-                object : DocumentListener {
-                    override fun beforeDocumentChange(e: DocumentEvent) {
-                    }
-                    override fun documentChanged(e: DocumentEvent) {
-                        println("CHANGED: \n${e.document.text}")
-                    }
-                }
-            )
-        }
+    private fun createFile(path: String, workflowObj: WorkflowObj, attributeName: String,
+            contents: String? = null, ext: String? = null, qualifier: String? = null): AttributeVirtualFile {
+        val vFile = AttributeVirtualFile(workflowObj, attributeName, contents, ext, qualifier)
         virtualFiles[path] = vFile
         return vFile
     }
@@ -178,17 +166,16 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
             process.packageName = asset.pkg.name
             process.id = asset.id
             for (activity in process.activities) {
+                val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                 activity.getAttribute("Java")?.let { java ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     var name = workflowObj.getAttribute("ClassName")
                     if (name == null) {
                         name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
                     }
-                    createFile("${process.packageName}/$name.java", workflowObj, java)
+                    createFile("${process.packageName}/$name.java", workflowObj, "Java", java)
                     return
                 }
                 activity.getAttribute("Rule")?.let { rule ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
                         if (implementor.category == ScriptActivity::class.qualifiedName) {
                             val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
@@ -196,13 +183,12 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                             workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
                                 ext = AttributeVirtualFile.getScriptExt(scriptAttr)
                             }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, rule, ext)
+                            createFile("${process.packageName}/$name.$ext", workflowObj, "Rule", rule, ext)
                         }
                     }
                     return
                 }
                 activity.getAttribute("PreScript")?.let { script ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
                         if (implementor.category == AdapterActivity::class.qualifiedName) {
                             val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
@@ -210,12 +196,11 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                             workflowObj.getAttribute("PreScriptLang")?.let { langAttr ->
                                 ext = AttributeVirtualFile.getScriptExt(langAttr)
                             }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, script, ext, "Pre")
+                            createFile("${process.packageName}/$name.$ext", workflowObj, "PreScript", script, ext, "Pre")
                         }
                     }
                 }
                 activity.getAttribute("PostScript")?.let { script ->
-                    val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
                     projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
                         if (implementor.category == AdapterActivity::class.qualifiedName) {
                             val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
@@ -223,7 +208,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                             workflowObj.getAttribute("PostScriptLang")?.let { langAttr ->
                                 ext = AttributeVirtualFile.getScriptExt(langAttr)
                             }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, script, ext, "Post")
+                            createFile("${process.packageName}/$name.$ext", workflowObj, "PostScript", script, ext, "Post")
                         }
                     }
                 }

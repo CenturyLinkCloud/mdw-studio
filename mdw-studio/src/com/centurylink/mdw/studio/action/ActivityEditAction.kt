@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -17,7 +16,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
-import java.awt.Component
 import java.io.IOException
 
 /**
@@ -64,15 +62,6 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
                 notifyUpdateListeners(workflowObj)
             }
         })
-
-        if (document.isWritable) {
-            workflowObj.getAttribute(attributeName)?.let { attr ->
-                WriteAction.compute<Boolean, Throwable> {
-                    document.setText(attr.replace("\r", ""))
-                    true
-                }
-            }
-        }
 
         if (virtualFile.extension == "java") {
             ApplicationManager.getApplication().invokeLater {

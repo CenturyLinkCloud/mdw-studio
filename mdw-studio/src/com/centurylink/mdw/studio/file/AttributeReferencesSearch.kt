@@ -25,7 +25,7 @@ class AttributeReferencesSearcher : QueryExecutorBase<PsiReference,ReferencesSea
             } else {
                 currentScope = null
             }
-            println("ELEMENT: " + element)
+//            println("ELEMENT: " + element)
             element.project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
                 AttributeVirtualFileSystem.instance.virtualFiles.values.forEach { file ->
                     file.psiFile?.let { psiFile ->
@@ -54,7 +54,7 @@ class AttributeMethodUsagesSearch : QueryExecutorBase<PsiReference, MethodRefere
             } else {
                 currentScope = null
             }
-            println("METHOD: " + method)
+//            println("METHOD: " + method)
             method.project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
                 AttributeVirtualFileSystem.instance.virtualFiles.values.forEach { file ->
                     file.psiFile?.let { psiFile ->

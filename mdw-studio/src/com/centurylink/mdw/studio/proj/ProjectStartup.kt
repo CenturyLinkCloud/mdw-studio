@@ -4,7 +4,6 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
 import com.centurylink.mdw.studio.action.UpdateNotificationAction
-import com.centurylink.mdw.studio.file.AttributeDocumentListener
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.util.HttpHelper
 import com.intellij.ide.plugins.PluginManager
@@ -14,7 +13,6 @@ import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
@@ -28,6 +26,7 @@ import java.net.URL
 import kotlin.concurrent.thread
 
 class ProjectStartup : StartupActivity {
+
     override fun runActivity(project: Project) {
 
         val projectSetup = project.getComponent(ProjectSetup::class.java)
@@ -54,7 +53,6 @@ class ProjectStartup : StartupActivity {
             projectSetup.reloadImplementors()
             // initialize virtual file system
             AttributeVirtualFileSystem.instance.refresh(projectSetup)
-            EditorFactory.getInstance().eventMulticaster.addDocumentListener(AttributeDocumentListener(projectSetup))
 
             if (!projectSetup.isFramework) {
                 // check mdw assets

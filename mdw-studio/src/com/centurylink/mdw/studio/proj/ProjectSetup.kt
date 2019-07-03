@@ -13,6 +13,7 @@ import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
+import com.centurylink.mdw.studio.file.AttributeDocumentHandler
 import com.centurylink.mdw.util.file.Packages
 import com.centurylink.mdw.util.log.slf4j.Slf4JStandardLoggerImpl
 import com.intellij.codeInsight.AnnotationUtil
@@ -26,6 +27,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
@@ -161,6 +163,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         }
     }
 
+    lateinit var attributeDocumentHandler: AttributeDocumentHandler
+
     init {
         assetDir = initialize()
         configure()
@@ -240,9 +244,12 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     override fun projectOpened() {
+        attributeDocumentHandler = AttributeDocumentHandler(this)
+        EditorFactory.getInstance().eventMulticaster.addDocumentListener(attributeDocumentHandler)
     }
 
     override fun projectClosed() {
+        EditorFactory.getInstance().eventMulticaster.removeDocumentListener(attributeDocumentHandler)
     }
 
     private fun getMdwProp(prop: String): String? {

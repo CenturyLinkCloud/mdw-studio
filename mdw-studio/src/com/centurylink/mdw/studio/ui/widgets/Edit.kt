@@ -11,7 +11,9 @@ import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.vfs.VirtualFile
 import java.io.IOException
 import javax.swing.BorderFactory
 
@@ -50,9 +52,12 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
             widget.value = virtualFile.contents
             applyUpdate()
         }
-        val project = (workflowObj.project as ProjectSetup).project
+        val projectSetup = workflowObj.project as ProjectSetup
+        val project = projectSetup.project
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
+
+         projectSetup.attributeDocumentHandler.lock(virtualFile)
 
         document.addDocumentListener(object: DocumentListener {
             override fun beforeDocumentChange(e: DocumentEvent) {
@@ -60,6 +65,16 @@ class Edit(widget: Pagelet.Widget) : SwingWidget(widget) {
             override fun documentChanged(e: DocumentEvent) {
                 widget.value = e.document.text
                 applyUpdate()
+            }
+        })
+
+        val connection = project.messageBus.connect(project)
+        connection.subscribe<FileEditorManagerListener>(FileEditorManagerListener.FILE_EDITOR_MANAGER, object: FileEditorManagerListener {
+            override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+                if (file == virtualFile) {
+                    connection.disconnect()
+                    projectSetup.attributeDocumentHandler.unlock(virtualFile)
+                }
             }
         })
 

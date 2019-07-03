@@ -5,17 +5,21 @@ import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
+import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import java.io.IOException
 
 /**
@@ -54,12 +58,32 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
         val document = FileDocumentManager.getInstance().getDocument(virtualFile)
         document ?: throw IOException("No document: " + virtualFile.path)
 
+        val projectSetup = workflowObj.project as ProjectSetup
+        projectSetup.attributeDocumentHandler.lock(virtualFile)
+
         document.addDocumentListener(object : DocumentListener {
-            override fun beforeDocumentChange(e: DocumentEvent) {
-            }
             override fun documentChanged(e: DocumentEvent) {
                 workflowObj.setAttribute(attributeName, e.document.text)
                 notifyUpdateListeners(workflowObj)
+            }
+        })
+
+        if (document.isWritable) {
+            workflowObj.getAttribute(attributeName)?.let { attr ->
+                WriteAction.compute<Boolean, Throwable> {
+                    document.setText(attr.replace("\r", ""))
+                    true
+                }
+            }
+        }
+
+        val connection = project.messageBus.connect(project)
+        connection.subscribe<FileEditorManagerListener>(FileEditorManagerListener.FILE_EDITOR_MANAGER, object: FileEditorManagerListener {
+            override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+                if (file == virtualFile) {
+                    connection.disconnect()
+                    projectSetup.attributeDocumentHandler.unlock(virtualFile)
+                }
             }
         })
 

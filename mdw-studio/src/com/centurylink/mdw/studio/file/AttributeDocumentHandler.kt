@@ -43,11 +43,11 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
                     process.activities.find { it.logicalId == workflowObj.id }?.let { activity ->
                         if (activity.getAttribute(file.attributeName) != event.document.text) {
                             activity.setAttribute(file.attributeName, event.document.text)
-                            val json = process.json.toString(2)
+                            val json = process.json.toString(2).replace("\r", "")
                             WriteAction.run<Throwable> {
-                                val procDoc = FileDocumentManager.getInstance().getDocument(file)
+                                val procDoc = FileDocumentManager.getInstance().getDocument(processAsset.file)
                                 if (procDoc != null) {
-                                    procDoc.setText(event.document.text)
+                                    procDoc.setText(json)
                                 }
                                 else {
                                     processAsset.file.setBinaryContent(json.toByteArray())
@@ -56,7 +56,7 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
                         }
                     }
                 }
-            }, 100)
+            }, 250)
         }
     }
 }

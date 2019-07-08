@@ -68,15 +68,6 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
             }
         })
 
-        if (document.isWritable) {
-            workflowObj.getAttribute(attributeName)?.let { attr ->
-                WriteAction.compute<Boolean, Throwable> {
-                    document.setText(attr.replace("\r", ""))
-                    true
-                }
-            }
-        }
-
         val connection = project.messageBus.connect(project)
         connection.subscribe<FileEditorManagerListener>(FileEditorManagerListener.FILE_EDITOR_MANAGER, object: FileEditorManagerListener {
             override fun fileClosed(source: FileEditorManager, file: VirtualFile) {

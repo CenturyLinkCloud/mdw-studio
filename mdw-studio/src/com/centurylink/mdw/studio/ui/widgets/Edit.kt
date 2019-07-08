@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager

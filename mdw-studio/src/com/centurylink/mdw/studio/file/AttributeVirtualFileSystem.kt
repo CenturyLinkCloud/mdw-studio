@@ -18,6 +18,7 @@ import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.json.JSONObject
+import java.io.FileNotFoundException
 
 class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
 
@@ -32,7 +33,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     }
 
     /**
-     * Finds or creates a dynamic Java/Script file.
+     * Finds a dynamic Java or Script file.
      */
     fun getJavaOrScriptFile(workflowObj: WorkflowObj, contents: String? = null, qualifier: String? = null): AttributeVirtualFile? {
         assert(workflowObj.type == WorkflowType.activity)
@@ -49,6 +50,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                 val filePath = "${process.packageName}/$name.java"
                 val virtualFile = virtualFiles[filePath]
                 return if (virtualFile == null) {
+                    // newly dragged from toolbox
                     createFile(filePath, workflowObj, "Java", contents, "java", qualifier)
                 }
                 else {
@@ -62,24 +64,29 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
             else if (implementor.category == ScriptActivity::class.qualifiedName) {
                 var name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
                 qualifier?.let { name += "_$it" }
+                val filePathNoExt = "${process.packageName}/$name"
                 var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
                 workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
                     ext = AttributeVirtualFile.getScriptExt(scriptAttr)
-                    val virtualFile = virtualFiles["${process.packageName}/$name.$ext"]
-                    if (virtualFile != null) {
-                        virtualFile.workflowObj = workflowObj
-                        if (contents != null) {
-                            virtualFile.contents = contents
-                        }
-                        return virtualFile
+                }
+                val filePath = "$filePathNoExt.$ext"
+                val virtualFile = virtualFiles[filePath]
+                return if (virtualFile == null) {
+                    // newly dragged from toolbox
+                    val attrName = when (qualifier) {
+                        "Pre" -> "PreScript"
+                        "Post" -> "PostScript"
+                        else -> "Rule"
                     }
+                    createFile("${process.packageName}/$name.$ext", workflowObj, attrName, contents, ext, qualifier)
                 }
-                val attrName = when (qualifier) {
-                    "Pre" -> "PreScript"
-                    "Post" -> "PostScript"
-                    else -> "Rule"
+                else {
+                    virtualFile.workflowObj = workflowObj
+                    if (contents != null) {
+                        virtualFile.contents = contents
+                    }
+                    virtualFile
                 }
-                return createFile("${process.packageName}/$name.$ext", workflowObj, attrName, contents, ext, qualifier)
             }
         }
         return null
@@ -104,11 +111,17 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
         return virtualFiles[path]
     }
 
+    /**
+     * Only creates if not already existing.
+     */
     private fun createFile(path: String, workflowObj: WorkflowObj, attributeName: String,
             contents: String? = null, ext: String? = null, qualifier: String? = null): AttributeVirtualFile {
-        val vFile = AttributeVirtualFile(workflowObj, attributeName, contents, ext, qualifier)
-        virtualFiles[path] = vFile
-        return vFile
+        var file = virtualFiles[path]
+        if (file == null) {
+            file = AttributeVirtualFile(workflowObj, attributeName, contents, ext, qualifier)
+            virtualFiles[path] = file
+        }
+        return file
     }
 
     override fun refreshAndFindFileByPath(path: String): VirtualFile? {
@@ -117,56 +130,78 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
 
     fun refresh(projectSetup: ProjectSetup) {
         virtualFiles.clear()
-        for (asset in projectSetup.findAssetsOfType("proc")) {
-            val process = Process(JSONObject(String(asset.contents)))
-            process.name = asset.rootName
-            process.packageName = asset.pkg.name
-            process.id = asset.id
-            for (activity in process.activities) {
-                val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
-                activity.getAttribute("Java")?.let { java ->
-                    var name = workflowObj.getAttribute("ClassName")
-                    if (name == null) {
-                        name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
-                    }
-                    createFile("${process.packageName}/$name.java", workflowObj, "Java", java)
-                    return
+        for (processAsset in projectSetup.findAssetsOfType("proc")) {
+            loadAttributeVirtualFiles(projectSetup, processAsset)
+        }
+    }
+
+    fun removeAttributeVirtualFiles(projectSetup: ProjectSetup, processAsset: Asset) {
+        val removePaths = mutableListOf<String>()
+        for (path in virtualFiles.keys) {
+            if (path.startsWith("${processAsset.pkg.name}/")) {
+                if (path.endsWith(".java") || path.endsWith(".kts") || path.endsWith(".groovy") || path.endsWith(".js")) {
+                    removePaths.add(path)
                 }
-                activity.getAttribute("Rule")?.let { rule ->
-                    projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                        if (implementor.category == ScriptActivity::class.qualifiedName) {
-                            val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                            var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                            workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
-                                ext = AttributeVirtualFile.getScriptExt(scriptAttr)
-                            }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, "Rule", rule, ext)
-                        }
-                    }
-                    return
+            }
+        }
+        for (removePath in removePaths) {
+            virtualFiles.remove(removePath)
+        }
+    }
+
+    fun loadAttributeVirtualFiles(projectSetup: ProjectSetup, processAsset: Asset) {
+        val contents = String(processAsset.contents)
+        if (!contents.startsWith("{")) {
+            return  // newly created process without any content
+        }
+        val process = Process(JSONObject(contents))
+        process.name = processAsset.rootName
+        process.packageName = processAsset.pkg.name
+        process.id = processAsset.id
+        for (activity in process.activities) {
+            val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+            activity.getAttribute("Java")?.let { java ->
+                var name = workflowObj.getAttribute("ClassName")
+                if (name == null) {
+                    name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
                 }
-                activity.getAttribute("PreScript")?.let { script ->
-                    projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                        if (implementor.category == AdapterActivity::class.qualifiedName) {
-                            val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                            var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                            workflowObj.getAttribute("PreScriptLang")?.let { langAttr ->
-                                ext = AttributeVirtualFile.getScriptExt(langAttr)
-                            }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, "PreScript", script, ext, "Pre")
+                createFile("${process.packageName}/$name.java", workflowObj, "Java", java)
+                return
+            }
+            activity.getAttribute("Rule")?.let { rule ->
+                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                    if (implementor.category == ScriptActivity::class.qualifiedName) {
+                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                        workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
+                            ext = AttributeVirtualFile.getScriptExt(scriptAttr)
                         }
+                        createFile("${process.packageName}/$name.$ext", workflowObj, "Rule", rule, ext)
                     }
                 }
-                activity.getAttribute("PostScript")?.let { script ->
-                    projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                        if (implementor.category == AdapterActivity::class.qualifiedName) {
-                            val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                            var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                            workflowObj.getAttribute("PostScriptLang")?.let { langAttr ->
-                                ext = AttributeVirtualFile.getScriptExt(langAttr)
-                            }
-                            createFile("${process.packageName}/$name.$ext", workflowObj, "PostScript", script, ext, "Post")
+                return
+            }
+            activity.getAttribute("PreScript")?.let { script ->
+                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                    if (implementor.category == AdapterActivity::class.qualifiedName) {
+                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                        workflowObj.getAttribute("PreScriptLang")?.let { langAttr ->
+                            ext = AttributeVirtualFile.getScriptExt(langAttr)
                         }
+                        createFile("${process.packageName}/$name.$ext", workflowObj, "PreScript", script, ext, "Pre")
+                    }
+                }
+            }
+            activity.getAttribute("PostScript")?.let { script ->
+                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                    if (implementor.category == AdapterActivity::class.qualifiedName) {
+                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                        workflowObj.getAttribute("PostScriptLang")?.let { langAttr ->
+                            ext = AttributeVirtualFile.getScriptExt(langAttr)
+                        }
+                        createFile("${process.packageName}/$name.$ext", workflowObj, "PostScript", script, ext, "Post")
                     }
                 }
             }
@@ -174,6 +209,15 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     }
 
     override fun refresh(asynchronous: Boolean) {
+        val activeProject = ProjectSetup.activeProject
+        if (activeProject == null) {
+            LOG.warn("Cannot find active project")
+        }
+        else {
+            activeProject.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
+                refresh(projectSetup)
+            }
+        }
     }
 
     companion object {

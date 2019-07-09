@@ -5,6 +5,7 @@ import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetEvent
 import com.centurylink.mdw.studio.file.AssetEvent.EventType
 import com.centurylink.mdw.studio.file.AssetPackage
+import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.io.FileUtilRt
@@ -32,10 +33,15 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                     val asset = assetEvent.asset
                     when (assetEvent.type) {
                         EventType.Create -> {
+                            if (asset.ext == "proc") {
+                                AttributeVirtualFileSystem.instance.loadAttributeVirtualFiles(projectSetup, asset)
+                            }
                             projectSetup.setVersion(asset, 1)
                         }
                         EventType.Update, EventType.Copy, EventType.Move -> {
-                            // TODO handle large files
+                            if (asset.ext == "proc") {
+                                AttributeVirtualFileSystem.instance.loadAttributeVirtualFiles(projectSetup, asset)
+                            }
                             projectSetup.git?.let { git ->
                                 if (asset.name.endsWith(".impl")) {
                                     projectSetup.reloadImplementors()
@@ -93,6 +99,9 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                         }
                         EventType.Delete -> {
                             projectSetup.setVersion(asset, 0)
+                            if (asset.ext == "proc") {
+                                AttributeVirtualFileSystem.instance.removeAttributeVirtualFiles(projectSetup, asset)
+                            }
                         }
                         EventType.Unknown -> {
                         }

@@ -1,5 +1,7 @@
 package com.centurylink.mdw.studio.file
 
+import com.centurylink.mdw.draw.model.WorkflowObj
+import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.project.Project
@@ -27,24 +29,26 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.packageName = pkg
                         process.id = asset.id
                         process.activities.find { it.logicalId == activityId }?.let { activity ->
-                            activity.getAttribute("Java")?.let { _ ->
+                            activity.getAttribute("Java")?.let { java ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java", project)?.let { file ->
-                                    val attributeVirtualFile = file as AttributeVirtualFile
-                                    // attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
-                                    attributeVirtualFile.psiFile?.let { psiFile ->
+                                    file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+                                    file.contents = java
+                                    file.refreshPsi()
+                                    file.psiFile?.let { psiFile ->
                                         if (psiFile is PsiJavaFile && psiFile.classes.isNotEmpty()) {
                                             return psiFile.classes[0]
                                         }
                                     }
                                 }
                             }
-                            activity.getAttribute("Rule")?.let { _ ->
+                            activity.getAttribute("Rule")?.let { script ->
                                 activity.getAttribute("SCRIPT")?.let { scriptAttr ->
                                     AttributeVirtualFile.getScriptExt(scriptAttr).let { ext ->
                                         AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext", project)?.let { file ->
-                                            val attributeVirtualFile = file as AttributeVirtualFile
-                                            // attributeVirtualFile.workflowObj.isReadOnly = true // https://github.com/CenturyLinkCloud/mdw-studio/issues/72
-                                            attributeVirtualFile.psiFile?.let { psiFile ->
+                                            file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+                                            file.contents = script
+                                            file.refreshPsi()
+                                            file.psiFile?.let { psiFile ->
                                                 if (psiFile is PsiClassOwner && psiFile.classes.isNotEmpty()) {
                                                     return psiFile.classes[0]
                                                 }

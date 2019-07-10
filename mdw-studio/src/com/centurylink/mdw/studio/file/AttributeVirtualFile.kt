@@ -127,6 +127,9 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
             }
             return _psiFile
         }
+    fun refreshPsi() {
+        _psiFile = null
+    }
 
     /**
      * Returns the resulting class name (not qualified).

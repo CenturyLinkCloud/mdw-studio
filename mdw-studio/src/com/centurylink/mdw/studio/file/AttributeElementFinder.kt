@@ -69,6 +69,6 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
         findClass(qualifiedName, scope)?.let {
             return arrayOf(it)
         }
-        return arrayOf<PsiClass>()
+        return arrayOf()
     }
 }

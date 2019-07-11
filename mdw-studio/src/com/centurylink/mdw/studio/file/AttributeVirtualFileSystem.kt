@@ -8,6 +8,7 @@ import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.project.Data
+import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.proj.ProjectSetup
@@ -158,50 +159,56 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
         process.packageName = processAsset.pkg.name
         process.id = processAsset.id
         for (activity in process.activities) {
-            val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
-            activity.getAttribute("Java")?.let { java ->
-                var name = workflowObj.getAttribute("ClassName")
-                if (name == null) {
-                    name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
-                }
-                createFile("${process.packageName}/$name.java", workflowObj, "Java", java)
-                return
+            scanActivity(projectSetup, process, activity);
+        }
+    }
+
+    private fun scanActivity(projectSetup: ProjectSetup, process: Process, activity: Activity) {
+        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+        activity.getAttribute("Java")?.let { java ->
+            var name = workflowObj.getAttribute("ClassName")
+            if (name == null) {
+                name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
             }
-            activity.getAttribute("Rule")?.let { rule ->
-                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                    if (implementor.category == ScriptActivity::class.qualifiedName) {
-                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                        workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
-                            ext = AttributeVirtualFile.getScriptExt(scriptAttr)
-                        }
-                        createFile("${process.packageName}/$name.$ext", workflowObj, "Rule", rule, ext)
+            createFile("${process.packageName}/$name.java", workflowObj, "Java", java)
+            return
+        }
+        activity.getAttribute("Rule")?.let { rule ->
+            projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                if (implementor.category == ScriptActivity::class.qualifiedName) {
+                    val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                    var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                    workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
+                        ext = AttributeVirtualFile.getScriptExt(scriptAttr)
                     }
-                }
-                return
-            }
-            activity.getAttribute("PreScript")?.let { script ->
-                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                    if (implementor.category == AdapterActivity::class.qualifiedName) {
-                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                        workflowObj.getAttribute("PreScriptLang")?.let { langAttr ->
-                            ext = AttributeVirtualFile.getScriptExt(langAttr)
-                        }
-                        createFile("${process.packageName}/$name.$ext", workflowObj, "PreScript", script, ext, "Pre")
-                    }
+                    createFile("${process.packageName}/$name.$ext", workflowObj, "Rule", rule, ext)
+                    return
                 }
             }
-            activity.getAttribute("PostScript")?.let { script ->
-                projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
-                    if (implementor.category == AdapterActivity::class.qualifiedName) {
-                        val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
-                        var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
-                        workflowObj.getAttribute("PostScriptLang")?.let { langAttr ->
-                            ext = AttributeVirtualFile.getScriptExt(langAttr)
-                        }
-                        createFile("${process.packageName}/$name.$ext", workflowObj, "PostScript", script, ext, "Post")
+        }
+        activity.getAttribute("PreScript")?.let { script ->
+            projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                if (implementor.category == AdapterActivity::class.qualifiedName) {
+                    val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                    var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                    workflowObj.getAttribute("PreScriptLang")?.let { langAttr ->
+                        ext = AttributeVirtualFile.getScriptExt(langAttr)
                     }
+                    createFile("${process.packageName}/$name.$ext", workflowObj, "PreScript", script, ext, "Pre")
+                    return
+                }
+            }
+        }
+        activity.getAttribute("PostScript")?.let { script ->
+            projectSetup.implementors[workflowObj.obj.getString("implementor")]?.let { implementor ->
+                if (implementor.category == AdapterActivity::class.qualifiedName) {
+                    val name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
+                    var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                    workflowObj.getAttribute("PostScriptLang")?.let { langAttr ->
+                        ext = AttributeVirtualFile.getScriptExt(langAttr)
+                    }
+                    createFile("${process.packageName}/$name.$ext", workflowObj, "PostScript", script, ext, "Post")
+                    return
                 }
             }
         }

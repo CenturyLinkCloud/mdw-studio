@@ -6,7 +6,6 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.util.Alarm
 import org.json.JSONObject
 
 
@@ -16,9 +15,7 @@ import org.json.JSONObject
  */
 class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : DocumentListener {
 
-    private val docThrottler = Alarm(Alarm.ThreadToUse.SWING_THREAD)
-
-    private var lockedFiles = mutableListOf<AttributeVirtualFile>()
+    private val lockedFiles = mutableListOf<AttributeVirtualFile>()
     fun lock(file: AttributeVirtualFile) {
         lockedFiles.add(file)
     }
@@ -30,15 +27,14 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
     override fun documentChanged(event: DocumentEvent) {
         val file = FileDocumentManager.getInstance().getFile(event.document)
         if (file is AttributeVirtualFile && !lockedFiles.contains(file)) {
-            docThrottler.cancelAllRequests()
-            docThrottler.addRequest({
-                val workflowObj = file.workflowObj
-                val packageName = workflowObj.asset.packageName
-                var processName = workflowObj.asset.name
-                if (!processName.endsWith(".proc")) {
-                    processName += ".proc";
-                }
-                projectSetup.getAsset("$packageName/$processName")?.let { processAsset ->
+            val workflowObj = file.workflowObj
+            val packageName = workflowObj.asset.packageName
+            var processName = workflowObj.asset.name
+            if (!processName.endsWith(".proc")) {
+                processName += ".proc";
+            }
+            projectSetup.getAsset("$packageName/$processName")?.let { processAsset ->
+                synchronized(processAsset.file) {
                     val process = Process(JSONObject(String(processAsset.contents)))
                     process.activities.find { it.logicalId == workflowObj.id }?.let { activity ->
                         if (activity.getAttribute(file.attributeName) != event.document.text) {
@@ -48,6 +44,7 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
                                 val procDoc = FileDocumentManager.getInstance().getDocument(processAsset.file)
                                 if (procDoc != null) {
                                     procDoc.setText(json)
+                                    FileDocumentManager.getInstance().saveDocument(procDoc)
                                 }
                                 else {
                                     processAsset.file.setBinaryContent(json.toByteArray())
@@ -56,7 +53,7 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
                         }
                     }
                 }
-            }, 250)
+            }
         }
     }
 }

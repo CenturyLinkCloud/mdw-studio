@@ -22,7 +22,9 @@ import javax.swing.event.DocumentEvent
 
 class MdwConfig : SearchableConfigurable {
 
-    var modified = false
+    private var modified = false
+
+    private val checkboxBorder = BorderFactory.createEmptyBorder(0, 0, 5, 0)
 
     private val settingsPanel = JPanel(BorderLayout())
     private val mdwHomeText = object: TextFieldWithBrowseButton() {
@@ -42,6 +44,7 @@ class MdwConfig : SearchableConfigurable {
 
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
+    private val saveProcessAsYamlCheckbox = CheckBox("Save .proc files as YAML (experimental)")
 
     private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
 
@@ -111,7 +114,7 @@ class MdwConfig : SearchableConfigurable {
 
         // grid lines
         gridLinesCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        gridLinesCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        gridLinesCheckbox.border = checkboxBorder
         gridLinesCheckbox.isSelected = !MdwSettings.instance.isHideCanvasGridLines
         gridLinesCheckbox.addActionListener {
             modified = true
@@ -145,7 +148,7 @@ class MdwConfig : SearchableConfigurable {
 
         // sync dynamic java classname
         syncDynamicJavaCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        syncDynamicJavaCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        syncDynamicJavaCheckbox.border = checkboxBorder
         syncDynamicJavaCheckbox.isSelected = MdwSettings.instance.isSyncDynamicJavaClassName
         syncDynamicJavaCheckbox.addActionListener {
             modified = true
@@ -154,12 +157,21 @@ class MdwConfig : SearchableConfigurable {
 
         // create and associate task template
         createAndAssociateTaskCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        createAndAssociateTaskCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        createAndAssociateTaskCheckbox.border = checkboxBorder
         createAndAssociateTaskCheckbox.isSelected = MdwSettings.instance.isCreateAndAssociateTaskTemplate
         createAndAssociateTaskCheckbox.addActionListener {
             modified = true
         }
         editPanel.add(createAndAssociateTaskCheckbox)
+
+        // save processes as yaml
+        saveProcessAsYamlCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        saveProcessAsYamlCheckbox.border = checkboxBorder
+        saveProcessAsYamlCheckbox.isSelected = MdwSettings.instance.isSaveProcessAsYaml
+        saveProcessAsYamlCheckbox.addActionListener {
+            modified = true
+        }
+        editPanel.add(saveProcessAsYamlCheckbox)
 
         // assets
         gridConstraints.gridy = 3
@@ -170,7 +182,7 @@ class MdwConfig : SearchableConfigurable {
 
         // vercheck autofix
         vercheckAutofixCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        vercheckAutofixCheckbox.border = BorderFactory.createEmptyBorder(0, 0, 5, 0)
+        vercheckAutofixCheckbox.border = checkboxBorder
         vercheckAutofixCheckbox.isSelected = MdwSettings.instance.isAssetVercheckAutofix
         vercheckAutofixCheckbox.addActionListener {
             modified = true
@@ -294,6 +306,7 @@ class MdwConfig : SearchableConfigurable {
 
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
+        mdwSettings.isSaveProcessAsYaml = saveProcessAsYamlCheckbox.isSelected
 
         mdwSettings.isAssetVercheckAutofix = vercheckAutofixCheckbox.isSelected
         if (!mdwSettings.isAssetVercheckAutofix) {

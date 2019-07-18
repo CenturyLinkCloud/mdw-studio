@@ -23,7 +23,7 @@ dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(kotlin("reflect"))
     compile("com.centurylink.mdw:mdw-common:6.1.22-SNAPSHOT") { isTransitive = false }
-    // compile(files("../../mdw/mdw/deploy/app/mdw-common-6.1.20-SNAPSHOT.jar"))
+    // compile(files("../../mdw/mdw/deploy/app/mdw-common-6.1.22-SNAPSHOT.jar"))
     compile("io.limberest:limberest:1.2.5") { isTransitive = false }
     compile("org.json:json:20180130")
     compile("com.google.code.gson:gson:2.8.5")

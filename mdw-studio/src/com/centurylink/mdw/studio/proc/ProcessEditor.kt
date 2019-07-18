@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.model.workflow.Process
+import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.config.ConfigPanel
 import com.centurylink.mdw.studio.config.HideShowListener
 import com.centurylink.mdw.studio.config.PanelBar
@@ -70,19 +71,14 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             _process = value
             _process.name = procFile.nameWithoutExtension
             if (procFile.isInLocalFileSystem) {
-                val procAsset = projectSetup.getAsset(procFile)
-                if (procAsset == null) {
-                    // can happen if no pkg meta
-                    asset = projectSetup.createAsset(procFile)
-                } else {
-                    asset = procAsset
-                }
+                // process asset can be null if pkg meta missing
+                asset = projectSetup.getAsset(procFile) ?: projectSetup.createAsset(procFile)
                 _process.id = asset.id
                 _process.version = asset.version
                 _process.packageName = asset.pkg.name
             }
             else {
-                procDoc.setReadOnly(true);
+                procDoc.setReadOnly(true)
             }
         }
     private lateinit var asset: Asset
@@ -187,7 +183,11 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
         ApplicationManager.getApplication().invokeLater( {
             WriteAction.run<Throwable> {
-                procDoc.setText(process.json.toString(2))
+                procDoc.setText(if (MdwSettings.instance.isSaveProcessAsYaml) {
+                    "TODO" // Yamlable.toString(process, 2)
+                } else {
+                    process.json.toString(2)
+                })
                 if (!initiallySaved) {
                     // forcefully trigger asset listener
                     val events = mutableListOf<VFileEvent>()
@@ -200,7 +200,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         }, ModalityState.NON_MODAL)
     }
 
-    fun updateModifiedProperty(newValue: Boolean) {
+    private fun updateModifiedProperty(newValue: Boolean) {
         val wasModified = modified
         modified = newValue
         if (wasModified != modified) {
@@ -294,7 +294,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun <T : Any?> putUserData(key: Key<T>, value: T?) {
-        userData.putUserData(key, value);
+        userData.putUserData(key, value)
     }
 
     companion object {

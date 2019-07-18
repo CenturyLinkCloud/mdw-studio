@@ -3,8 +3,7 @@ package com.centurylink.mdw.studio.file
 import com.intellij.ide.highlighter.XmlLikeFileType
 import com.intellij.json.JsonFileType
 import com.intellij.lang.xml.XMLLanguage
-import com.intellij.openapi.fileTypes.FileTypeConsumer
-import com.intellij.openapi.fileTypes.INativeFileType
+import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.fileTypes.NativeFileType.openAssociatedApplication
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -22,14 +21,13 @@ class FileTypeFactory : com.intellij.openapi.fileTypes.FileTypeFactory() {
     }
 }
 
-object ProcessFileType : JsonFileType() {
+object ProcessFileType : LanguageFileType(PlainTextLanguage.INSTANCE) {
     override fun getDefaultExtension() = "proc"
     override fun getName() = "Process"
     override fun getDescription() = "Workflow Process"
     override fun getIcon() = Icons.PROCESS
     override fun isReadOnly() = false
     override fun getCharset(file: VirtualFile, content: ByteArray) = CharsetToolkit.UTF8
-
 }
 
 object TaskFileType : JsonFileType() {

@@ -59,6 +59,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(CREATE_AND_ASSOCIATE_TASK_TEMPLATE, value)
         }
 
+    var isSaveProcessAsYaml: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(SAVE_PROCESS_AS_YAML, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(SAVE_PROCESS_AS_YAML, value)
+        }
+
     var isAssetVercheckAutofix: Boolean
         get() = PropertiesComponent.getInstance().getBoolean(ASSET_VERCHECK_AUTOFIX, false)
         set(value) {
@@ -105,6 +111,7 @@ class MdwSettings {
         // editing
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"
         private const val CREATE_AND_ASSOCIATE_TASK_TEMPLATE = "$ID.createAndAssociateTaskTemplate"
+        private const val SAVE_PROCESS_AS_YAML = "$ID.saveProcessAsYaml"
 
         // assets
         private const val ASSET_VERCHECK_AUTOFIX = "$ID.isAssetVercheckAutofix"

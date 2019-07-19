@@ -50,7 +50,7 @@ fun Process.addActivity(x: Int, y: Int, implementor: ActivityImplementor, id: Lo
     var w = 24
     var h = 24
     if (boxed) {
-        if (implementor.icon?.startsWith("shape:") ?: false) {
+        if (implementor.icon?.startsWith("shape:") == true) {
             w = 60
             h = 40
         }
@@ -199,8 +199,8 @@ fun Process.set(process: Process) {
         if (attribute.name.startsWith("[activities]_")) {
             // attribute is applied to all activities instead of process
             val name = attribute.name.substring(13)
-            val value = attribute.name
-            var allActivities = mutableListOf<Activity>()
+            val value = attribute.value
+            val allActivities = mutableListOf<Activity>()
             allActivities.addAll(process.activities)
             process.subprocesses?.let { subprocs ->
                 for (subproc in subprocs) {

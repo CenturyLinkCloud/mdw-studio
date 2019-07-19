@@ -45,10 +45,10 @@ class ProcessAttributeApplier : AttributeApplier() {
     override fun update() {
         when (widget.name) {
             "_isService" -> {
-                workflowObj.setAttribute("PROCESS_VISIBILITY", if (widget.value == "true") "SERVICE" else "PUBLIC")
+                workflowObj.setAttribute("PROCESS_VISIBILITY", if (widget.value == true) "SERVICE" else "PUBLIC")
             }
             "_captureTimings" -> {
-                val enabled = widget.value == "true"
+                val enabled = widget.value == true
                 val attr = "[\"$enabled\",\"Milestone\",\"com.centurylink.mdw.milestones/ActivityMilestone.java\",\"\"]"
                 workflowObj.setAttribute("[activities]_Monitors", attr)
             }

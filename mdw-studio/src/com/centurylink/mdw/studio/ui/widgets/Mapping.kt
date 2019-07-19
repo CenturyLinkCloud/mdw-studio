@@ -14,12 +14,12 @@ import java.io.IOException
  * Map will have been converted to a table by its adapter.
  */
 @Suppress("unused")
-class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
+class Mapping(widget: Widget) : Table(widget, false, false) {
 
     override val listenTo = if (widget.source == "Subprocess" ) "processname" else super.listenTo
 
-    override fun initialColumnWidgets(): List<Pagelet.Widget> {
-        val colWidgs = mutableListOf<Pagelet.Widget>()
+    override fun initialColumnWidgets(): List<Widget> {
+        val colWidgs = mutableListOf<Widget>()
 
         val label = if (widget.source == null) "Input Variable" else "${widget.source} Variable"
         val varWidget = Widget(label, "text")
@@ -57,7 +57,7 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
                     file = projectSetup.getAssetFile(procName + ".proc")
                 }
                 file ?: throw IOException("Missing subprocess asset: " + procName)
-                val process = Process(JSONObject(String(file.contentsToByteArray())))
+                val process = Process.fromString(String(file.contentsToByteArray()))
                 getBindingVars(process, true)
             }
         }
@@ -109,7 +109,7 @@ class Mapping(widget: Pagelet.Widget) : Table(widget, false, false) {
         val updatedMapping = JSONObject()
         for (row in rows) {
             val bindingExpr = row[3]
-            if (!bindingExpr.isNullOrBlank()) {
+            if (!bindingExpr.isBlank()) {
                 updatedMapping.put(row[0], bindingExpr)
             }
         }

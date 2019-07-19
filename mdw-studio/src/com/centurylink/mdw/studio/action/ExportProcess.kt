@@ -14,7 +14,6 @@ import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.util.lang.UrlClassLoader
-import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.net.URL
@@ -33,7 +32,7 @@ class ExportProcess : AssetAction() {
             }
             locator.asset?.let { asset ->
                 if (asset.ext == "proc") {
-                    val process = Process(JSONObject(String(asset.file.contentsToByteArray())))
+                    val process = Process.fromString(String(asset.file.contentsToByteArray()))
                     process.name = asset.rootName
 
                     val descriptor = FileSaverDescriptor("Export " + templatePresentation.text, "Export process to " + ext, ext)

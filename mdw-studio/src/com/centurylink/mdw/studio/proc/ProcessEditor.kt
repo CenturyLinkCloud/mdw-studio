@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.app.Templates
+import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.config.ConfigPanel
@@ -29,7 +30,6 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
-import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.Cursor
 import java.beans.PropertyChangeEvent
@@ -86,6 +86,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     // listeners installed by FileEditorManagerImpl
     private val propChangeListeners = mutableListOf<PropertyChangeListener>()
     private var initiallySaved = false
+    private var isYaml: Boolean
 
     init {
         if (procDoc.textLength == 0) {
@@ -93,8 +94,11 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         }
 
         // initialize backing property and then invoke setter
-        _process = Process(JSONObject(procDoc.text))
+        _process = Process.fromString(procDoc.text)
         process = _process
+
+        isYaml = !procDoc.text.startsWith("{")
+
         canvas = ProcessCanvas(projectSetup, process, !procDoc.isWritable)
         canvasScrollPane = JBScrollPane(canvas)
 
@@ -157,7 +161,8 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
             override fun fileContentReloaded(file: VirtualFile, document: Document) {
                 if (file == procFile) {
                     procDoc = document
-                    process = Process(JSONObject(procDoc.text))
+                    process = Process.fromString(procDoc.text)
+                    isYaml = !procDoc.text.startsWith("{")
                     canvas.process = process
                     canvas.revalidate()
                     canvas.repaint()
@@ -183,8 +188,8 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
         ApplicationManager.getApplication().invokeLater( {
             WriteAction.run<Throwable> {
-                procDoc.setText(if (MdwSettings.instance.isSaveProcessAsYaml) {
-                    "TODO" // Yamlable.toString(process, 2)
+                procDoc.setText(if (isYaml || MdwSettings.instance.isSaveProcessAsYaml) {
+                    Yamlable.toString(process, 2)
                 } else {
                     process.json.toString(2)
                 })

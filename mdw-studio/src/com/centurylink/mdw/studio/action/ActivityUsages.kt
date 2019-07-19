@@ -25,7 +25,6 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.usages.*
 import com.intellij.usages.impl.rules.UsageType
 import com.intellij.util.OpenSourceUtil
-import org.json.JSONObject
 import javax.swing.Icon
 
 class ActivityUsages : AnAction() {
@@ -45,12 +44,10 @@ class ActivityUsages : AnAction() {
                 val usages = mutableListOf<ActivityUsage>()
                 for (processAsset in projectSetup.findAssetsOfType("proc")) {
                     val contents = String(processAsset.file.contentsToByteArray())
-                    if (contents.contains("\"implementor\": \"${implementor.implementorClass}\"")) {
-                        val process = Process(JSONObject(contents))
-                        for (activity in process.activities) {
-                            if (activity.implementor == implementor.implementorClass) {
-                                usages.add(ActivityUsage(projectSetup, processAsset, activity))
-                            }
+                    val process = Process.fromString(contents)
+                    for (activity in process.activities) {
+                        if (activity.implementor == implementor.implementorClass) {
+                            usages.add(ActivityUsage(projectSetup, processAsset, activity))
                         }
                     }
                 }
@@ -144,8 +141,7 @@ class ActivityUsage(private val projectSetup: ProjectSetup, private val processA
         get() = activity.name.replace("\\r", "").replace('\n', ' ')
 
     override fun isValid(): Boolean {
-        return processAsset.file.isValid && String(processAsset.file.contentsToByteArray()).
-                contains("\"implementor\": \"${activity.implementor}\"")
+        return processAsset.file.isValid
     }
 
     override fun isReadOnly(): Boolean {

@@ -18,7 +18,6 @@ import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import org.json.JSONObject
 
 class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
 
@@ -151,15 +150,15 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
 
     fun loadAttributeVirtualFiles(projectSetup: ProjectSetup, processAsset: Asset) {
         val contents = String(processAsset.contents)
-        if (!contents.startsWith("{")) {
+        if (contents.isBlank()) {
             return  // newly created process without any content
         }
-        val process = Process(JSONObject(contents))
+        val process = Process.fromString(contents)
         process.name = processAsset.rootName
         process.packageName = processAsset.pkg.name
         process.id = processAsset.id
         for (activity in process.activities) {
-            scanActivity(projectSetup, process, activity);
+            scanActivity(projectSetup, process, activity)
         }
     }
 

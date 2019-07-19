@@ -10,7 +10,6 @@ import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiElementFinder
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.search.GlobalSearchScope
-import org.json.JSONObject
 
 class AttributeElementFinder(private val project: Project) : PsiElementFinder() {
 
@@ -24,7 +23,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                 project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
                     projectSetup.findAssetFromNormalizedName(pkg, cls.substring(0, underscore), "proc")?.let { asset ->
                         val activityId = cls.substring(underscore + 1)
-                        val process = Process(JSONObject(String(asset.contents)))
+                        val process = Process.fromString(String(asset.contents))
                         process.name = asset.rootName
                         process.packageName = pkg
                         process.id = asset.id

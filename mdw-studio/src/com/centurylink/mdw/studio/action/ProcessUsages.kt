@@ -18,7 +18,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.usages.*
 import com.intellij.usages.impl.rules.UsageType
-import org.json.JSONObject
 import javax.swing.Icon
 
 class ProcessUsages : AnAction() {
@@ -34,7 +33,7 @@ class ProcessUsages : AnAction() {
                 presentation.isOpenInNewTab = false
 
                 presentation.targetsNodeText = "Process"
-                val process = Process(JSONObject(String(asset.file.contentsToByteArray())))
+                val process = Process.fromString(String(asset.file.contentsToByteArray()))
                 process.name = asset.name.substring(0, asset.name.indexOf('.'))
                 process.packageName = asset.pkg.name
                 process.version = asset.version
@@ -42,7 +41,7 @@ class ProcessUsages : AnAction() {
 
                 val usages = mutableListOf<ProcessUsage>()
                 for (processAsset in projectSetup.findAssetsOfType("proc")) {
-                    val parent = Process(JSONObject(String(processAsset.file.contentsToByteArray())))
+                    val parent = Process.fromString(String(processAsset.file.contentsToByteArray()))
                     if (parent.invokesSubprocess(process)) {
                         usages.add(ProcessUsage(projectSetup, processAsset, process))
                     }
@@ -128,7 +127,7 @@ class ProcessUsage(private val projectSetup: ProjectSetup, private val processAs
         get() = process.name.replace("\\r", "").replace('\n', ' ')
 
     override fun isValid(): Boolean {
-        val parent = Process(JSONObject(String(processAsset.file.contentsToByteArray())))
+        val parent = Process.fromString(String(processAsset.file.contentsToByteArray()))
         return processAsset.file.isValid && parent.invokesSubprocess(process)
     }
 
@@ -147,7 +146,7 @@ class ProcessUsage(private val projectSetup: ProjectSetup, private val processAs
     override fun navigate(requestFocus: Boolean) {
         for (ed in FileEditorManager.getInstance(projectSetup.project).openFile(processAsset.file, requestFocus)) {
             if (ed is ProcessEditor) {
-                val parent = Process(JSONObject(String(processAsset.file.contentsToByteArray())))
+                val parent = Process.fromString(String(processAsset.file.contentsToByteArray()))
                 if (parent.activities != null) {
                     for (activity in parent.activities) {
                         if (activity.invokesSubprocess(process)) {

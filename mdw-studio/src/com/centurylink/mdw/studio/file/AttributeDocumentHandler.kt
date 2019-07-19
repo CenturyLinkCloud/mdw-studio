@@ -1,12 +1,12 @@
 package com.centurylink.mdw.studio.file
 
+import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.json.JSONObject
 
 
 /**
@@ -31,23 +31,29 @@ class AttributeDocumentHandler(private val projectSetup: ProjectSetup) : Documen
             val packageName = workflowObj.asset.packageName
             var processName = workflowObj.asset.name
             if (!processName.endsWith(".proc")) {
-                processName += ".proc";
+                processName += ".proc"
             }
             projectSetup.getAsset("$packageName/$processName")?.let { processAsset ->
                 synchronized(processAsset.file) {
-                    val process = Process(JSONObject(String(processAsset.contents)))
+                    val contents = String(processAsset.contents)
+                    val process = Process.fromString(contents)
                     process.activities.find { it.logicalId == workflowObj.id }?.let { activity ->
                         if (activity.getAttribute(file.attributeName) != event.document.text) {
                             activity.setAttribute(file.attributeName, event.document.text)
-                            val json = process.json.toString(2).replace("\r", "")
+                            val text = if (contents.startsWith("{")) {
+                                process.json.toString(2).replace("\r", "")
+                            } else {
+                                Yamlable.toString(process, 2)
+                            }
+
                             WriteAction.run<Throwable> {
                                 val procDoc = FileDocumentManager.getInstance().getDocument(processAsset.file)
                                 if (procDoc != null) {
-                                    procDoc.setText(json)
+                                    procDoc.setText(text)
                                     FileDocumentManager.getInstance().saveDocument(procDoc)
                                 }
                                 else {
-                                    processAsset.file.setBinaryContent(json.toByteArray())
+                                    processAsset.file.setBinaryContent(text.toByteArray())
                                 }
                             }
                         }

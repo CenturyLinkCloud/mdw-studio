@@ -2,6 +2,7 @@ package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.draw.edit.Select
 import com.centurylink.mdw.draw.edit.Selectable
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.event.EventType
@@ -77,14 +78,14 @@ class LinkDisplay {
     }
 }
 
-class Pt(val x: Int, val y: Int) { }
+class Pt(val x: Int, val y: Int)
 
-class Seg(val from: Pt, val to: Pt) { }
+class Seg(val from: Pt, val to: Pt)
 
 class Link(val g2d: Graphics2D, project: Project, process: Process, val transition: Transition, var from: Step,
-        var to: Step, isReadonly: Boolean) : Drawable, Selectable by Select() {
+        var to: Step, props: DrawProps) : Drawable, Selectable by Select() {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.transition, transition.json, isReadonly) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.transition, transition.json, props) {
         override var name: String = ""
             get() = if (labelText.length > 0) labelText else ""
     }

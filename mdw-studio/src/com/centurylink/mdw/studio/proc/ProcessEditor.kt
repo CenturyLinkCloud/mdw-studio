@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.app.Templates
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.MdwSettings
@@ -99,7 +100,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
 
         isYaml = !procDoc.text.startsWith("{")
 
-        canvas = ProcessCanvas(projectSetup, process, !procDoc.isWritable)
+        canvas = ProcessCanvas(projectSetup, process, DrawProps(!procDoc.isWritable, isYaml))
         canvasScrollPane = JBScrollPane(canvas)
 
         editPanel = JPanel(BorderLayout())
@@ -252,7 +253,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
     }
 
     override fun isModified(): Boolean {
-        return modified
+        return procDoc.isWritable && modified
     }
 
     override fun isValid(): Boolean {

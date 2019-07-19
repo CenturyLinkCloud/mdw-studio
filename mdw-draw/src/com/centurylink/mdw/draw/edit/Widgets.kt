@@ -66,7 +66,7 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
         // needed for at least templ placeholders
         attributes = mutableMapOf<String,String>()
     }
-    this.isReadonly = workflowObj.isReadOnly || this.isReadonly
+    this.isReadonly = workflowObj.props.isReadonly || this.isReadonly
 
     // options source
     when (source) {
@@ -74,16 +74,16 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
             options = (workflowObj.asset as Process).variables.map { it.name }
         }
         "DocumentVariables" -> {
-            val docTypes = workflowObj.project.data.getDocumentTypes().keys
+            val docTypes = workflowObj.project.data.documentTypes.keys
             options = (workflowObj.asset as Process).variables.filter {
                 docTypes.contains(it.type)
             }.map { it.name }
         }
         "UserGroup" -> {
-            options = workflowObj.project.data.getWorkgroups()
+            options = workflowObj.project.data.workgroups
         }
         "TaskCategory" -> {
-            options = workflowObj.project.data.getTaskCategories().keys.toMutableList()
+            options = workflowObj.project.data.taskCategories.keys.toMutableList()
         }
     }
 

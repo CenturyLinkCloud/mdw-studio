@@ -180,7 +180,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             }
         }
 
-        workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json, false)
+        workflowObj = WorkflowObj(projectSetup, taskTemplate, WorkflowType.task, taskTemplate.json)
         configTab = ConfigTab(tabName, definition, workflowObj)
         configTab.border = BorderFactory.createEmptyBorder(7, 0, 3, 0)
         configTab.addUpdateListener { obj ->

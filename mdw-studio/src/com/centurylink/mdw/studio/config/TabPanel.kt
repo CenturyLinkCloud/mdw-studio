@@ -68,19 +68,21 @@ class TabPanel(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val w
         }
         else if (tabJson.isJsonPrimitive) {
             val prop = tabJson.asJsonPrimitive.asString
-            if (prop == "source") {
-                tabComponent = TextTab(workflowObj.obj.toString(2))
+            tabComponent = if (prop == "source") {
+                TextTab(if (workflowObj.props.isYaml) {
+                    workflowObj.toYaml()
+                } else {
+                    workflowObj.toJson()
+                })
             }
             else {
-                tabComponent = TextTab(workflowObj.toString(prop))
+                TextTab(workflowObj.toString(prop))
             }
             contentPane.add(tabComponent)
         }
         contentPane.invalidate()
         contentPane.repaint()
-        tabSelectListener?.let { listener ->
-            listener.onTabSelect(tabName, tabJson)
-        }
+        tabSelectListener?.onTabSelect(tabName, tabJson)
     }
 
     companion object {
@@ -191,7 +193,7 @@ interface TabSelectListener {
     fun onTabSelect(tabName: String, tabJson: JsonElement)
 }
 
-class ContentPane() : JPanel(BorderLayout()) {
+class ContentPane : JPanel(BorderLayout()) {
     init {
         background = UIManager.getColor("EditorPane.background")
         border = EmptyBorder(TabPanel.CONTENT_PAD_Y, TabPanel.CONTENT_PAD_X, TabPanel.CONTENT_PAD_Y,

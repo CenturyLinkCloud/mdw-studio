@@ -5,6 +5,7 @@ import com.centurylink.mdw.draw.Display.Companion.ICON_HEIGHT
 import com.centurylink.mdw.draw.Display.Companion.ICON_PAD
 import com.centurylink.mdw.draw.Display.Companion.ICON_WIDTH
 import com.centurylink.mdw.draw.Shape
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.workflow.ActivityImplementor
@@ -199,7 +200,8 @@ class ToolPanel(val projectSetup: ProjectSetup, val implementor: ActivityImpleme
     inner class IconShape(private val g2d: Graphics2D, val implementor: ActivityImplementor) :
             Shape(g2d, Display(0, 0, ICON_WIDTH, ICON_HEIGHT)) {
 
-        override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor, implementor.json, true) {
+        override val workflowObj = object : WorkflowObj(projectSetup, Process(), WorkflowType.implementor,
+                implementor.json, DrawProps(true, false)) {
             override var id = implementor.implementorClass
             override var name = implementor.label
         }

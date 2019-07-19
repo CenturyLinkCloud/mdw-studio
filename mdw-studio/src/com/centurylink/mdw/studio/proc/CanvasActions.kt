@@ -35,7 +35,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
         UpdateListeners by UpdateListenersDelegate() {
 
     override fun canDeleteElement(dataContext: DataContext): Boolean {
-        return !diagram.isReadonly
+        return !diagram.props.isReadonly
     }
     override fun deleteElement(dataContext: DataContext) {
         if (diagram.hasSelection()) {
@@ -49,7 +49,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
         return true
     }
     override fun isCutEnabled(dataContext: DataContext): Boolean {
-        return !diagram.isReadonly && diagram.hasSelection()
+        return !diagram.props.isReadonly && diagram.hasSelection()
     }
     override fun performCut(dataContext: DataContext) {
         performCopy(dataContext)
@@ -71,7 +71,7 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
         return isPasteEnabled(dataContext)
     }
     override fun isPasteEnabled(dataContext: DataContext): Boolean {
-        if (diagram.isReadonly) {
+        if (diagram.props.isReadonly) {
             return false
         }
         val clipboard = Toolkit.getDefaultToolkit().systemClipboard

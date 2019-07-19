@@ -30,7 +30,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                         process.activities.find { it.logicalId == activityId }?.let { activity ->
                             activity.getAttribute("Java")?.let { java ->
                                 AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.java", project)?.let { file ->
-                                    file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+                                    file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
                                     file.contents = java
                                     file.refreshPsi()
                                     file.psiFile?.let { psiFile ->
@@ -44,7 +44,7 @@ class AttributeElementFinder(private val project: Project) : PsiElementFinder() 
                                 activity.getAttribute("SCRIPT")?.let { scriptAttr ->
                                     AttributeVirtualFile.getScriptExt(scriptAttr).let { ext ->
                                         AttributeVirtualFileSystem.instance.findFileByPath("$pkg/$cls.$ext", project)?.let { file ->
-                                            file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+                                            file.workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
                                             file.contents = script
                                             file.refreshPsi()
                                             file.psiFile?.let { psiFile ->

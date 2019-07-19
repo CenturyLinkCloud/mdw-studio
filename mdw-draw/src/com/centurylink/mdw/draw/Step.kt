@@ -1,6 +1,7 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.project.Project
@@ -10,10 +11,10 @@ import com.centurylink.mdw.model.workflow.Process
 import java.awt.Graphics2D
 
 class Step(private val g2d: Graphics2D, val project: Project, process: Process, val activity: Activity,
-        val implementor: ActivityImplementor, isReadonly: Boolean) :
+        val implementor: ActivityImplementor, props: DrawProps) :
         Shape(g2d, Display(activity.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
-    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json, isReadonly)
+    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json, props)
     private val boxStyle: Boolean = true
 
     override fun draw(): Display {
@@ -135,7 +136,7 @@ class Step(private val g2d: Graphics2D, val project: Project, process: Process, 
     }
 
     override fun resize(anchor: Int, x: Int, y: Int, deltaX: Int, deltaY: Int, limits: Display?) {
-        display = resizeDisplay(anchor, x, y, deltaX, deltaY, Step.MIN_SIZE, limits)
+        display = resizeDisplay(anchor, x, y, deltaX, deltaY, MIN_SIZE, limits)
         activity.setAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO, display.toString())
     }
 

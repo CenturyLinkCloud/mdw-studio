@@ -1,6 +1,7 @@
 package com.centurylink.mdw.draw.model
 
 import com.centurylink.mdw.draw.ext.*
+import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.asset.Asset
 import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.task.TaskTemplate
@@ -21,7 +22,7 @@ enum class WorkflowType {
 }
 
 open class WorkflowObj(val project: Project, var asset: Asset, val type: WorkflowType, var obj: JSONObject,
-        val isReadOnly: Boolean) {
+        val props: DrawProps = DrawProps()) {
 
     open var id: String
         get() = if (obj.has("id")) obj.getString("id") else "-1"
@@ -154,15 +155,28 @@ open class WorkflowObj(val project: Project, var asset: Asset, val type: Workflo
         }
     }
 
-    override fun toString(): String {
-        return toString(false)
-    }
-
-    fun toString(pretty: Boolean): String {
-        return obj.toString(if (pretty) 2 else 0)
-    }
-
     fun toString(property: String): String {
         return Json.toString(obj, property)
+    }
+
+    fun toJson(indent: Int = 2): String {
+        return obj.toString(indent)
+    }
+
+    fun toYaml(indent: Int = 2): String {
+        return when (type) {
+            WorkflowType.process -> Yamlable.toString(Process(obj), indent)
+            WorkflowType.activity -> Yamlable.toString(Activity(obj), indent)
+            WorkflowType.transition -> Yamlable.toString(Transition(obj), indent)
+            WorkflowType.subprocess -> {
+                val yaml = Yamlable.create()
+                yaml["id"] = id
+                yaml["name"] = name
+                yaml.putAll(Process(obj).yaml)
+                Yamlable.toString({ yaml }, indent)
+            }
+            WorkflowType.textNote -> Yamlable.toString(TextNote(obj), indent)
+            else -> throw RuntimeException("Not Yamlable")
+        }
     }
 }

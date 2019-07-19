@@ -1,6 +1,7 @@
 package com.centurylink.mdw.draw
 
 import com.centurylink.mdw.constant.WorkAttributeConstant
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.project.Project
@@ -10,10 +11,10 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
 
-class Note (private val g2d: Graphics2D, project: Project, process: Process, val textNote: TextNote, isReadonly: Boolean) :
+class Note (private val g2d: Graphics2D, project: Project, process: Process, val textNote: TextNote, props: DrawProps) :
         Shape(g2d, Display(textNote.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.textNote, textNote.json, isReadonly) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.textNote, textNote.json, props) {
         override var name: String = "Note"
             get() = "Note ${textNote.logicalId}"
     }

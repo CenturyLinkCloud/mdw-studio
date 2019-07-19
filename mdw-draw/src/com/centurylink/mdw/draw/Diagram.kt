@@ -5,6 +5,7 @@ import com.centurylink.mdw.draw.edit.Select
 import com.centurylink.mdw.draw.edit.Selectable
 import com.centurylink.mdw.draw.edit.Selection
 import com.centurylink.mdw.draw.ext.*
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.project.Project
@@ -15,9 +16,9 @@ import java.awt.Cursor
 import java.awt.Graphics2D
 
 class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, val process: Process,
-        val implementors: Map<String, ActivityImplementor>, val isReadonly: Boolean = false) : Drawable, Selectable by Select() {
+        val implementors: Map<String, ActivityImplementor>, val props: DrawProps = DrawProps()) : Drawable, Selectable by Select() {
 
-    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json, isReadonly) {
+    override val workflowObj = object : WorkflowObj(project, process, WorkflowType.process, process.json, props) {
         init {
             id = process.id?.toString() ?: "-1"
             name = process.name
@@ -45,7 +46,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         // activities
         for (activity in process.activities) {
             val impl = implementors[activity.implementor] ?: ActivityImplementor(activity.implementor)
-            val step = Step(g2d, project, process, activity, impl, isReadonly)
+            val step = Step(g2d, project, process, activity, impl, props)
             steps.add(step)
         }
 
@@ -54,20 +55,20 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             for (transition in process.getAllTransitions(step.activity.id)) {
                 val link = Link(g2d, project, process, transition, step, steps.find {
                     it.workflowObj.id == "A${transition.toId}"
-                }!!, isReadonly)
+                }!!, props)
                 links.add(link)
             }
         }
 
         // subflows
         for (subprocess in process.subprocesses) {
-            val subflow = Subflow(g2d, project, process, subprocess, implementors, isReadonly)
+            val subflow = Subflow(g2d, project, process, subprocess, implementors, props)
             subflows.add(subflow)
         }
 
         // notes
         for (textNote in process.textNotes) {
-            val note = Note(g2d, project, process, textNote, isReadonly)
+            val note = Note(g2d, project, process, textNote, props)
             notes.add(note)
         }
     }
@@ -202,7 +203,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             }
         }
         val activity = process.addActivity(x, y, implementor, process.maxActivityId() + 1)
-        val step = Step(g2d, project, process, activity, implementor, isReadonly)
+        val step = Step(g2d, project, process, activity, implementor, props)
         steps.add(step) // unnecessary if redrawn
         return step
     }
@@ -224,7 +225,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             }
         }
         val transition = process.addTransition(from.activity, to.activity, process.maxTransitionId() + 1)
-        val link = Link(g2d, project, process, transition, from, to, isReadonly)
+        val link = Link(g2d, project, process, transition, from, to, props)
         link.calc()
         links.add(link) // unnecessary if redrawn
         return link
@@ -232,14 +233,14 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
     private fun addSubflow(x: Int, y: Int, type: String): Subflow {
         val subprocess = process.addSubprocess(x, y, type)
-        val subflow = Subflow(g2d, project, process, subprocess, implementors, isReadonly)
+        val subflow = Subflow(g2d, project, process, subprocess, implementors, props)
         subflows.add(subflow)
         return subflow
     }
 
     private fun addNote(x: Int, y: Int): Note {
         val textNote = process.addTextNote(x, y)
-        val note = Note(g2d, project, process, textNote, isReadonly)
+        val note = Note(g2d, project, process, textNote, props)
         notes.add(note) // unnecessary if redrawn
         return note
     }
@@ -247,7 +248,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     fun onMouseMove(de: DiagramEvent): Cursor {
         hoverObj = getHoverObj(de.x, de.y)
         hoverObj?.let {
-            if (!isReadonly && (hoverObj == selection.selectObj)) {
+            if (!props.isReadonly && (hoverObj == selection.selectObj)) {
                 selection.anchor = hoverObj?.getAnchor(de.x, de.y)
                 if (selection.anchor != null) {
                     if (hoverObj is Link) {
@@ -276,7 +277,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         if (selObj is Label && selObj.owner != this) {
             selObj = selObj.owner
         }
-        if (!isReadonly && de.ctrl) {
+        if (!props.isReadonly && de.ctrl) {
             if (selection.includes(selObj)) {
                 selection.remove(selObj)
             }
@@ -318,7 +319,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     }
 
     fun onMouseDrag(de: DiagramEvent, drag: DragEvent) {
-        if (!isReadonly && !de.ctrl && de.drag) {
+        if (!props.isReadonly && !de.ctrl && de.drag) {
             val deltaX = de.x - drag.origX
             val deltaY = de.y - drag.origY
             if (Math.abs(deltaX) > Display.MIN_DRAG || Math.abs(deltaY) > Display.MIN_DRAG) {

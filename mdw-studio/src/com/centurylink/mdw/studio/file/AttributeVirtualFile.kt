@@ -66,7 +66,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
 
     val language: Language?
         get() {
-            val type = getFileType()
+            val type = fileType
             return if (type is LanguageFileType) {
                 type.language
             }
@@ -205,7 +205,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
     }
 
     override fun isWritable(): Boolean {
-        return !workflowObj.isReadOnly
+        return !workflowObj.props.isReadonly
     }
 
     override fun getInputStream(): InputStream {

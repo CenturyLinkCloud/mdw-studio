@@ -3,6 +3,7 @@ package com.centurylink.mdw.studio.proc
 import com.centurylink.mdw.draw.*
 import com.centurylink.mdw.draw.Shape
 import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.MdwSettings
 import com.centurylink.mdw.studio.action.ActivityAssetAction
@@ -21,7 +22,7 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 
-class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process, val isReadonly: Boolean = false) :
+class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process, val drawProps: DrawProps = DrawProps()) :
         JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var _zoom = 100
@@ -148,7 +149,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
             override fun mouseReleased(e: MouseEvent) {
                 mouseDown = false
-                if (!isReadonly) {
+                if (!drawProps.isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     diagram?.let {
@@ -179,7 +180,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
             }
 
             override fun mouseDragged(e: MouseEvent) {
-                if (!isReadonly) {
+                if (!drawProps.isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     if (!dragging || dragX == -1) {
@@ -241,7 +242,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
         // draw the process diagram
         var prevSelect = diagram?.selection
-        val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, isReadonly)
+        val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, drawProps)
         d.isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
         diagram = d
         preSelectedId?.let { selectId ->

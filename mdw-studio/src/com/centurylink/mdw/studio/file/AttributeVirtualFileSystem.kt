@@ -163,7 +163,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     }
 
     private fun scanActivity(projectSetup: ProjectSetup, process: Process, activity: Activity) {
-        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json, false)
+        val workflowObj = WorkflowObj(projectSetup, process, WorkflowType.activity, activity.json)
         activity.getAttribute("Java")?.let { java ->
             var name = workflowObj.getAttribute("ClassName")
             if (name == null) {

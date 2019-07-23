@@ -1,5 +1,20 @@
 # Change Log
 
+## [1.3.4](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.4) (2019-07-23)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.3...1.3.4)
+
+**Implemented enhancements:**
+
+- Support yaml-format .proc assets [\#92](https://github.com/CenturyLinkCloud/mdw-studio/issues/92)
+- Processes viewed from VCS History should open in canvas editor [\#88](https://github.com/CenturyLinkCloud/mdw-studio/issues/88)
+- Compatibility with Java 11 [\#77](https://github.com/CenturyLinkCloud/mdw-studio/issues/77)
+- Support editing of dynamic java activity code opened automatically by debugger or Find Usages [\#72](https://github.com/CenturyLinkCloud/mdw-studio/issues/72)
+- Find usages and refactoring in dynamic Java and Groovy activities [\#32](https://github.com/CenturyLinkCloud/mdw-studio/issues/32)
+
+**Fixed bugs:**
+
+- Service Process checkbox value does not stick [\#93](https://github.com/CenturyLinkCloud/mdw-studio/issues/93)
+
 ## [1.3.3](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.3) (2019-06-03)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.2...1.3.3)
 

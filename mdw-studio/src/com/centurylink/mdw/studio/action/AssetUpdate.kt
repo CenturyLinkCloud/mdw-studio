@@ -71,8 +71,10 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
                     ToolboxWindowFactory.instance.createToolWindowContent(projectSetup.project, toolbox)
                 }
             }
-            VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
-            projectSetup.reloadImplementors()
+            VfsUtil.markDirty(true, true, projectSetup.assetDir)
+            projectSetup.assetDir.refresh(true, true) {
+                projectSetup.reloadImplementors()
+            }
         }
     }
 

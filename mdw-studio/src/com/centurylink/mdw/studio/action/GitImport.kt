@@ -123,8 +123,10 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             }
             indicator.fraction = i.toDouble() / packages.size
         }
-        VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
-        projectSetup.reloadImplementors()
+        VfsUtil.markDirty(true, true, projectSetup.assetDir)
+        projectSetup.assetDir.refresh(true, true) {
+            projectSetup.reloadImplementors()
+        }
         indicator.stop()
     }
 

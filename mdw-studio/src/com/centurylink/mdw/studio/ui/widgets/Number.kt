@@ -69,9 +69,8 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
         if (hasExpression(widget.valueString)) {
             spinner.isEnabled = false
         }
-        // expression (TODO: support expressions in transition delay and retry count)
-        if (widget.name?.startsWith("_") != true && widget.name != "TRANSITION_DELAY" &&
-                widget.name != "TRANSITION_RETRY_COUNT") {
+        // expression
+        if (widget.name?.startsWith("_") != true) {
             val expressionEntry = ExpressionEntry(widget.label, widget.valueString) {
                 val hasExpr = hasExpression(it)
                 // set widget value before triggering spinner listener so that 'true' and 'false' are honored
@@ -89,6 +88,5 @@ class Number(widget: Pagelet.Widget) : SwingWidget(widget) {
             }
             add(expressionEntry)
         }
-
     }
 }

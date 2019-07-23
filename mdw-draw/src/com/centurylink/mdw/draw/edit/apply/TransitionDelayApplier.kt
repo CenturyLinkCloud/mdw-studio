@@ -16,7 +16,11 @@ class TransitionDelayApplier : AttributeApplier() {
             } else if (attr.endsWith("m")) {
                 widget.value = attr.substring(0, attr.length - 1).toInt() * 60
             } else if (attr.endsWith("s")) {
-                widget.value = attr.substring(0, attr.length - 1).toInt()
+                widget.value = if (attr.startsWith("\${")) {
+                    attr.substring(0, attr.length - 1)
+                } else {
+                    attr.substring(0, attr.length - 1).toInt()
+                }
             } else {
                 // no units is designer compatibility (mins)
                 widget.value = if (attr == "0") {
@@ -31,7 +35,7 @@ class TransitionDelayApplier : AttributeApplier() {
     override fun update() {
         if (widget.value == null) {
             super.update()
-        } else if (widget.value == 0 || widget.value == "0") {
+        } else if (widget.value == 0 || widget.value == "0" || widget.valueString.isNullOrBlank()) {
             workflowObj.setAttribute(widget.name, null)
         } else {
             workflowObj.setAttribute(widget.name, "${widget.valueString}s")

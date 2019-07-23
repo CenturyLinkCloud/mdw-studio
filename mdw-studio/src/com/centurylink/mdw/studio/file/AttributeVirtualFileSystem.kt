@@ -21,7 +21,10 @@ import com.intellij.openapi.vfs.VirtualFileManager
 
 class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
 
-    internal val virtualFiles = mutableMapOf<String,AttributeVirtualFile>()
+    private val virtualFiles = mutableMapOf<Project,MutableMap<String,AttributeVirtualFile>>()
+    internal fun getVirtualFiles(project: Project): MutableMap<String,AttributeVirtualFile> {
+        return virtualFiles.getOrPut(project, { mutableMapOf() } )
+    }
 
     init {
         startEventPropagation()
@@ -47,7 +50,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                     name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)
                 }
                 val filePath = "${process.packageName}/$name.java"
-                val virtualFile = virtualFiles[filePath]
+                val virtualFile = getVirtualFiles(projectSetup.project)[filePath]
                 return if (virtualFile == null) {
                     // newly dragged from toolbox
                     createFile(filePath, workflowObj, "Java", contents, "java", qualifier)
@@ -69,7 +72,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                     ext = AttributeVirtualFile.getScriptExt(scriptAttr)
                 }
                 val filePath = "$filePathNoExt.$ext"
-                val virtualFile = virtualFiles[filePath]
+                val virtualFile = getVirtualFiles(projectSetup.project)[filePath]
                 return if (virtualFile == null) {
                     // newly dragged from toolbox
                     val attrName = when (qualifier) {
@@ -107,7 +110,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
      * https://youtrack.jetbrains.com/issue/IDEA-203751
      */
     fun findFileByPath(path: String, project: Project): AttributeVirtualFile? {
-        return virtualFiles[path]
+        return getVirtualFiles(project)[path]
     }
 
     /**
@@ -115,10 +118,11 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
      */
     private fun createFile(path: String, workflowObj: WorkflowObj, attributeName: String,
             contents: String? = null, ext: String? = null, qualifier: String? = null): AttributeVirtualFile {
-        var file = virtualFiles[path]
+        val project = (workflowObj.project as ProjectSetup).project
+        var file = getVirtualFiles(project)[path]
         if (file == null) {
             file = AttributeVirtualFile(workflowObj, attributeName, contents, ext, qualifier)
-            virtualFiles[path] = file
+            getVirtualFiles(project)[path] = file
         }
         return file
     }
@@ -128,15 +132,19 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     }
 
     fun refresh(projectSetup: ProjectSetup) {
-        virtualFiles.clear()
+        clear(projectSetup)
         for (processAsset in projectSetup.findAssetsOfType("proc")) {
             loadAttributeVirtualFiles(projectSetup, processAsset)
         }
     }
 
+    fun clear(projectSetup: ProjectSetup) {
+        getVirtualFiles(projectSetup.project).clear()
+    }
+
     fun removeAttributeVirtualFiles(projectSetup: ProjectSetup, processAsset: Asset) {
         val removePaths = mutableListOf<String>()
-        for (path in virtualFiles.keys) {
+        for (path in getVirtualFiles(projectSetup.project).keys) {
             if (path.startsWith("${processAsset.pkg.name}/")) {
                 if (path.endsWith(".java") || path.endsWith(".kts") || path.endsWith(".groovy") || path.endsWith(".js")) {
                     removePaths.add(path)
@@ -144,7 +152,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
             }
         }
         for (removePath in removePaths) {
-            virtualFiles.remove(removePath)
+            getVirtualFiles(projectSetup.project).remove(removePath)
         }
     }
 

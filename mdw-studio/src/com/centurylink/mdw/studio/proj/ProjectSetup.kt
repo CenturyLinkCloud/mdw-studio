@@ -14,6 +14,7 @@ import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.file.AttributeDocumentHandler
+import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
 import com.centurylink.mdw.util.file.Packages
 import com.centurylink.mdw.util.log.slf4j.Slf4JStandardLoggerImpl
 import com.intellij.codeInsight.AnnotationUtil
@@ -250,6 +251,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
 
     override fun projectClosed() {
         EditorFactory.getInstance().eventMulticaster.removeDocumentListener(attributeDocumentHandler)
+        AttributeVirtualFileSystem.instance.clear(this)
     }
 
     private fun getMdwProp(prop: String): String? {

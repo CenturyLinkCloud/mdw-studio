@@ -16,7 +16,7 @@ class AttributeReferencesSearcher : QueryExecutorBase<PsiReference,ReferencesSea
             val element = queryParameters.elementToSearch
             if (element.containingFile.virtualFile !is AttributeVirtualFile) {
                 element.project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
-                    AttributeVirtualFileSystem.instance.virtualFiles.values.forEach { file ->
+                    AttributeVirtualFileSystem.instance.getVirtualFiles(projectSetup.project).values.forEach { file ->
                         file.psiFile?.let { psiFile ->
                             val fileScope = LocalSearchScope(psiFile)
                             ReferencesSearch.searchOptimized(element, fileScope, true, queryParameters.optimizer, consumer)
@@ -34,7 +34,7 @@ class AttributeMethodUsagesSearch : QueryExecutorBase<PsiReference, MethodRefere
             val method = queryParameters.method
             if (method.containingFile.virtualFile !is AttributeVirtualFile) {
                 method.project.getComponent(ProjectSetup::class.java)?.let { projectSetup ->
-                    AttributeVirtualFileSystem.instance.virtualFiles.values.forEach { file ->
+                    AttributeVirtualFileSystem.instance.getVirtualFiles(projectSetup.project).values.forEach { file ->
                         file.psiFile?.let { psiFile ->
                             val fileScope = LocalSearchScope(psiFile)
                             ReferencesSearch.searchOptimized(method, fileScope, false, queryParameters.optimizer, consumer)

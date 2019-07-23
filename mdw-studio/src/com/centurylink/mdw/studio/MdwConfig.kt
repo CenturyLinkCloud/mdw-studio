@@ -44,7 +44,7 @@ class MdwConfig : SearchableConfigurable {
 
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
-    private val saveProcessAsYamlCheckbox = CheckBox("Save .proc files as YAML (experimental)")
+    private val saveProcessAsYamlCheckbox = CheckBox("Save .proc files as YAML (6.1.23+)")
 
     private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
 

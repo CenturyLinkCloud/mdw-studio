@@ -169,11 +169,6 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     init {
         assetDir = initialize()
         configure()
-        if (isMdwProject) {
-            DumbService.getInstance(project).smartInvokeLater {
-                implementors // trigger implementor load
-            }
-        }
     }
 
     /**

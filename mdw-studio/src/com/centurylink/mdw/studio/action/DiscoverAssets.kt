@@ -11,7 +11,6 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.ui.widgets.LinkLabel
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.treeView.NodeRenderer
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -145,7 +144,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                 if (path.lastPathComponent is RefsNode) {
                     val refsNode = path.lastPathComponent as RefsNode
                     refsNode.add(DefaultMutableTreeNode("Loading...", false))
-                    object: SwingWorker() {
+                    object: SwingWorker<Any?>() {
                         override fun construct(): Any? {
                             return try {
                                 refsNode.refs
@@ -186,7 +185,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                         val refsNode = it.parent as RefsNode
                         val discoverer = refsNode.discoverer
                         discoverer.ref = it.userObject as String
-                        object: SwingWorker() {
+                        object: SwingWorker<Any?>() {
                             override fun construct(): Any? {
                                 return try {
                                     val packageInfo = discoverer.packageInfo

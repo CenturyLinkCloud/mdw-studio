@@ -20,6 +20,7 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.project.DumbService
 import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.datatransfer.DataFlavor
@@ -47,8 +48,10 @@ class ToolboxPanel(private val projectSetup: ProjectSetup) : JPanel(), Disposabl
         layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
         border = BorderFactory.createEmptyBorder(2, 2, 2, 0)
         alignmentY = 0f
-        initialize()
-        projectSetup.addImplementorChangeListener(this)
+        DumbService.getInstance(projectSetup.project).smartInvokeLater {
+            initialize()
+            projectSetup.addImplementorChangeListener(this)
+        }
     }
 
     private fun initialize() {

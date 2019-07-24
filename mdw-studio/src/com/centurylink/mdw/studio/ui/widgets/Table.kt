@@ -7,7 +7,6 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import org.json.JSONArray
-import sun.swing.table.DefaultTableCellHeaderRenderer
 import java.awt.BorderLayout
 import java.awt.Cursor
 import java.awt.Dimension
@@ -97,8 +96,6 @@ open class Table(widget: Pagelet.Widget, private val scrolling: Boolean = false,
         table.rowSelectionAllowed = withButtons
 
         val header = table.tableHeader
-        val headerCellRenderer = header.defaultRenderer as DefaultTableCellHeaderRenderer
-        headerCellRenderer.horizontalAlignment = DefaultTableCellRenderer.LEADING
 
         for (i in columnWidgets.indices) {
             val columnWidget = columnWidgets[i]

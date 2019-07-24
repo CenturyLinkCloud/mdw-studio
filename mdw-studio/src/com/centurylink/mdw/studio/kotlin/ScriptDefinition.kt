@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.kotlin
 
-import org.jetbrains.kotlin.script.KotlinScriptDefinition
+import org.jetbrains.kotlin.scripting.definitions.KotlinScriptDefinition
 
 /**
  *  Add this in plugin.xml when ready:

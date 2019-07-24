@@ -13,10 +13,9 @@ that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://github.com/CenturyLinkCloud/mdw-studio/blob/master/CHANGELOG.md">Change Log</a>
 ]]></description>
 
-    <idea-version since-build="191.6183" />
-
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.modules.java</depends>
 
     <project-components>
         <component>

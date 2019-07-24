@@ -73,7 +73,7 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
 
     override fun getPreferredFocusedComponent(): JComponent? {
 
-        object: SwingWorker() {
+        object: SwingWorker<Any?>() {
             override fun construct(): Any? {
                 return try {
                     jsonArray // initialize

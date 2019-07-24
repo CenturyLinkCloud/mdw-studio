@@ -15,6 +15,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.io.FileUtil
@@ -36,6 +37,12 @@ class ProjectStartup : StartupActivity {
             projectSetup.configure(false)
         }
         if (projectSetup.isMdwProject) {
+            if (projectSetup.isMdwProject) {
+                DumbService.getInstance(project).smartInvokeLater {
+                    projectSetup.implementors // trigger implementor load
+                }
+            }
+
             val pluginVer = projectSetup.getPluginVersion() ?: "Unknown"
             try {
                 LOG.info("MDW Studio: $pluginVer (${MdwVersion.getRuntimeVersion()})")

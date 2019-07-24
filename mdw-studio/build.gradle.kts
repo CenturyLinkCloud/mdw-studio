@@ -20,6 +20,7 @@ java.sourceSets {
 repositories {
     mavenCentral()
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
+    maven { url = uri("https://www.jetbrains.com/intellij-repository/snapshots") }
 }
 
 dependencies {
@@ -33,8 +34,8 @@ dependencies {
 }
 
 intellij {
-    version = "2019.1.3"
-    setPlugins("Kotlin","Git4Idea")
+    version = "192.5728-EAP-CANDIDATE-SNAPSHOT" // "2019.2" // "192-EAP-SNAPSHOT"
+    setPlugins("Kotlin","Java","Git4Idea")
 }
 
 tasks.withType<RunIdeTask> {

@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.3.5](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.5) (2019-07-25)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.4...1.3.5)
+
+**Implemented enhancements:**
+
+- Asset vercheck and auto-increment should use actual Git branch [\#96](https://github.com/CenturyLinkCloud/mdw-studio/issues/96)
+- Compatibility with IntelliJ 2019.2 [\#95](https://github.com/CenturyLinkCloud/mdw-studio/issues/95)
+
+**Fixed bugs:**
+
+- Transition retry count cannot be removed [\#91](https://github.com/CenturyLinkCloud/mdw-studio/issues/91)
+- Refresh Toolbox after asset import [\#90](https://github.com/CenturyLinkCloud/mdw-studio/issues/90)
+
 ## [1.3.4](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.4) (2019-07-23)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.3...1.3.4)
 

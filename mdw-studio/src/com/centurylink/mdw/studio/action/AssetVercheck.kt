@@ -66,6 +66,7 @@ class AssetVercheck(private val projectSetup: ProjectSetup, private val isFix: B
             vercheck.gitUser = gitUser
             vercheck.setGitPassword(projectSetup.settings.gitPassword)
         }
+        vercheck.branch = projectSetup.git?.branch
 
         val title = if (isFix) {
             "Fixing asset versions..."
@@ -80,7 +81,8 @@ class AssetVercheck(private val projectSetup: ProjectSetup, private val isFix: B
                 if (itex.targetException is TransportException) {
                     itex.targetException.message?.let { message ->
                         if (message.endsWith(" not authorized") ||
-                                message.endsWith("Authentication is required but no CredentialsProvider has been registered")) {
+                                message.endsWith("Authentication is required but no CredentialsProvider has been registered") ||
+                                message.endsWith("git-upload-pack not permitted")) {
                             val dialog = CredentialsDialog(projectSetup)
                             if (dialog.showAndGet()) {
                                 val retryVercheck = Vercheck()

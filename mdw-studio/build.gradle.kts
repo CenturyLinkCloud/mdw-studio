@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.3.5-SNAPSHOT"
+version = "1.3.5"
 
 java.sourceSets {
     "main" {
@@ -34,18 +34,20 @@ dependencies {
 }
 
 intellij {
-    version = "192.5728-EAP-CANDIDATE-SNAPSHOT" // "2019.2" // "192-EAP-SNAPSHOT"
+    version = "2019.2" // "192.5728-EAP-CANDIDATE-SNAPSHOT"
     setPlugins("Kotlin","Java","Git4Idea")
 }
 
 tasks.withType<RunIdeTask> {
     jvmArgs = listOf("-Xmx1G")
+    // available jbrs here: https://jetbrains.bintray.com/intellij-jdk/
+    // jbrVersion("11_0_2b164")
 }
 
 tasks.withType<PublishTask> {
     username(project.properties["intellijPublishUsername"] ?: "")
     password(project.properties["intellijPublishPassword"] ?: "")
-    channels(project.properties["intellijPublishChannel"] ?: "Beta")
+    channels(project.properties["intellijPublishChannel"] ?: "EAP")
 }
 
 tasks.withType<KotlinCompile> {

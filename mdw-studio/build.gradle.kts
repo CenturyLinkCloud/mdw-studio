@@ -39,7 +39,7 @@ intellij {
 }
 
 tasks.withType<RunIdeTask> {
-    jvmArgs = listOf("-Xmx1G")
+    jvmArgs = listOf("-Xmx1G") //, "-XX:CICompilerCount=2")
     // available jbrs here: https://jetbrains.bintray.com/intellij-jdk/
     // jbrVersion("11_0_2b164")
 }

@@ -240,13 +240,17 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     }
 
     override fun projectOpened() {
-        attributeDocumentHandler = AttributeDocumentHandler(this)
-        EditorFactory.getInstance().eventMulticaster.addDocumentListener(attributeDocumentHandler)
+        if (isMdwProject) {
+            attributeDocumentHandler = AttributeDocumentHandler(this)
+            EditorFactory.getInstance().eventMulticaster.addDocumentListener(attributeDocumentHandler)
+        }
     }
 
     override fun projectClosed() {
-        EditorFactory.getInstance().eventMulticaster.removeDocumentListener(attributeDocumentHandler)
-        AttributeVirtualFileSystem.instance.clear(this)
+        if (isMdwProject) {
+            EditorFactory.getInstance().eventMulticaster.removeDocumentListener(attributeDocumentHandler)
+            AttributeVirtualFileSystem.instance.clear(this)
+        }
     }
 
     private fun getMdwProp(prop: String): String? {

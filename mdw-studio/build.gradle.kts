@@ -4,7 +4,7 @@ import org.jetbrains.intellij.tasks.RunIdeTask
 
 plugins {
     kotlin("jvm") version "1.3.0"
-    id("org.jetbrains.intellij") version "0.4.7"
+    id("org.jetbrains.intellij") version "0.4.9"
 }
 
 group = "com.centurylink.mdw"
@@ -35,7 +35,7 @@ dependencies {
 
 intellij {
     version = "2019.2" // "192.5728-EAP-CANDIDATE-SNAPSHOT"
-    setPlugins("Kotlin","Java","Git4Idea")
+    setPlugins("Kotlin","java","Git4Idea")
 }
 
 tasks.withType<RunIdeTask> {

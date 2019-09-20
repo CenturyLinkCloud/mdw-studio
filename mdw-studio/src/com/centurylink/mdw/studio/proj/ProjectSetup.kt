@@ -43,8 +43,11 @@ import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassOwner
 import com.intellij.psi.PsiManager
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.searches.AnnotatedElementsSearch
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -366,6 +369,23 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return assets
     }
 
+    /**
+     * Finds all annotations from project source
+     */
+    fun findAnnotatedSource(annotation: PsiClass): Map<PsiClass,PsiAnnotation> {
+        val annotatedSources = mutableMapOf<PsiClass,PsiAnnotation>()
+        AnnotatedElementsSearch.searchPsiClasses(annotation, GlobalSearchScope.allScope(project)).forEach { psiClass ->
+            val psiAnnotation = AnnotationUtil.findAnnotation(psiClass, true, annotation.qualifiedName)
+            if (psiAnnotation != null) {
+                annotatedSources[psiClass] = psiAnnotation
+            }
+        }
+        return annotatedSources
+    }
+
+    /**
+     * Finds annotations in Java or Kotlin assets.
+     */
     fun findAnnotatedAssets(annotation: KClass<*>): Map<Asset,List<PsiAnnotation>> {
 
         val annotatedAssets = mutableMapOf<Asset,MutableList<PsiAnnotation>>()

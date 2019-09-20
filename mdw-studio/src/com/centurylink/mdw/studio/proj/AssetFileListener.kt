@@ -58,7 +58,7 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                     val assetBytes = asset.file.contentsToByteArray()
                                     var isGitDiff = false
                                     if (gitBytes != null && !Arrays.equals(gitBytes, assetBytes)) {
-                                        isGitDiff = if (projectSetup.data.getBinaryAssetExts().contains(asset.ext)) {
+                                        isGitDiff = if (projectSetup.data.binaryAssetExts.contains(asset.ext)) {
                                             true
                                         } else {
                                             // ignore line ending diffs
@@ -84,7 +84,8 @@ class AssetFileListener(private val projectSetup: ProjectSetup) : BulkFileListen
                                     if (asset.name.endsWith(".java") || asset.name.endsWith(".kt")) {
                                         DumbService.getInstance(projectSetup.project).smartInvokeLater {
                                             projectSetup.findPsiAnnotation(asset, Activity::class)?.let { psiAnnotation ->
-                                                Implementors.getImpl(projectSetup, asset, psiAnnotation)?.let { projectSetup.reloadImplementors() }
+                                                val implClass = "${asset.pkg.name}.${asset.file.nameWithoutExtension}"
+                                                Implementors.getImpl(projectSetup, implClass, psiAnnotation)?.let { projectSetup.reloadImplementors() }
                                             }
                                         }
                                     }

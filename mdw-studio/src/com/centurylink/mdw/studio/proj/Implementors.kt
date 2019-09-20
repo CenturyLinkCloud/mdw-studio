@@ -3,13 +3,10 @@ package com.centurylink.mdw.studio.proj
 import com.centurylink.mdw.annotations.Activity
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
-import com.centurylink.mdw.studio.file.Asset
 import com.intellij.openapi.actionSystem.DataKey
-import com.intellij.psi.PsiAnnotation
-import com.intellij.psi.PsiClassObjectAccessExpression
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiLiteralExpression
+import com.intellij.psi.*
 import com.intellij.psi.impl.PsiExpressionEvaluator
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTypesUtil
 import org.json.JSONObject
 import java.io.FileNotFoundException
@@ -21,16 +18,23 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         for (implAsset in projectSetup.findAssetsOfType("impl")) {
             add(ActivityImplementor(JSONObject(String(implAsset.contents))))
         }
-        for ((asset, psiAnnotations) in projectSetup.findAnnotatedAssets(Activity::class)) {
-            getImpl(projectSetup, asset, psiAnnotations[0])?.let { add(it) }
-        }
-        for (pseudoImpl in Data.Implementors.PSEUDO_IMPLEMENTORS) {
-                if (!pseudoImpl.icon.startsWith("shape:")) {
-                    pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
+        val javaPsiFacade = JavaPsiFacade.getInstance(projectSetup.project)
+        val annotationPsi = javaPsiFacade.findClass(Activity::class.java.name, GlobalSearchScope.allScope(projectSetup.project))
+        if (annotationPsi != null) {
+            for ((psiClass, psiAnnotation) in projectSetup.findAnnotatedSource(annotationPsi)) {
+                val implClass = psiClass.qualifiedName
+                if (implClass != null) {
+                    getImpl(projectSetup, implClass, psiAnnotation)?.let { add(it) }
                 }
-                add(pseudoImpl)
             }
         }
+        for (pseudoImpl in Data.Implementors.PSEUDO_IMPLEMENTORS) {
+            if (!pseudoImpl.icon.startsWith("shape:")) {
+                pseudoImpl.imageIcon = projectSetup.getIconAsset(pseudoImpl.icon)
+            }
+            add(pseudoImpl)
+        }
+    }
 
     private fun add(implementor: ActivityImplementor) {
         var iconAsset = implementor.icon
@@ -68,7 +72,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         /**
          * Get implementor from annotated asset (null if not found or missing attributes)
          */
-        fun getImpl(projectSetup: ProjectSetup, asset: Asset, psiAnnotation: PsiAnnotation): ActivityImplementor? {
+        fun getImpl(projectSetup: ProjectSetup, implClass: String, psiAnnotation: PsiAnnotation): ActivityImplementor? {
             val label = psiAnnotation.findAttributeValue("value")?.let {
                 (it as PsiLiteralExpression).value as String
             }
@@ -84,14 +88,17 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
                     value
                 }
                 else {
-                    val pageletAssetPath = if (value.indexOf("/") > 0) { value } else { "${asset.pkg.name}/$value" }
+                    val pageletAssetPath = if (value.indexOf("/") > 0) {
+                        value
+                    } else {
+                        implClass.substring(0, implClass.lastIndexOf(".")) + "/$value"
+                    }
                     val pageletAssetFile = projectSetup.getAssetFile(pageletAssetPath)
                     pageletAssetFile ?: throw FileNotFoundException("No pagelet asset: " + pageletAssetPath)
                     String(pageletAssetFile.contentsToByteArray())
                 }
             }
             if (label != null) {
-                val implClass = "${asset.pkg.name}.${asset.file.nameWithoutExtension}"
                 return ActivityImplementor(implClass, category, label, icon, pagelet)
             }
             return null

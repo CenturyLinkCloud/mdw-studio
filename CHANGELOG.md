@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.3.6](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.6) (2019-09-24)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.5...1.3.6)
+
+**Implemented enhancements:**
+
+- Recognize @Activity annotations that are not asset-based [\#97](https://github.com/CenturyLinkCloud/mdw-studio/issues/97)
+
 ## [1.3.5](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.5) (2019-07-25)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.4...1.3.5)
 

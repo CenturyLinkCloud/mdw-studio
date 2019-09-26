@@ -23,7 +23,7 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
         if (annotationPsi != null) {
             for ((psiClass, psiAnnotation) in projectSetup.findAnnotatedSource(annotationPsi)) {
                 val implClass = psiClass.qualifiedName
-                if (implClass != null) {
+                if (implClass != null && psiClass.language.id != "Groovy") {
                     getImpl(projectSetup, implClass, psiAnnotation)?.let { add(it) }
                 }
             }

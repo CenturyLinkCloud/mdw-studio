@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.3.7](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.7) (2019-10-04)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.6...1.3.7)
+
+**Fixed bugs:**
+
+- Groovy assets in temp dir break activity annotations scan [\#98](https://github.com/CenturyLinkCloud/mdw-studio/issues/98)
+
 ## [1.3.6](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.6) (2019-09-24)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.5...1.3.6)
 

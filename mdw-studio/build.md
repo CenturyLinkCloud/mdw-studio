@@ -26,7 +26,7 @@
 3. (Release build only) - Comment out the PublishTask Channels entry in mdw-studio/build.gradle.kts (but do not commit)
 4. Run Gradle task intellij/publishPlugin.
 5. After success:
-   - Uncomment PublishTask Channels in mdw-studio/build.gradle.kts
+   - Uncomment PublishTask Channels in mdw-studio/build.gradle.kts (or upload assembled zip to plugin URL above)
    - Commit/push changes.
 6. Tag Git master branch (eg: 1.2.0):
     ```

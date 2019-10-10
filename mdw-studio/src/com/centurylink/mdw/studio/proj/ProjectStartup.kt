@@ -103,7 +103,13 @@ class ProjectStartup : StartupActivity {
 
             // exclude temp and node_modules dirs
             projectSetup.tempDir?.let { tempDir ->
-                if (FileUtil.isAncestor(File(projectSetup.baseDir.path), tempDir, true)) {
+                val absTempDir = if (tempDir.isAbsolute) {
+                    tempDir
+                }
+                else {
+                    File(projectSetup.baseDir.path + "/" + tempDir.toPath().normalize())
+                }
+                if (FileUtil.isAncestor(File(projectSetup.baseDir.path), absTempDir, true)) {
                     projectSetup.getVirtualFile(tempDir)?.let { tempVirtualFile ->
                         if (tempVirtualFile.isDirectory) {
                             projectSetup.markExcluded(tempVirtualFile)

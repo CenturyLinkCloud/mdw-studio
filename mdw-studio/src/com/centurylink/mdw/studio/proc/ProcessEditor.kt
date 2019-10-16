@@ -100,7 +100,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
 
         isYaml = !procDoc.text.startsWith("{")
 
-        canvas = ProcessCanvas(projectSetup, process, DrawProps(!procDoc.isWritable, isYaml))
+        canvas = ProcessCanvas(projectSetup, process, DrawProps(!procDoc.isWritable, isYaml, projectSetup.milestoneGroups))
         canvasScrollPane = JBScrollPane(canvas)
 
         editPanel = JPanel(BorderLayout())

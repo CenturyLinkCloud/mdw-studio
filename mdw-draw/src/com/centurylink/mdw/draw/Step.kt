@@ -7,15 +7,18 @@ import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.ActivityImplementor
+import com.centurylink.mdw.model.workflow.MilestoneFactory
 import com.centurylink.mdw.model.workflow.Process
+import java.awt.Color
 import java.awt.Graphics2D
 
 class Step(private val g2d: Graphics2D, val project: Project, process: Process, val activity: Activity,
-        val implementor: ActivityImplementor, props: DrawProps) :
+        val implementor: ActivityImplementor, val drawProps: DrawProps) :
         Shape(g2d, Display(activity.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO))), Drawable, Resizable {
 
-    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json, props)
+    override val workflowObj = WorkflowObj(project, process, WorkflowType.activity, activity.json, drawProps)
     private val boxStyle: Boolean = true
+    private val milestone = MilestoneFactory(process).getMilestone(activity)
 
     override fun draw(): Display {
 
@@ -23,10 +26,25 @@ class Step(private val g2d: Graphics2D, val project: Project, process: Process, 
 
         val yAdjust = -3
         var textColor = Display.DEFAULT_COLOR
+        val fillColor = milestone?.let { milestone ->
+            var color = Color(MilestoneFactory.OTHER_GROUP.properties.getProperty("color").substring(1).toInt(16))
+            milestone.group?.let { groupName ->
+                drawProps.milestoneGroups?.let { group ->
+                    group.subgroups?.let { subgroups ->
+                        subgroups.find { it.name == groupName }?.let { subgroup ->
+                            subgroup.properties.getProperty("color")?.let {  milestoneColor ->
+                                color = Color(milestoneColor.substring(1).toInt(16))
+                            }
+                        }
+                    }
+                }
+            }
+            Color(color.red, color.green, color.blue, 100)
+        }
 
         if (implementor.imageIcon != null) {
             if (boxStyle) {
-                drawRect()
+                drawRect(fill = fillColor)
             }
             val iconX = display.x + display.w / 2 - 12
             val iconY = display.y + 5
@@ -69,7 +87,7 @@ class Step(private val g2d: Graphics2D, val project: Project, process: Process, 
                     drawDiamond()
                 }
                 else -> {
-                    drawRect()
+                    drawRect(fill = fillColor)
                 }
             }
         }

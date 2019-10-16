@@ -1,3 +1,9 @@
 package com.centurylink.mdw.draw.model
 
-data class DrawProps(val isReadonly: Boolean = false, val isYaml: Boolean = false)
+import com.centurylink.mdw.config.PropertyGroup
+
+data class DrawProps(
+        val isReadonly: Boolean = false,
+        val isYaml: Boolean = false,
+        val milestoneGroups: PropertyGroup? = null
+)

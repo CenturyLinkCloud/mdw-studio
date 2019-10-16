@@ -28,7 +28,6 @@ abstract class Shape(private val g2d: Graphics2D, open var display: Display): Dr
                 g2d.paint = fill
                 g2d.fillRoundRect(x, y, w, h, radius, radius)
             }
-
         }
         else {
             g2d.drawRect(x, y, w, h)
@@ -47,7 +46,7 @@ abstract class Shape(private val g2d: Graphics2D, open var display: Display): Dr
     }
 
     fun drawImage(image: Image, x: Int, y: Int, opacity: Float = 1f) {
-        var origComposite = g2d.composite
+        val origComposite = g2d.composite
         if (opacity != 1f) {
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity)
         }

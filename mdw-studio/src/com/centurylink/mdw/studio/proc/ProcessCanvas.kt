@@ -22,8 +22,9 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 
-class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process, val drawProps: DrawProps = DrawProps()) :
-        JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
+class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process,
+        val drawProps: DrawProps = DrawProps(milestoneGroups = setup.milestoneGroups)) :
+                JPanel(BorderLayout()), DataProvider, UpdateListeners by UpdateListenersDelegate() {
 
     private var _zoom = 100
     var zoom

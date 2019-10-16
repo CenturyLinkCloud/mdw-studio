@@ -4,6 +4,7 @@ import com.centurylink.mdw.cli.Operation
 import com.centurylink.mdw.cli.ProgressMonitor
 import com.centurylink.mdw.cli.Setup
 import com.centurylink.mdw.config.PropertyException
+import com.centurylink.mdw.config.PropertyGroup
 import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
 import com.centurylink.mdw.dataaccess.file.VersionControlGit
@@ -80,6 +81,19 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         if (url != null)
             return url
         return "https://mdw-central.com"
+    }
+
+    val milestoneGroups: PropertyGroup? by lazy {
+        setup?.mdwConfig?.let {
+            val mdwYaml = YamlProperties("mdw", File("${setup?.configRoot ?: ""}/$it"))
+            mdwYaml.getGroup(PropertyNames.MDW_MILESTONE_GROUPS)?.let { map ->
+                val props = Properties()
+                for ((k, v) in map) {
+                    props[k] = v
+                }
+                PropertyGroup("milestone.groups", PropertyNames.MDW_MILESTONE_GROUPS, props)
+            }
+        }
     }
 
     fun getPluginVersion() : String? {

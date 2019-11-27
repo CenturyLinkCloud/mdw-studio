@@ -36,6 +36,16 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                 repaint()
             }
         }
+    private val scale
+        get() = if (_zoom == 100) 1f else _zoom / 100f
+
+    private fun scale(i: Int): Int {
+        return if (scale == 1f) {
+            i
+        } else {
+            (i / scale).toInt()
+        }
+    }
 
     var isShowGrid
         get() = diagram?.isShowGrid ?: true
@@ -105,11 +115,13 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
             override fun mousePressed(e: MouseEvent) {
                 grabFocus()
                 mouseDown = true
-                downX = e.x
-                downY = e.y
+                val x = scale(e.x)
+                val y = scale(e.y)
+                downX = x
+                downY = y
                 val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                 val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
-                diagram?.onMouseDown(DiagramEvent(e.x, e.y, shift, ctrl))
+                diagram?.onMouseDown(DiagramEvent(x, y, shift, ctrl, false))
                 revalidate()
                 repaint()
 
@@ -144,17 +156,19 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                         }
                     }
                     val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, actionGroup)
-                    popupMenu.component.show(this@ProcessCanvas, e.x, e.y)
+                    popupMenu.component.show(this@ProcessCanvas, x, y)
                 }
             }
 
             override fun mouseReleased(e: MouseEvent) {
                 mouseDown = false
+                val x = scale(e.x)
+                val y = scale(e.y)
                 if (!drawProps.isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     diagram?.let {
-                        it.onMouseUp(DiagramEvent(e.x, e.y, shift, ctrl, drag = dragging))
+                        it.onMouseUp(DiagramEvent(x, y, shift, ctrl, drag = dragging))
                         if (dragging) {
                             notifyUpdateListeners(it.workflowObj)
                             it.selection.selectObjs.let { selObj ->
@@ -174,14 +188,18 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         addMouseMotionListener(object: MouseMotionAdapter() {
 
             override fun mouseMoved(e: MouseEvent) {
+                val x = scale(e.x)
+                val y = scale(e.y)
                 diagram?.let {
-                    val cursor = it.onMouseMove(DiagramEvent(e.x, e.y))
+                    val cursor = it.onMouseMove(DiagramEvent(x, y))
                     UIUtil.setCursor(this@ProcessCanvas, cursor)
                 }
             }
 
             override fun mouseDragged(e: MouseEvent) {
                 if (!drawProps.isReadonly) {
+                    val x = scale(e.x)
+                    val y = scale(e.y)
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     if (!dragging || dragX == -1) {
@@ -190,21 +208,21 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                         dragging = true
                     }
                     diagram?.let {
-                        val deltaX = e.x - dragX
-                        val deltaY = e.y - dragY
-                        it.onMouseDrag(DiagramEvent(e.x, e.y, shift = shift, ctrl = ctrl, drag = true),
+                        val deltaX = x - dragX
+                        val deltaY = y - dragY
+                        it.onMouseDrag(DiagramEvent(x, y, shift = shift, ctrl = ctrl, drag = true),
                                         DragEvent(downX, downY, deltaX, deltaY))
 
                         invalidate()
                         repaint()
 
-                        dragX = e.x
-                        dragY = e.y
+                        dragX = x
+                        dragY = y
 
-                        val visMinX = maxOf(e.x - Diagram.BOUNDARY_DIM, 0)
-                        val visMaxX = e.x + Diagram.BOUNDARY_DIM
-                        val visMinY = maxOf(e.y - Diagram.BOUNDARY_DIM, 0)
-                        val visMaxY = e.y + Diagram.BOUNDARY_DIM
+                        val visMinX = maxOf(x - Diagram.BOUNDARY_DIM, 0)
+                        val visMaxX = x + Diagram.BOUNDARY_DIM
+                        val visMinY = maxOf(y - Diagram.BOUNDARY_DIM, 0)
+                        val visMaxY = y + Diagram.BOUNDARY_DIM
                         scrollRectToVisible(Rectangle(visMinX, visMinY, visMaxX - visMinX, visMaxY - visMinY))
                     }
                 }

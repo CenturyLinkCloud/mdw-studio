@@ -13,7 +13,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.SmartPointerManager
 import com.intellij.ui.DocumentAdapter
-import org.jetbrains.kotlin.idea.refactoring.toPsiDirectory
+import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension

@@ -34,7 +34,7 @@ dependencies {
 }
 
 intellij {
-    version = "2019.2.4" // "192.5728-EAP-CANDIDATE-SNAPSHOT"
+    version = "2019.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
     setPlugins("Kotlin","java","Git4Idea")
 }
 

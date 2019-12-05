@@ -44,7 +44,7 @@ class MdwConfig : SearchableConfigurable {
 
     private val syncDynamicJavaCheckbox = CheckBox("Sync dynamic Java class name")
     private val createAndAssociateTaskCheckbox = CheckBox("Create and associate task template")
-    private val saveProcessAsYamlCheckbox = CheckBox("Save .proc files as YAML (6.1.23+)")
+    private val saveProcessAsJsonCheckbox = CheckBox("Save .proc files as JSON")
 
     private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
 
@@ -165,13 +165,13 @@ class MdwConfig : SearchableConfigurable {
         editPanel.add(createAndAssociateTaskCheckbox)
 
         // save processes as yaml
-        saveProcessAsYamlCheckbox.alignmentX = Component.LEFT_ALIGNMENT
-        saveProcessAsYamlCheckbox.border = checkboxBorder
-        saveProcessAsYamlCheckbox.isSelected = MdwSettings.instance.isSaveProcessAsYaml
-        saveProcessAsYamlCheckbox.addActionListener {
+        saveProcessAsJsonCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        saveProcessAsJsonCheckbox.border = checkboxBorder
+        saveProcessAsJsonCheckbox.isSelected = MdwSettings.instance.isSaveProcessAsJson
+        saveProcessAsJsonCheckbox.addActionListener {
             modified = true
         }
-        editPanel.add(saveProcessAsYamlCheckbox)
+        editPanel.add(saveProcessAsJsonCheckbox)
 
         // assets
         gridConstraints.gridy = 3
@@ -306,7 +306,7 @@ class MdwConfig : SearchableConfigurable {
 
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected
         mdwSettings.isCreateAndAssociateTaskTemplate = createAndAssociateTaskCheckbox.isSelected
-        mdwSettings.isSaveProcessAsYaml = saveProcessAsYamlCheckbox.isSelected
+        mdwSettings.isSaveProcessAsJson = saveProcessAsJsonCheckbox.isSelected
 
         mdwSettings.isAssetVercheckAutofix = vercheckAutofixCheckbox.isSelected
         if (!mdwSettings.isAssetVercheckAutofix) {

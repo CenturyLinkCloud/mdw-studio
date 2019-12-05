@@ -189,7 +189,7 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
         // invokeLater is used to avoid non-ui thread error on startup with multiple processes open
         ApplicationManager.getApplication().invokeLater( {
             WriteAction.run<Throwable> {
-                procDoc.setText(if (isYaml || MdwSettings.instance.isSaveProcessAsYaml) {
+                procDoc.setText(if (isYaml || !MdwSettings.instance.isSaveProcessAsJson) {
                     Yamlable.toString(process, 2)
                 } else {
                     process.json.toString(2)

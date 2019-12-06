@@ -3,13 +3,16 @@ package com.centurylink.mdw.studio.proj
 import com.centurylink.mdw.annotations.Activity
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.ActivityImplementor
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.DataKey
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.*
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTypesUtil
 import org.json.JSONObject
-import java.io.FileNotFoundException
 import java.util.*
 
 class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,ActivityImplementor>() {
@@ -66,6 +69,8 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
 
     companion object {
 
+        val LOG = Logger.getInstance(Implementors::class.java)
+
         const val ACTIVITY_IMPLEMENTOR = "mdwActivityImplementor"
         val IMPLEMENTOR_DATA_KEY = DataKey.create<ActivityImplementor>(ACTIVITY_IMPLEMENTOR)
 
@@ -82,19 +87,25 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
             val icon = psiAnnotation.findAttributeValue("icon")?.let {
                 (it as PsiLiteralExpression).value as String
             }
+            // pagelet annotation attribute default value is "{}"
             val pagelet = psiAnnotation.findAttributeValue("pagelet")?.let {
                 val value = PsiExpressionEvaluator().computeConstantExpression(it as PsiElement, true) as String
                 if (value.startsWith("{")) {
                     value
-                }
-                else {
+                } else {
                     val pageletAssetPath = if (value.indexOf("/") > 0) {
                         value
                     } else {
                         implClass.substring(0, implClass.lastIndexOf(".")) + "/$value"
                     }
                     val pageletAssetFile = projectSetup.getAssetFile(pageletAssetPath)
-                    pageletAssetFile?.let {
+                    if (pageletAssetFile == null) {
+                        val msg = "$implClass specifies pagelet asset: $pageletAssetPath"
+                        LOG.warn(msg)
+                        Notifications.Bus.notify(Notification("MDW",
+                                "Missing pagelet asset", msg, NotificationType.WARNING), projectSetup.project)
+                        "{}"
+                    } else {
                         String(pageletAssetFile.contentsToByteArray())
                     }
                 }

@@ -94,11 +94,12 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
                         implClass.substring(0, implClass.lastIndexOf(".")) + "/$value"
                     }
                     val pageletAssetFile = projectSetup.getAssetFile(pageletAssetPath)
-                    pageletAssetFile ?: throw FileNotFoundException("No pagelet asset: " + pageletAssetPath)
-                    String(pageletAssetFile.contentsToByteArray())
+                    pageletAssetFile?.let {
+                        String(pageletAssetFile.contentsToByteArray())
+                    }
                 }
             }
-            if (label != null) {
+            if (label != null && pagelet != null) {
                 return ActivityImplementor(implClass, category, label, icon, pagelet)
             }
             return null

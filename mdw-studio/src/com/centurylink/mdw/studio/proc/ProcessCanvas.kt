@@ -273,8 +273,10 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         var prevSelect = diagram?.selection
         val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, drawProps)
         _isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
-        if (isShowGrid) {
-            d.grid = Grid(g2d, Display(0, 0, unscale(max(initDisplay.w, size.width)), unscale(max(initDisplay.h, size.height))))
+        d.grid = if (isShowGrid) {
+            Grid(g2d, Display(0, 0, unscale(max(initDisplay.w, size.width)), unscale(max(initDisplay.h, size.height))))
+        } else {
+            null
         }
         diagram = d
         preSelectedId?.let { selectId ->

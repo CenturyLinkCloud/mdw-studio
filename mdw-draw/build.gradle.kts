@@ -11,8 +11,8 @@ version = "1.3.8-SNAPSHOT"
 sourceSets.main {
     withConvention(KotlinSourceSet::class) {
         kotlin.srcDirs("src")
-        resources.srcDirs("resources")
     }
+    resources.srcDirs("resources")
 }
 
 repositories {

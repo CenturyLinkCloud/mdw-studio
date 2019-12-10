@@ -2,7 +2,10 @@ package com.centurylink.mdw.studio.proc
 
 import com.centurylink.mdw.draw.*
 import com.centurylink.mdw.draw.Shape
-import com.centurylink.mdw.draw.edit.*
+import com.centurylink.mdw.draw.edit.SelectListener
+import com.centurylink.mdw.draw.edit.Selection
+import com.centurylink.mdw.draw.edit.UpdateListeners
+import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.MdwSettings
@@ -21,6 +24,7 @@ import java.awt.event.*
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
+import kotlin.math.max
 
 class ProcessCanvas(private val setup: ProjectSetup, internal var process: Process,
         val drawProps: DrawProps = DrawProps(milestoneGroups = setup.milestoneGroups)) :
@@ -58,14 +62,13 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         }
     }
 
+    private var _isShowGrid = true
     var isShowGrid
-        get() = diagram?.isShowGrid ?: true
+        get() = _isShowGrid
         set(value) {
-            diagram?.let {
-                it.isShowGrid = value
-                revalidate()
-                repaint()
-            }
+            _isShowGrid = value
+            revalidate()
+            repaint()
         }
 
     private val initDisplay: Display by lazy {
@@ -112,12 +115,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
         addComponentListener(object: ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
-                diagram?.let {
-                    // it.display.w = size.width - Diagram.BOUNDARY_DIM
-                    // it.display.h = size.height - Diagram.BOUNDARY_DIM
-                    revalidate()
-                    repaint()
-                }
+                revalidate()
+                repaint()
             }
         })
 
@@ -273,7 +272,10 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         // draw the process diagram
         var prevSelect = diagram?.selection
         val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, drawProps)
-        d.isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
+        _isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
+        if (isShowGrid) {
+            d.grid = Grid(g2d, Display(0, 0, unscale(max(initDisplay.w, size.width)), unscale(max(initDisplay.h, size.height))))
+        }
         diagram = d
         preSelectedId?.let { selectId ->
             val drawable = d.findObj(selectId)
@@ -352,7 +354,6 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
     override fun getPreferredSize(): Dimension {
         diagram?.let {
             return Dimension(scale(it.display.w) + Diagram.BOUNDARY_DIM, scale(it.display.h) + Diagram.BOUNDARY_DIM)
-            // return Dimension(it.display.w + Diagram.BOUNDARY_DIM, it.display.h + Diagram.BOUNDARY_DIM)
         }
         return super.getPreferredSize()
     }

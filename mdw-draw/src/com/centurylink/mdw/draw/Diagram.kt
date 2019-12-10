@@ -26,7 +26,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         }
     }
 
-    var isShowGrid = true
+    var grid: Grid? = null
     private var background = Color.WHITE
 
     var hoverObj: Drawable? = null
@@ -74,22 +74,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     }
 
     override fun draw(): Display {
-        if (isShowGrid) {
-            g2d.color = Display.GRID_COLOR
-            g2d.stroke = Display.GRID_STROKE
-            var x = Display.GRID_SIZE
-            while (x < display.w + BOUNDARY_DIM) {
-                g2d.drawLine(x, 0, x, display.h + BOUNDARY_DIM)
-                x += Display.GRID_SIZE
-            }
-            var y = Display.GRID_SIZE
-            while (y < display.h + BOUNDARY_DIM) {
-                g2d.drawLine(0, y, display.w + BOUNDARY_DIM, y)
-                y += Display.GRID_SIZE
-            }
-            g2d.color = Display.DEFAULT_COLOR
-            g2d.stroke = Display.DEFAULT_STROKE
-        }
+        grid?.draw()
 
         makeRoom(label.draw())
 

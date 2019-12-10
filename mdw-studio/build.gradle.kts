@@ -1,18 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.intellij.tasks.PublishTask
 import org.jetbrains.intellij.tasks.RunIdeTask
 
 plugins {
-    kotlin("jvm") version "1.3.0"
+    id("org.jetbrains.kotlin.jvm") version "1.3.61"
     id("org.jetbrains.intellij") version "0.4.9"
 }
 
 group = "com.centurylink.mdw"
 version = "1.3.8-SNAPSHOT"
 
-java.sourceSets {
-    "main" {
-        java.srcDirs("src")
+sourceSets.main {
+    withConvention(KotlinSourceSet::class) {
+        kotlin.srcDirs("src")
         resources.srcDirs("resources")
     }
 }
@@ -35,7 +36,7 @@ dependencies {
 
 intellij {
     version = "2019.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
-    setPlugins("Kotlin","java","Git4Idea")
+    setPlugins("Kotlin","java","git4idea")
 }
 
 tasks.withType<RunIdeTask> {

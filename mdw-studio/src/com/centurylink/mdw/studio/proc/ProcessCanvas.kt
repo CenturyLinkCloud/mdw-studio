@@ -43,6 +43,17 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         return if (scale == 1f) {
             i
         } else {
+            (i * scale).toInt()
+        }
+    }
+
+    /**
+     * Account for scaling when hovering, selecting, etc
+     */
+    private fun unscale(i: Int): Int {
+        return if (scale == 1f) {
+            i
+        } else {
             (i / scale).toInt()
         }
     }
@@ -102,8 +113,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         addComponentListener(object: ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 diagram?.let {
-                    it.display.w = size.width - Diagram.BOUNDARY_DIM
-                    it.display.h = size.height - Diagram.BOUNDARY_DIM
+                    // it.display.w = size.width - Diagram.BOUNDARY_DIM
+                    // it.display.h = size.height - Diagram.BOUNDARY_DIM
                     revalidate()
                     repaint()
                 }
@@ -115,8 +126,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
             override fun mousePressed(e: MouseEvent) {
                 grabFocus()
                 mouseDown = true
-                val x = scale(e.x)
-                val y = scale(e.y)
+                val x = unscale(e.x)
+                val y = unscale(e.y)
                 downX = x
                 downY = y
                 val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
@@ -162,8 +173,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
             override fun mouseReleased(e: MouseEvent) {
                 mouseDown = false
-                val x = scale(e.x)
-                val y = scale(e.y)
+                val x = unscale(e.x)
+                val y = unscale(e.y)
                 if (!drawProps.isReadonly) {
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
@@ -188,8 +199,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         addMouseMotionListener(object: MouseMotionAdapter() {
 
             override fun mouseMoved(e: MouseEvent) {
-                val x = scale(e.x)
-                val y = scale(e.y)
+                val x = unscale(e.x)
+                val y = unscale(e.y)
                 diagram?.let {
                     val cursor = it.onMouseMove(DiagramEvent(x, y))
                     UIUtil.setCursor(this@ProcessCanvas, cursor)
@@ -198,8 +209,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
             override fun mouseDragged(e: MouseEvent) {
                 if (!drawProps.isReadonly) {
-                    val x = scale(e.x)
-                    val y = scale(e.y)
+                    val x = unscale(e.x)
+                    val y = unscale(e.y)
                     val shift = (e.modifiers and ActionEvent.SHIFT_MASK) == ActionEvent.SHIFT_MASK
                     val ctrl = (e.modifiers and ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK
                     if (!dragging || dragX == -1) {
@@ -340,7 +351,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
 
     override fun getPreferredSize(): Dimension {
         diagram?.let {
-            return Dimension(it.display.w + Diagram.BOUNDARY_DIM, it.display.h + Diagram.BOUNDARY_DIM)
+            return Dimension(scale(it.display.w) + Diagram.BOUNDARY_DIM, scale(it.display.h) + Diagram.BOUNDARY_DIM)
+            // return Dimension(it.display.w + Diagram.BOUNDARY_DIM, it.display.h + Diagram.BOUNDARY_DIM)
         }
         return super.getPreferredSize()
     }

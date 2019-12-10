@@ -72,6 +72,15 @@ class Display {
         return Rectangle(x, y, w, h)
     }
 
+    fun scale(scale: Float): Display {
+        return if (scale == 1f) {
+            Display(this)
+        } else {
+            Display(x, y, (w * scale).toInt(), (h * scale).toInt())
+        }
+
+    }
+
     companion object {
         val DEFAULT_FONT = Font("SansSerif", Font.PLAIN, 12)
         val TITLE_FONT = Font("SansSerif", Font.BOLD, 18)

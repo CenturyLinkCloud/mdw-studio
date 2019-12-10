@@ -1,15 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
-    kotlin("jvm")
+    id("org.jetbrains.kotlin.jvm")
 }
 
 group = "com.centurylink.mdw"
 version = "1.3.8-SNAPSHOT"
 
-java.sourceSets {
-    "main" {
-        java.srcDirs("src")
+sourceSets.main {
+    withConvention(KotlinSourceSet::class) {
+        kotlin.srcDirs("src")
         resources.srcDirs("resources")
     }
 }

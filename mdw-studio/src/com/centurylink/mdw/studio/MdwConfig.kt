@@ -36,6 +36,7 @@ class MdwConfig : SearchableConfigurable {
     private val serverPollingCheckbox = CheckBox("Poll to detect running server (requires restart)")
 
     private val gridLinesCheckbox = CheckBox("Show grid lines when editable")
+    private val snapToGridCheckbox = CheckBox("Snap to grid when dragging")
     private val zoomSlider = object : JSlider(20, 200, 100) {
         override fun getPreferredSize(): Dimension {
             return Dimension(500, super.getPreferredSize().height)
@@ -118,8 +119,21 @@ class MdwConfig : SearchableConfigurable {
         gridLinesCheckbox.isSelected = !MdwSettings.instance.isHideCanvasGridLines
         gridLinesCheckbox.addActionListener {
             modified = true
+            if (!gridLinesCheckbox.isSelected) {
+                snapToGridCheckbox.isSelected = false
+            }
+            snapToGridCheckbox.isEnabled = gridLinesCheckbox.isSelected
         }
         canvasPanel.add(gridLinesCheckbox)
+
+        // snap
+        snapToGridCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        snapToGridCheckbox.border = checkboxBorder
+        snapToGridCheckbox.isSelected = MdwSettings.instance.isCanvasSnapToGrid
+        snapToGridCheckbox.addActionListener {
+            modified = true
+        }
+        canvasPanel.add(snapToGridCheckbox)
 
         // canvas zoom
         val zoomPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 5))
@@ -302,6 +316,8 @@ class MdwConfig : SearchableConfigurable {
         mdwSettings.isSuppressServerPolling = !serverPollingCheckbox.isSelected
 
         mdwSettings.isHideCanvasGridLines = !gridLinesCheckbox.isSelected
+        mdwSettings.isCanvasSnapToGrid = snapToGridCheckbox.isSelected
+
         mdwSettings.canvasZoom = zoomSlider.value
 
         mdwSettings.isSyncDynamicJavaClassName = syncDynamicJavaCheckbox.isSelected

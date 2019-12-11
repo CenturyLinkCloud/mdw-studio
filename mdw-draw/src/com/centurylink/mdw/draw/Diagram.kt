@@ -1,6 +1,6 @@
 package com.centurylink.mdw.draw
 
-import com.centurylink.mdw.constant.WorkAttributeConstant
+import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.draw.edit.Select
 import com.centurylink.mdw.draw.edit.Selectable
 import com.centurylink.mdw.draw.edit.Selection
@@ -32,7 +32,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     var hoverObj: Drawable? = null
     var selection: Selection
 
-    var label = Label(g2d, Display(process.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO)), process.name, this, Display.TITLE_FONT)
+    var label = Label(g2d, Display(process.getAttribute(WORK_DISPLAY_INFO)), process.name, this, Display.TITLE_FONT)
     val steps = mutableListOf<Step>()
     val links = mutableListOf<Link>()
     val subflows = mutableListOf<Subflow>()
@@ -158,7 +158,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
     private fun moveLabel(deltaX: Int, deltaY: Int, limits: Display?) {
         val d = Display(label.display.x + deltaX, label.display.y + deltaY, label.display.w, label.display.h)
-        process.setAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO, d.toString())
+        process.setAttribute(WORK_DISPLAY_INFO, d.toString())
         limits?.let {
             d.limit(it)
         }
@@ -282,11 +282,22 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     fun onMouseUp(de: DiagramEvent) {
         selection.anchor = null
         selection.destination = null
-        if (de.shift && de.drag) {
-            if (selection.selectObj is Step) {
+        if (de.drag) {
+            if (de.shift && selection.selectObj is Step) {
                 val destObj = getHoverObj(de.x, de.y)
                 if (destObj is Step) {
                     selection.selectObj = addLink(selection.selectObj as Step, destObj)
+                }
+            }
+            else if (selection.selectObj is Shape) {
+                val shape = selection.selectObj as Shape
+                grid?.let {
+                    it.snap(shape.display)
+                    when (shape) {
+                        is Step -> shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                        is Note -> shape.textNote.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                        is Subflow -> shape.subprocess.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                    }
                 }
             }
         }
@@ -672,7 +683,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     }
 
     fun rename(newName: String) {
-        label = Label(g2d, Display(process.getAttribute(WorkAttributeConstant.WORK_DISPLAY_INFO)), newName, this, Display.TITLE_FONT)
+        label = Label(g2d, Display(process.getAttribute(WORK_DISPLAY_INFO)), newName, this, Display.TITLE_FONT)
     }
 
     companion object {

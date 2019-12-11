@@ -206,6 +206,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
                 class="com.centurylink.mdw.studio.action.GridLines">
             <add-to-group group-id="mdwCanvasActions" />
         </action>
+        <action id="mdwSnapToGrid" text="Snap to Grid" icon="AllIcons.Graph.SnapToGrid"
+                class="com.centurylink.mdw.studio.action.SnapToGrid">
+            <add-to-group group-id="mdwCanvasActions" />
+        </action>
         <action id="mdwZoomOut" text="Zoom Out" icon="AllIcons.Graph.ZoomOut"
                 class="com.centurylink.mdw.studio.action.ZoomOut">
             <add-to-group group-id="mdwCanvasActions" />

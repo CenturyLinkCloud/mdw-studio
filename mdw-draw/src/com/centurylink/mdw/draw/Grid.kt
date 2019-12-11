@@ -1,8 +1,9 @@
 package com.centurylink.mdw.draw
 
 import java.awt.Graphics2D
+import kotlin.math.roundToInt
 
-class Grid(private val g2d: Graphics2D, val display: Display) {
+class Grid(private val g2d: Graphics2D, val display: Display, val snap: Int = 0) {
 
     fun draw() {
         g2d.color = Display.GRID_COLOR
@@ -19,5 +20,14 @@ class Grid(private val g2d: Graphics2D, val display: Display) {
         }
         g2d.color = Display.DEFAULT_COLOR
         g2d.stroke = Display.DEFAULT_STROKE
+    }
+
+    fun snap(display: Display) {
+        if (snap > 0) {
+            display.x = (display.x.toDouble() / snap).roundToInt() * snap
+            display.y = (display.y.toDouble() / snap).roundToInt() * snap
+            display.w = (display.w.toDouble() / snap).roundToInt() * snap
+            display.h = (display.h.toDouble() / snap).roundToInt() * snap
+        }
     }
 }

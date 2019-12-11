@@ -39,6 +39,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(HIDE_CANVAS_GRIDLINES, value)
         }
 
+    var isCanvasSnapToGrid: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(CANVAS_SNAP_TO_GRID, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(CANVAS_SNAP_TO_GRID, value)
+        }
+
     var canvasZoom: Int
         get() {
             return PropertiesComponent.getInstance().getInt(CANVAS_ZOOM, 100)
@@ -106,7 +112,8 @@ class MdwSettings {
         private const val SUPPRESS_SERVER_POLLING = "$ID.isSuppressServerPolling"
         // canvas
         private const val CANVAS_ZOOM = "$ID.canvasZoom"
-        private const val HIDE_CANVAS_GRIDLINES = "$ID.isCanvasGridLines"
+        private const val HIDE_CANVAS_GRIDLINES = "$ID.isHideCanvasGridLines"
+        private const val CANVAS_SNAP_TO_GRID = "$ID.isCanvasSnapToGrid"
 
         // editing
         private const val SYNC_DYNAMIC_JAVA_CLASS_NAME = "$ID.isSyncDynamicJavaClassName"

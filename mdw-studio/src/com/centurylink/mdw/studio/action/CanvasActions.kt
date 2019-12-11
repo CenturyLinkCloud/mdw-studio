@@ -29,6 +29,11 @@ interface CanvasAction {
 
 class GridLines : ToggleAction(), CanvasAction {
 
+    override fun update(event: AnActionEvent) {
+        super<CanvasAction>.update(event)
+        super<ToggleAction>.update(event)
+    }
+
     override fun isSelected(event: AnActionEvent): Boolean {
         return !MdwSettings.instance.isHideCanvasGridLines
     }
@@ -44,9 +49,29 @@ class GridLines : ToggleAction(), CanvasAction {
             return
         }
     }
+}
+
+class SnapToGrid : ToggleAction(), CanvasAction {
 
     override fun update(event: AnActionEvent) {
         super<CanvasAction>.update(event)
+        super<ToggleAction>.update(event)
+    }
+
+    override fun isSelected(event: AnActionEvent): Boolean {
+        return MdwSettings.instance.isCanvasSnapToGrid
+    }
+
+    override fun setSelected(event: AnActionEvent, state: Boolean) {
+        Locator(event).projectSetup?.let { projectSetup ->
+            MdwSettings.instance.isCanvasSnapToGrid = state
+            for (editor in FileEditorManager.getInstance(projectSetup.project).selectedEditors) {
+                if (editor is ProcessEditor) {
+                    editor.canvas.isSnapToGrid = state
+                }
+            }
+            return
+        }
     }
 }
 

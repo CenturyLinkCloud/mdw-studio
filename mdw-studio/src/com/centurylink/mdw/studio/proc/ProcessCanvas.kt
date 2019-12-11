@@ -71,11 +71,19 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
             repaint()
         }
 
+    var _isSnapToGrid = false
+    var isSnapToGrid
+        get() = _isSnapToGrid
+        set(value) {
+            _isSnapToGrid = value
+            revalidate()
+            repaint()
+        }
+
     private val initDisplay: Display by lazy {
         Display(0, 0, size.width - 1, size.height)
     }
 
-    // TODO: initialize diagram so can't be null? (new process?)
     var diagram: Diagram? = null
     var selectListeners = mutableListOf<SelectListener>()
 
@@ -274,7 +282,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         val d = Diagram(g2d, initDisplay, setup, process, setup.implementors, drawProps)
         _isShowGrid = !MdwSettings.instance.isHideCanvasGridLines
         d.grid = if (isShowGrid) {
-            Grid(g2d, Display(0, 0, unscale(max(initDisplay.w, size.width)), unscale(max(initDisplay.h, size.height))))
+            Grid(g2d, Display(0, 0, unscale(max(initDisplay.w, size.width)), unscale(max(initDisplay.h, size.height))),
+                    if (MdwSettings.instance.isCanvasSnapToGrid) Display.GRID_SIZE else 0)
         } else {
             null
         }

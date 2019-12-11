@@ -294,9 +294,25 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                 grid?.let {
                     it.snap(shape.display)
                     when (shape) {
-                        is Step -> shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                        is Note -> shape.textNote.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                        is Subflow -> shape.subprocess.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                        is Step -> {
+                            shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                            for (link in getLinks(shape)) {
+                                link.recalc(shape)
+                            }
+                        }
+                        is Note -> {
+                            shape.textNote.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                        }
+                        is Subflow -> {
+                            shape.subprocess.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                            for (step in shape.steps) {
+                                it.snap(step.display)
+                                step.activity.setAttribute(WORK_DISPLAY_INFO, step.display.toString())
+                                for (link in shape.getLinks(step)) {
+                                    link.recalc(step)
+                                }
+                            }
+                        }
                     }
                 }
             }

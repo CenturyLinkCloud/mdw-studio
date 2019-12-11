@@ -1,7 +1,7 @@
 package com.centurylink.mdw.studio.proj
 
 import com.centurylink.mdw.model.system.MdwVersion
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.action.AssetUpdate
 import com.centurylink.mdw.studio.action.UpdateNotificationAction
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem

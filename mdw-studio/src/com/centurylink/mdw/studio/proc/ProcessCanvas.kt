@@ -8,7 +8,7 @@ import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.action.ActivityAssetAction
 import com.centurylink.mdw.studio.action.ActivityEditAction
 import com.centurylink.mdw.studio.action.ImplementorSource

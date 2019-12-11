@@ -1,11 +1,15 @@
 package com.centurylink.mdw.studio.action
 
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proc.ProcessEditor
+import com.intellij.designer.actions.AbstractComboBoxAction
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.ToggleAction
+import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.intellij.openapi.fileEditor.FileEditorManager
+import javax.swing.JComponent
 
 interface CanvasAction {
 
@@ -99,6 +103,38 @@ class ZoomIn : AnAction(), CanvasAction {
     companion object {
         const val ZOOM_INT = 20
         const val ZOOM_MAX = 200
+    }
+}
+
+class Zoom : ComboBoxAction(), CanvasAction {
+
+    override fun update(event: AnActionEvent) {
+        super<CanvasAction>.update(event)
+        if (event.presentation.isVisible) {
+            event.presentation.text = "${MdwSettings.instance.canvasZoom}%"
+        }
+    }
+
+    override fun createPopupActionGroup(button: JComponent?): DefaultActionGroup {
+        val actionGroup = DefaultActionGroup()
+
+        for (option in ZOOM_OPTIONS) {
+            val action: AnAction = object : AnAction("$option%") {
+                override fun actionPerformed(e: AnActionEvent) {
+                    MdwSettings.instance.canvasZoom = option
+                }
+            }
+            actionGroup.add(action)
+            // val presentation = action.templatePresentation
+            // presentation.setIcon(if (optionmySelection === item) AbstractComboBoxAction.CHECKED else null)
+            // update(item, presentation, true)
+        }
+
+        return actionGroup
+    }
+
+    companion object {
+        val ZOOM_OPTIONS = listOf(25, 50, 75, 100, 125, 150, 200)
     }
 }
 

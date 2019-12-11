@@ -4,8 +4,8 @@ import com.centurylink.mdw.discovery.GitDiscoverer
 import com.centurylink.mdw.discovery.GitHubDiscoverer
 import com.centurylink.mdw.discovery.GitLabDiscoverer
 import com.centurylink.mdw.model.project.Data
-import com.centurylink.mdw.studio.MdwConfig
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwConfig
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.Secrets
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.ui.widgets.LinkLabel

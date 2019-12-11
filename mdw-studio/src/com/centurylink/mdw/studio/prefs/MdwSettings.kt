@@ -1,4 +1,4 @@
-package com.centurylink.mdw.studio
+package com.centurylink.mdw.studio.prefs
 
 import com.centurylink.mdw.model.project.Data
 import com.intellij.ide.util.PropertiesComponent

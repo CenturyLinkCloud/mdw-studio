@@ -1,7 +1,7 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Vercheck
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.vcs.CredentialsDialog
 import com.intellij.ide.util.PropertiesComponent

@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.proj
 
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.project.Project
 

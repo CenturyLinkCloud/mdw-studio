@@ -6,7 +6,7 @@ import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.lang.Language

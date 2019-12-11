@@ -4,7 +4,7 @@ import com.centurylink.mdw.app.Templates
 import com.centurylink.mdw.draw.model.DrawProps
 import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.workflow.Process
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.config.ConfigPanel
 import com.centurylink.mdw.studio.config.HideShowListener
 import com.centurylink.mdw.studio.config.PanelBar

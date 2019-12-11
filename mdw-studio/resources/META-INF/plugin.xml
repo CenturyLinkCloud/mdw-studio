@@ -49,7 +49,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     factoryClass="com.centurylink.mdw.studio.console.ConsoleToolWindowFactory"
                     conditionClass="com.centurylink.mdw.studio.console.ConsoleToolWindowCondition" />
         <postStartupActivity implementation="com.centurylink.mdw.studio.proj.ProjectStartup"/>
-        <applicationConfigurable instance="com.centurylink.mdw.studio.MdwConfig" />
+        <applicationConfigurable instance="com.centurylink.mdw.studio.prefs.MdwConfig" />
         <moduleType id="mdwModuleType" implementationClass="com.centurylink.mdw.studio.proj.MdwModuleType"/>
         <moduleBuilder id="mdwModuleBuilder" builderClass="com.centurylink.mdw.studio.proj.MdwModuleBuilder"/>
         <webHelpProvider id="mdwHelp" implementation="com.centurylink.mdw.studio.MdwHelp" order="first"/>
@@ -212,6 +212,10 @@ that makes it easy for you to create workflow processes and other assets.<br>
         </action>
         <action id="mdwZoomOut" text="Zoom Out" icon="AllIcons.Graph.ZoomOut"
                 class="com.centurylink.mdw.studio.action.ZoomOut">
+            <add-to-group group-id="mdwCanvasActions" />
+        </action>
+        <action id="mdwZoom"
+                class="com.centurylink.mdw.studio.action.Zoom">
             <add-to-group group-id="mdwCanvasActions" />
         </action>
         <action id="mdwZoomIn" text="Zoom In" icon="AllIcons.Graph.ZoomIn"

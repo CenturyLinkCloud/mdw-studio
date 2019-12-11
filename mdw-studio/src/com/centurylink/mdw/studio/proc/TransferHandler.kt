@@ -11,7 +11,7 @@ import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.model.workflow.ActivityImplementor
-import com.centurylink.mdw.studio.MdwSettings
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.file.TaskFileType
 import com.centurylink.mdw.studio.proc.CanvasActions.Companion.DATA_FLAVOR_JSON
 import com.centurylink.mdw.studio.proj.ProjectSetup

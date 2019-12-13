@@ -43,7 +43,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
     private val scale
         get() = if (_zoom == 100) 1f else _zoom / 100f
 
-    private fun scale(i: Int): Int {
+    fun scale(i: Int): Int {
         return if (scale == 1f) {
             i
         } else {
@@ -54,7 +54,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
     /**
      * Account for scaling when hovering, selecting, etc
      */
-    private fun unscale(i: Int): Int {
+    fun unscale(i: Int): Int {
         return if (scale == 1f) {
             i
         } else {
@@ -329,7 +329,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
             grabFocus()
         }
 
-        transferHandler = TransferHandler(d)
+        transferHandler = TransferHandler(this)
         (transferHandler as TransferHandler).addUpdateListener { workflowObj ->
             notifyUpdateListeners(workflowObj)
             prevSelect = d.selection

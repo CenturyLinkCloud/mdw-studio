@@ -8,12 +8,8 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.psi.PsiDirectory
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiFileFactory
-import com.intellij.psi.SmartPointerManager
+import com.intellij.psi.*
 import com.intellij.ui.DocumentAdapter
-import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
@@ -52,7 +48,7 @@ class NewEventHandler : AssetAction() {
                     }
                     externalEvent.eventHandler = handler
                     externalEvent.packageName = eventHandlerPkg.name
-                    val dir = eventHandlerPkg.dir.toPsiDirectory(projectSetup.project)
+                    val dir = PsiManager.getInstance(projectSetup.project).findDirectory(eventHandlerPkg.dir)
                     if (dir != null)
                         createAndOpen(dir, eventHandlerDialog.eventHandlerName + ".evth", externalEvent.json.toString(2))
                 }

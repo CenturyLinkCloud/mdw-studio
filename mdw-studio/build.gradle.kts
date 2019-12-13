@@ -21,7 +21,6 @@ sourceSets.main {
 repositories {
     mavenCentral()
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
-    maven { url = uri("https://www.jetbrains.com/intellij-repository/snapshots") }
 }
 
 dependencies {
@@ -31,12 +30,11 @@ dependencies {
     compile("org.yaml:snakeyaml:1.18")
     compile(files("lib/bpmn-schemas.jar"))
     compile("io.swagger:swagger-codegen-cli:2.3.1") { exclude(group = "org.slf4j") }
-    compileOnly(files("${System.getProperty("java.home")}/../lib/tools.jar"))
 }
 
 intellij {
     version = "2019.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
-    setPlugins("Kotlin","java","git4idea")
+    setPlugins("java", "git4idea")  // "Kotlin"
 }
 
 tasks.withType<RunIdeTask> {

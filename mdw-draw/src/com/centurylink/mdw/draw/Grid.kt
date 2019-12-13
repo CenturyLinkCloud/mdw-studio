@@ -22,12 +22,21 @@ class Grid(private val g2d: Graphics2D, val display: Display, val snap: Int = 0)
         g2d.stroke = Display.DEFAULT_STROKE
     }
 
-    fun snap(display: Display) {
+    /**
+     * Snaps display to nearest grid lines.  If even, make sure display.w and display.h are divisible by two,
+     * for centering link lines.
+     */
+    fun snap(display: Display, even: Boolean = false) {
         if (snap > 0) {
             display.x = (display.x.toDouble() / snap).roundToInt() * snap
             display.y = (display.y.toDouble() / snap).roundToInt() * snap
-            display.w = (display.w.toDouble() / snap).roundToInt() * snap
-            display.h = (display.h.toDouble() / snap).roundToInt() * snap
+            if (even) {
+                display.w = (display.w.toDouble() / (snap * 2)).roundToInt() * (snap * 2)
+                display.h = (display.h.toDouble() / (snap * 2)).roundToInt() * (snap * 2)
+            } else {
+                display.w = (display.w.toDouble() / snap).roundToInt() * snap
+                display.h = (display.h.toDouble() / snap).roundToInt() * snap
+            }
         }
     }
 }

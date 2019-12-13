@@ -190,6 +190,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         val activity = process.addActivity(x, y, implementor, process.maxActivityId() + 1)
         val step = Step(g2d, project, process, activity, implementor, props)
         steps.add(step) // unnecessary if redrawn
+        snap(step)
         return step
     }
 
@@ -220,6 +221,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
         val subprocess = process.addSubprocess(x, y, type)
         val subflow = Subflow(g2d, project, process, subprocess, implementors, props)
         subflows.add(subflow)
+        snap(subflow)
         return subflow
     }
 
@@ -280,6 +282,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
     }
 
     fun onMouseUp(de: DiagramEvent) {
+        val resize = selection.anchor != null
         selection.anchor = null
         selection.destination = null
         if (de.drag) {
@@ -291,30 +294,7 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             }
             else if (selection.selectObj is Shape) {
                 val shape = selection.selectObj as Shape
-                grid?.let {
-                    it.snap(shape.display)
-                    when (shape) {
-                        is Step -> {
-                            shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                            for (link in getLinks(shape)) {
-                                link.recalc(shape)
-                            }
-                        }
-                        is Note -> {
-                            shape.textNote.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                        }
-                        is Subflow -> {
-                            shape.subprocess.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                            for (step in shape.steps) {
-                                it.snap(step.display)
-                                step.activity.setAttribute(WORK_DISPLAY_INFO, step.display.toString())
-                                for (link in shape.getLinks(step)) {
-                                    link.recalc(step)
-                                }
-                            }
-                        }
-                    }
-                }
+                snap(shape, resize)
             }
         }
 
@@ -614,6 +594,33 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                         if (selection.includes(stepLink.from)) {
                             selection.add(stepLink)
                             stepLink.select()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun snap(shape: Shape, resize: Boolean = false) {
+        grid?.let { g ->
+            g.snap(shape.display, resize)
+            when (shape) {
+                is Step -> {
+                    shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                    for (link in getLinks(shape)) {
+                        link.recalc(shape)
+                    }
+                }
+                is Note -> {
+                    shape.textNote.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                }
+                is Subflow -> {
+                    shape.subprocess.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
+                    for (step in shape.steps) {
+                        g.snap(step.display)
+                        step.activity.setAttribute(WORK_DISPLAY_INFO, step.display.toString())
+                        for (link in shape.getLinks(step)) {
+                            link.recalc(step)
                         }
                     }
                 }

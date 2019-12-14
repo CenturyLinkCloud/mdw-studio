@@ -15,6 +15,7 @@ import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.AppTopics
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter
 import com.intellij.ide.GeneralSettings
+import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.WriteAction
@@ -179,6 +180,9 @@ class ProcessEditor(project: Project, val procFile: VirtualFile) : FileEditor, H
 
         editPanel.add(splitter)
         onHideShow(userData.getUserData(CONFIG_PANEL_IS_SHOWN) ?: true)
+
+        UISettings.instance.showMainToolbar = true
+        UISettings.instance.fireUISettingsChanged()
     }
 
     private fun handleChange() {

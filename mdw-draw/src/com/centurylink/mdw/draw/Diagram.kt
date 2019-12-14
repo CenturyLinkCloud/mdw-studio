@@ -292,9 +292,12 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
                     selection.selectObj = addLink(selection.selectObj as Step, destObj)
                 }
             }
-            else if (selection.selectObj is Shape) {
-                val shape = selection.selectObj as Shape
-                snap(shape, resize)
+            else if ((grid?.snap ?: 0) > 0) {
+                for (selObj in selection.selectObjs) {
+                    if (selObj is Shape) {
+                        snap(selObj, resize)
+                    }
+                }
             }
         }
 
@@ -607,8 +610,19 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
             when (shape) {
                 is Step -> {
                     shape.activity.setAttribute(WORK_DISPLAY_INFO, shape.display.toString())
-                    for (link in getLinks(shape)) {
-                        link.recalc(shape)
+                    if (steps.find{ it.activity.id == shape.activity.id } != null) {
+                        for (link in getLinks(shape)) {
+                            link.recalc(shape)
+                        }
+                    }
+                    else {
+                        for (subflow in subflows) {
+                            if (subflow.steps.find{ it.activity.id == shape.activity.id } != null) {
+                                for (link in subflow.getLinks(shape)) {
+                                    link.recalc(shape)
+                                }
+                            }
+                        }
                     }
                 }
                 is Note -> {

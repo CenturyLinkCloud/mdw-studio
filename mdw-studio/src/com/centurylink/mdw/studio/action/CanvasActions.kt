@@ -122,12 +122,16 @@ class Zoom : ComboBoxAction(), CanvasAction {
             val action: AnAction = object : AnAction("$option%") {
                 override fun actionPerformed(e: AnActionEvent) {
                     MdwSettings.instance.canvasZoom = option
+                    Locator(e).projectSetup?.let { projectSetup ->
+                        for (editor in FileEditorManager.getInstance(projectSetup.project).selectedEditors) {
+                            if (editor is ProcessEditor) {
+                                editor.canvas.zoom = option
+                            }
+                        }
+                    }
                 }
             }
             actionGroup.add(action)
-            // val presentation = action.templatePresentation
-            // presentation.setIcon(if (optionmySelection === item) AbstractComboBoxAction.CHECKED else null)
-            // update(item, presentation, true)
         }
 
         return actionGroup

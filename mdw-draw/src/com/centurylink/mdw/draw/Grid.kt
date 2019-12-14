@@ -3,6 +3,9 @@ package com.centurylink.mdw.draw
 import java.awt.Graphics2D
 import kotlin.math.roundToInt
 
+/**
+ * Canvas grid.
+ */
 class Grid(private val g2d: Graphics2D, val display: Display, val snap: Int = 0) {
 
     fun draw() {

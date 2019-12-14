@@ -174,7 +174,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                         }
                     }
                     val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.EDITOR_POPUP, actionGroup)
-                    popupMenu.component.show(this@ProcessCanvas, x, y)
+                    popupMenu.component.show(this@ProcessCanvas, scale(x), scale(y))
                 }
             }
 

@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.0.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.1) (2020-01-06)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.7...2.0.1)
+
+**Implemented enhancements:**
+
+- Snap-to-grid option for process design canvas [\#108](https://github.com/CenturyLinkCloud/mdw-studio/issues/108)
+- Compatibility with IntelliJ 2019.3 [\#105](https://github.com/CenturyLinkCloud/mdw-studio/issues/105)
+- Default to saving yaml-format processes if app uses \> MDW 6.1.23 [\#104](https://github.com/CenturyLinkCloud/mdw-studio/issues/104)
+- Display milestone activity colors in process canvas [\#99](https://github.com/CenturyLinkCloud/mdw-studio/issues/99)
+
+**Fixed bugs:**
+
+- Canvas entities not selectable when zoomed [\#103](https://github.com/CenturyLinkCloud/mdw-studio/issues/103)
+- Bad @Activity pagelet path prevents Toolbox from loading [\#100](https://github.com/CenturyLinkCloud/mdw-studio/issues/100)
+
 ## [1.3.7](https://github.com/CenturyLinkCloud/mdw-studio/tree/1.3.7) (2019-10-04)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.6...1.3.7)
 

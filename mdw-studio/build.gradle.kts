@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "1.3.8-SNAPSHOT"
+version = "2.0.1"
 
 sourceSets.main {
     withConvention(KotlinSourceSet::class) {

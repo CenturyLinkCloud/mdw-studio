@@ -165,7 +165,12 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
         val taskPagelet = if (taskTemplate.isAutoformTask) {
             Data.BASE_PKG + "/AutoFormManualTask.pagelet"
         } else {
-            Data.BASE_PKG + "/CustomManualTask.pagelet"
+            if (taskTemplate.formName == null) {
+                Data.BASE_PKG + "/CustomManualTask.pagelet"
+            }
+            else {
+                taskTemplate.formName
+            }
         }
         val pageletAsset = projectSetup.getAssetFile(taskPagelet)
         pageletAsset ?: throw IOException("Missing task pagelet: " + taskPagelet)

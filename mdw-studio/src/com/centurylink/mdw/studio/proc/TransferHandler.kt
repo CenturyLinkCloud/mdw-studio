@@ -8,6 +8,9 @@ import com.centurylink.mdw.draw.DiagramEvent
 import com.centurylink.mdw.draw.Step
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
+import com.centurylink.mdw.draw.edit.default
+import com.centurylink.mdw.model.asset.Pagelet
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.task.TaskTemplate
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.file.TaskFileType
@@ -100,12 +103,27 @@ class TransferHandler(private val canvas: ProcessCanvas) : javax.swing.TransferH
                                 create = res == Messages.YES
                             }
                             if (create) {
-                                val isAutoform = impl.implementorClass.contains("AutoForm") || impl.implementorClass.contains("Autoform")
-                                val content = Templates.get(if (isAutoform) "assets/autoform.task" else "assets/custom.task")
+                                var customTemplate: String? = null
+                                val taskTemplateWidget = Pagelet(impl.pagelet).widgets.find { it.name == "TASK_PAGELET" }
+                                val content = if (taskTemplateWidget == null || taskTemplateWidget.default == null) {
+                                    Templates.get("assets/autoform.task")
+                                } else {
+                                    if (taskTemplateWidget.default == Data.BASE_PKG + "/CustomManualTask.pagelet") {
+                                        Templates.get("assets/custom.task")
+                                    } else if (taskTemplateWidget.default == Data.BASE_PKG + "/AutoFormManualTask.pagelet") {
+                                        Templates.get("assets/autoform.task")
+                                    } else {
+                                        customTemplate = taskTemplateWidget.default as String
+                                        Templates.get("assets/autoform.task")
+                                    }
+                                }
                                 val taskJson = JSONObject(content)
                                 taskJson.put("name", name)
                                 taskJson.put("logicalId", name)
                                 taskJson.put("version", "0")
+                                if (customTemplate != null) {
+                                    taskJson.getJSONObject("attributes").put("FormName", customTemplate)
+                                }
                                 val task = TaskTemplate(taskJson)
                                 val fileName = "$name.task"
                                 val psiFile = PsiFileFactory.getInstance(projectSetup.project).createFileFromText(fileName, TaskFileType, task.json.toString(2))

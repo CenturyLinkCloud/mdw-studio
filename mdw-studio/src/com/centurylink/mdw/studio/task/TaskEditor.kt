@@ -77,9 +77,26 @@ class TaskEditorNoticesProvider : TaskEditorProvider() {
             json.optJSONObject("attributes")?.let { attrJson ->
                 val notices = attrJson.optString("Notices")
                 if (notices.isNullOrBlank() || notices == "\$DefaultNotices") {
-                    attrJson.put("Notices", Data.DEFAULT_TASK_NOTICES.toString())
-                    WriteAction.run<Throwable> {
-                        file.setBinaryContent(json.toString(2).toByteArray())
+                    val formName = attrJson.optString("FormName")
+                    if (formName.isNullOrBlank() || formName == "Autoform") {
+                        attrJson.put("Notices", Data.DEFAULT_TASK_NOTICES.toString())
+                        WriteAction.run<Throwable> {
+                            file.setBinaryContent(json.toString(2).toByteArray())
+                        }
+                    } else {
+                        val projectSetup = project.getComponent(ProjectSetup::class.java)
+                        projectSetup.getAsset(formName)?.let { pageletAsset ->
+                            Pagelet(String(pageletAsset.contents)).widgets?.let { widgets ->
+                                widgets.find { it.name == "Notices" }?.let { notices ->
+                                    notices.default?.let { defaultNotices ->
+                                        attrJson.put("Notices", defaultNotices)
+                                        WriteAction.run<Throwable> {
+                                            file.setBinaryContent(json.toString(2).toByteArray())
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -153,7 +170,7 @@ class TaskEditorTab(private val tabName: String, project: Project, val taskFile:
             // load from template
             val content = Templates.get("assets/autoform.task")
             val taskJson = JSONObject(content)
-            // populate name and logical id (TODO: remove name property from task json)
+            // populate name and logical id
             val name = taskFile.name.substring(0, taskFile.name.length - ".task".length)
             taskJson.put("name", name)
             taskJson.put("logicalId", name)

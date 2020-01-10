@@ -66,9 +66,7 @@ class SearchDialogWrapper(private val widget: Pagelet.Widget, projectSetup: Proj
 
         } else {
             JSONArray(Fetch(URL(searchUrl)).get())
-
         }
-
     }
 
     override fun getPreferredFocusedComponent(): JComponent? {

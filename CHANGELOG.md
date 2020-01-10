@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.0.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.2) (2020-01-10)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.1...2.0.2)
+
+**Implemented enhancements:**
+
+- Support custom task pagelet assets [\#109](https://github.com/CenturyLinkCloud/mdw-studio/issues/109)
+- Debug Groovy script activities [\#31](https://github.com/CenturyLinkCloud/mdw-studio/issues/31)
+
+**Fixed bugs:**
+
+- Kotlin script activity right-click does not show Open Kotlin menu item [\#101](https://github.com/CenturyLinkCloud/mdw-studio/issues/101)
+
 ## [2.0.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.1) (2020-01-06)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/1.3.7...2.0.1)
 

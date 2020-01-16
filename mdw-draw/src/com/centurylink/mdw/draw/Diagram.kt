@@ -1,5 +1,6 @@
 package com.centurylink.mdw.draw
 
+import com.centurylink.mdw.constant.WorkAttributeConstant.LOGICAL_ID
 import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.draw.edit.Select
 import com.centurylink.mdw.draw.edit.Selectable
@@ -721,6 +722,42 @@ class Diagram(val g2d: Graphics2D, val display: Display, val project: Project, v
 
     fun rename(newName: String) {
         label = Label(g2d, Display(process.getAttribute(WORK_DISPLAY_INFO)), newName, this, Display.TITLE_FONT)
+    }
+
+    fun incrementStepId(step: Step) {
+        val oldLogicalId = step.activity.logicalId
+        val newId = process.maxActivityId() + 1
+        val newLogicalId = "A$newId"
+        if (steps.findIndex { it.activity.logicalId == oldLogicalId } >= 0) {
+            step.activity.id = newId
+            step.activity.setAttribute(LOGICAL_ID, newLogicalId)
+            for (link in links.toList()) {
+                if (link.from.activity.logicalId == newLogicalId) {
+                    link.setFromStep(step)
+                }
+                else if (link.to.activity.logicalId == newLogicalId) {
+                    link.setToStep(step)
+                }
+            }
+        }
+        else {
+            subflows.let {
+                for (subflow in subflows) {
+                    if (subflow.steps.findIndex { it.activity.logicalId == oldLogicalId } >= 0) {
+                        step.activity.id = newId
+                        step.activity.setAttribute(LOGICAL_ID, newLogicalId)
+                        for (link in subflow.links.toList()) {
+                            if (link.from.activity.logicalId == newLogicalId) {
+                                link.setFromStep(step)
+                            }
+                            else if (link.to.activity.logicalId == newLogicalId) {
+                                link.setToStep(step)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {

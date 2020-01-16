@@ -21,6 +21,7 @@ import com.intellij.ide.CutProvider
 import com.intellij.ide.DeleteProvider
 import com.intellij.ide.PasteProvider
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.diagnostic.Logger
 import org.json.JSONObject
 import java.awt.Toolkit
@@ -32,7 +33,7 @@ import java.net.URLDecoder
 import java.util.*
 
 class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider, CopyProvider, PasteProvider,
-        UpdateListeners by UpdateListenersDelegate() {
+        ActivityIncrementProvider, UpdateListeners by UpdateListenersDelegate() {
 
     override fun canDeleteElement(dataContext: DataContext): Boolean {
         return !diagram.props.isReadonly
@@ -137,11 +138,24 @@ class CanvasActions(private val diagram: Diagram) : DeleteProvider, CutProvider,
         }
     }
 
+    override fun canIncrement(): Boolean {
+        return !diagram.props.isReadonly && diagram.hasSelection() && diagram.selection.selectObj is Step
+    }
+
+    override fun doIncrement() {
+        if (diagram.hasSelection() && diagram.selection.selectObj is Step) {
+            diagram.incrementStepId(diagram.selection.selectObj as Step)
+            notifyUpdateListeners(diagram.workflowObj)
+        }
+    }
+
     companion object {
         val LOG = Logger.getInstance(CanvasActions::class.java)
         const val CONTEXT_MENU_GROUP_ID = "mdwProcessContextActions"
         val DATA_FLAVOR_JSON = DataFlavor("application/json")
         val DATA_FLAVOR_TEXT = DataFlavor("text/plain")
+        const val ACTIVITY_INCREMENT = "mdwActivityIncrement"
+        val ACTIVITY_INCREMENT_PROVIDER = DataKey.create<ActivityIncrementProvider>(ACTIVITY_INCREMENT)
     }
 }
 
@@ -195,3 +209,8 @@ val Step.associatedEdit: AttributeVirtualFile?
             null
         }
     }
+
+interface ActivityIncrementProvider {
+    fun canIncrement(): Boolean
+    fun doIncrement()
+}

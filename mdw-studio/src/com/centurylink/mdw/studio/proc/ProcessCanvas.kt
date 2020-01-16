@@ -11,6 +11,7 @@ import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.action.ActivityAssetAction
 import com.centurylink.mdw.studio.action.ActivityEditAction
+import com.centurylink.mdw.studio.action.ActivityIncrement
 import com.centurylink.mdw.studio.action.ImplementorSource
 import com.centurylink.mdw.studio.file.Icons
 import com.centurylink.mdw.studio.proj.Implementors
@@ -158,6 +159,7 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
                                 val step = diagram.selection.selectObj as Step
                                 val actions = action.childActionsOrStubs.toMutableList()
                                 actions.add(0, ImplementorSource())
+                                actions.add(1, ActivityIncrement())
                                 step.associatedAsset?.let { asset ->
                                     actions.add(0, ActivityAssetAction(asset))
                                 }
@@ -349,7 +351,8 @@ class ProcessCanvas(private val setup: ProjectSetup, internal var process: Proce
         if (PlatformDataKeys.DELETE_ELEMENT_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.COPY_PROVIDER.`is`(dataId) ||
                 PlatformDataKeys.CUT_PROVIDER.`is`(dataId) ||
-                PlatformDataKeys.PASTE_PROVIDER.`is`(dataId)) {
+                PlatformDataKeys.PASTE_PROVIDER.`is`(dataId) ||
+                CanvasActions.ACTIVITY_INCREMENT_PROVIDER.`is`(dataId)) {
             return actionProvider
         }
         else if (Implementors.IMPLEMENTOR_DATA_KEY.`is`(dataId)) {

@@ -77,7 +77,12 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         indicator.text2 = "Retrieving project..."
         val progressListener = GitStandardProgressAnalyzer.createListener(indicator)
         git.runCommand {
-            val url = discoverer.repoUrl.toString()
+            var url = discoverer.repoUrl.toString()
+            val q = url.indexOf('?')
+            if (q > 0) {
+                url = url.substring(0, q)
+            }
+
             val handler = GitLineHandler(projectSetup.project, tempDir.toFile(), GitCommand.CLONE)
             handler.setSilent(false)
             handler.setStderrSuppressed(false)

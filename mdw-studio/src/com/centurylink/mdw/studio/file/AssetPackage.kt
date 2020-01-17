@@ -49,10 +49,10 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
     val yaml: String
         get() {
             var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: ${Package.formatVersion(version)}\n"
-            if (!dependencies.isEmpty()) {
+            if (dependencies.isNotEmpty()) {
                 y += "\ndependencies:\n"
                 for (dep in dependencies) {
-                    y += "  ${dep}\n"
+                    y += "  - ${dep}\n"
                 }
             }
             return y

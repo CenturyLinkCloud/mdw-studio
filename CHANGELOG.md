@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.0.3](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.3) (2020-01-17)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.2...2.0.3)
+
+**Implemented enhancements:**
+
+- Ability to increment activity ids within a process [\#86](https://github.com/CenturyLinkCloud/mdw-studio/issues/86)
+
+**Fixed bugs:**
+
+- GitLab asset discovery limited by default per\_page parameter value [\#112](https://github.com/CenturyLinkCloud/mdw-studio/issues/112)
+- Some CLI-based actions broken due to Maven Central HTTPS requirement [\#110](https://github.com/CenturyLinkCloud/mdw-studio/issues/110)
+
 ## [2.0.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.2) (2020-01-10)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.1...2.0.2)
 

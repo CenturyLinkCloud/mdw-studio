@@ -515,7 +515,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             // ensure any indexing is completed
             DumbService.getInstance(project).smartInvokeLater {
                 WriteAction.run<IOException> {
-                    pkgYaml.setBinaryContent(AssetPackage.createPackageYaml(pkg.name, pkg.version).toByteArray())
+                    pkgYaml.setBinaryContent(pkg.yaml.toByteArray())
                 }
             }
         }

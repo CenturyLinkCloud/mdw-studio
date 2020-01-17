@@ -44,6 +44,20 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             return _versionProps
         }
 
+    var dependencies = mutableListOf<String>()
+
+    val yaml: String
+        get() {
+            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: ${Package.formatVersion(version)}\n"
+            if (!dependencies.isEmpty()) {
+                y += "\ndependencies:\n"
+                for (dep in dependencies) {
+                    y += "  ${dep}\n"
+                }
+            }
+            return y
+        }
+
     init {
         try {
             val loader = YamlLoader(String(metaFile.contentsToByteArray()))
@@ -55,6 +69,12 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             val ver = loader.getRequired("version", topMap, "")
             version = Package.parseVersion(ver)
             schemaVersion = loader.getRequired("schemaVersion", topMap, "")
+            val deps = loader.getList("dependencies", topMap, "")
+            if (deps != null) {
+                for (dep in deps) {
+                    dependencies.add(dep.toString())
+                }
+            }
         }
         catch (ex: YAMLException) {
             throw YAMLException("Error parsing package meta: $metaFile (${ex.message})", ex);

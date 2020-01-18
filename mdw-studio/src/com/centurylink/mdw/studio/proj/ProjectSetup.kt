@@ -465,7 +465,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 val packageYaml = metaDir.findFileByRelativePath(AssetPackage.PACKAGE_YAML)
                         ?: metaDir.createChildData(this, AssetPackage.PACKAGE_YAML)
                 val packageName = packageDir.path.substring(assetDir.path.length + 1).replace('/', '.')
-                packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, 1).toByteArray())
+                packageYaml.setBinaryContent(AssetPackage.createPackageYaml(packageName, "0.0.01").toByteArray())
             }
             AssetPackage(getPackageName(packageDir), packageDir)
         }

@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.file
 
-import com.centurylink.mdw.model.workflow.Package
+import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.util.file.MdwIgnore
 import com.centurylink.mdw.util.file.VersionProperties
 import com.centurylink.mdw.yaml.YamlLoader
@@ -16,7 +16,9 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
     var version: Int
 
     val verString: String
-        get() = Package.formatVersion(version)
+        get() = MdwVersion(version).toString()
+
+    var snapshot = false
 
     val nextMajorVersion: Int
         get() = (version / 1000 + 1) * 1000
@@ -48,7 +50,11 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     val yaml: String
         get() {
-            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: ${Package.formatVersion(version)}\n"
+            var ver = "${MdwVersion(version)}"
+            if (snapshot)  {
+                ver += "-SNAPSHOT"
+            }
+            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $ver}\n"
             if (dependencies.isNotEmpty()) {
                 y += "\ndependencies:\n"
                 for (dep in dependencies) {
@@ -66,8 +72,9 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
             if (name != parsedName) {
                 throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
             }
-            val ver = loader.getRequired("version", topMap, "")
-            version = Package.parseVersion(ver)
+            val mdwVer = MdwVersion(loader.getRequired("version", topMap, ""))
+            version = mdwVer.intVersion
+            snapshot = mdwVer.isSnapshot
             schemaVersion = loader.getRequired("schemaVersion", topMap, "")
             val deps = loader.getList("dependencies", topMap, "")
             if (deps != null) {
@@ -94,8 +101,8 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
         const val SCHEMA_VERSION = "6.1"
         private val IGNORED_DIRS = arrayOf("node_modules")
 
-        fun createPackageYaml(name: String, version: Int): String {
-            return "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: ${Package.formatVersion(version)}"
+        fun createPackageYaml(name: String, version: String): String {
+            return "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $version}"
         }
 
         fun isMeta(file: VirtualFile): Boolean {

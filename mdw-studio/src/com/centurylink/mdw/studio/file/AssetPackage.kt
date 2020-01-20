@@ -1,9 +1,10 @@
 package com.centurylink.mdw.studio.file
 
+import com.centurylink.mdw.model.PackageMeta
+import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.util.file.MdwIgnore
 import com.centurylink.mdw.util.file.VersionProperties
-import com.centurylink.mdw.yaml.YamlLoader
 import com.intellij.openapi.vfs.VirtualFile
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayInputStream
@@ -62,25 +63,22 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     init {
         try {
-            val loader = YamlLoader(String(metaFile.contentsToByteArray()))
-            val topMap = loader.getRequiredMap("", loader.getTop(), "")
-            val parsedName = loader.getRequired("name", topMap, "")
+            val pkgMeta = PackageMeta(metaFile.contentsToByteArray())
+            val parsedName = pkgMeta.name
             if (name != parsedName) {
                 throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
             }
-            val mdwVer = MdwVersion(loader.getRequired("version", topMap, ""))
+            val mdwVer = MdwVersion(pkgMeta.version)
             version = mdwVer.intVersion
             snapshot = mdwVer.isSnapshot
-            schemaVersion = loader.getRequired("schemaVersion", topMap, "")
-            val deps = loader.getList("dependencies", topMap, "")
-            if (deps != null) {
-                for (dep in deps) {
-                    dependencies.add(dep.toString())
-                }
-            }
+            schemaVersion = pkgMeta.schemaVersion
+            pkgMeta.dependencies?.let { dependencies = it }
+        }
+        catch (ex: BadVersionException) {
+            throw BadVersionException("Bad version in package meta: $metaFile", ex)
         }
         catch (ex: YAMLException) {
-            throw YAMLException("Error parsing package meta: $metaFile (${ex.message})", ex);
+            throw YAMLException("Error parsing package meta: $metaFile (${ex.message})", ex)
         }
     }
 
@@ -98,7 +96,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
         private val IGNORED_DIRS = arrayOf("node_modules")
 
         fun createPackageYaml(name: String, version: String): String {
-            return "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $version}"
+            return "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $version"
         }
 
         fun isMeta(file: VirtualFile): Boolean {

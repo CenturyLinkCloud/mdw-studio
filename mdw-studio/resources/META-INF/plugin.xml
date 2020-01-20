@@ -244,6 +244,11 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.DiscoverAssets">
                 <add-to-group group-id="mdwAssetToolsActions" anchor="last" />
             </action>
+            <action id="mdwCheckDependencies" text=" Check Dependencies" icon="AllIcons.Toolwindows.ToolWindowModuleDependencies"
+                    description="Check MDW asset package dependencies"
+                    class="com.centurylink.mdw.studio.action.PackageDependencies">
+                <add-to-group group-id="mdwAssetToolsActions" anchor="last" />
+            </action>
             <separator/>
         </group>
         <action id="mdwHub" text="MDWHub" icon="/icons/hub.png"

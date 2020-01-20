@@ -48,6 +48,7 @@ class MdwConfig : SearchableConfigurable {
     private val saveProcessAsJsonCheckbox = CheckBox("Save .proc files as JSON")
 
     private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
+    private val packageIncrementCheckbox = CheckBox("Auto-increment package versions")
 
     private val discoveryRepoUrlsList = object: JBList<String>() {
         override fun getPreferredSize(): Dimension {
@@ -203,6 +204,14 @@ class MdwConfig : SearchableConfigurable {
         }
         assetsPanel.add(vercheckAutofixCheckbox)
 
+        packageIncrementCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        packageIncrementCheckbox.border = checkboxBorder
+        packageIncrementCheckbox.isSelected = !MdwSettings.instance.isSuppressPackageIncrement
+        packageIncrementCheckbox.addActionListener {
+            modified = true
+        }
+        assetsPanel.add(packageIncrementCheckbox)
+
         // discovery
         gridConstraints.gridy = 4
         val discoveryPanel = JPanel()
@@ -329,6 +338,7 @@ class MdwConfig : SearchableConfigurable {
             // enable the prompt again
             PropertiesComponent.getInstance().setValue(MdwSettings.SUPPRESS_PROMPT_VERCHECK_AUTOFIX, false)
         }
+        mdwSettings.isSuppressPackageIncrement = !packageIncrementCheckbox.isSelected
 
         mdwSettings.discoveryRepoUrls = discoveryRepoUrls
         mdwSettings.discoveryMaxBranchesTags = maxBranchesTagsSpinner.number

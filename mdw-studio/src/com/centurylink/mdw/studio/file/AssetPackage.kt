@@ -51,7 +51,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     val yaml: String
         get() {
-            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $verString}\n"
+            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $verString\n"
             if (dependencies.isNotEmpty()) {
                 y += "\ndependencies:\n"
                 for (dep in dependencies) {

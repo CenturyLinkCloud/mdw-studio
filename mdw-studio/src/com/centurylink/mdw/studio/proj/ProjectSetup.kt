@@ -16,6 +16,7 @@ import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
 import com.centurylink.mdw.studio.file.AttributeDocumentHandler
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
+import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.util.file.Packages
 import com.centurylink.mdw.util.log.slf4j.Slf4JStandardLoggerImpl
 import com.intellij.codeInsight.AnnotationUtil
@@ -504,7 +505,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 verFile.setBinaryContent(out.toByteArray())
             }
         }
-        if (!Packages.isMdwPackage(asset.pkg.name)) {
+        if (!Packages.isMdwPackage(asset.pkg.name) && !asset.pkg.snapshot && !MdwSettings.instance.isSuppressPackageIncrement) {
             setVersion(asset.pkg, asset.pkg.version + 1)
         }
     }

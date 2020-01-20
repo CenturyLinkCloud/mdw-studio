@@ -77,6 +77,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(ASSET_VERCHECK_AUTOFIX, value)
         }
 
+    var isSuppressPackageIncrement: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(SUPPRESS_PACKAGE_INCREMENT, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(SUPPRESS_PACKAGE_INCREMENT, value)
+        }
+
     var discoveryRepoUrls: List<String>
         get() {
             val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
@@ -123,6 +129,7 @@ class MdwSettings {
         // assets
         private const val ASSET_VERCHECK_AUTOFIX = "$ID.isAssetVercheckAutofix"
         const val SUPPRESS_PROMPT_VERCHECK_AUTOFIX = "$ID.isSuppressPromptVercheckAutofix"
+        private const val SUPPRESS_PACKAGE_INCREMENT = "$ID.isSuppressPackageIncrement"
 
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"

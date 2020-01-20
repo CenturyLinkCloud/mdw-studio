@@ -16,7 +16,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
     var version: Int
 
     val verString: String
-        get() = MdwVersion(version).toString()
+        get() = MdwVersion(version).toString() + if (snapshot) "-SNAPSHOT" else ""
 
     var snapshot = false
 
@@ -50,11 +50,7 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     val yaml: String
         get() {
-            var ver = "${MdwVersion(version)}"
-            if (snapshot)  {
-                ver += "-SNAPSHOT"
-            }
-            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $ver}\n"
+            var y = "schemaVersion: '$SCHEMA_VERSION'\nname: $name\nversion: $verString}\n"
             if (dependencies.isNotEmpty()) {
                 y += "\ndependencies:\n"
                 for (dep in dependencies) {

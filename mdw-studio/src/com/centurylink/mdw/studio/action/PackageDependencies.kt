@@ -1,49 +1,65 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Dependencies
+import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.analysis.AnalysisScope
+import com.intellij.codeInspection.actions.CodeInspectionAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.vfs.VirtualFile
 
-class PackageDependencies : AssetToolsAction() {
+class PackageDependencies : CodeInspectionAction() {
+
+    override fun update(event: AnActionEvent) {
+        var applicable = false
+        Locator(event).projectSetup?.let { projectSetup ->
+            applicable = if (event.place == "MainMenu") {
+                true
+            } else {
+                val file = event.getData(CommonDataKeys.VIRTUAL_FILE)
+                file == projectSetup.project.baseDir || file == projectSetup.assetDir
+            }
+        }
+        event.presentation.isVisible = applicable
+        event.presentation.isEnabled = applicable
+    }
 
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).projectSetup?.let { projectSetup ->
-            val autoImport = false
-            val depsCheck = DependenciesCheck(projectSetup, autoImport)
-            val unmetCount = depsCheck.performCheck()
-            if (autoImport) {
-                if (unmetCount > 0) {
-                    VfsUtil.markDirtyAndRefresh(true, true, true, projectSetup.assetDir)
-                }
+            val depsCheck = DependenciesCheck(projectSetup)
+            val unmet = depsCheck.performCheck()
+            val pkgYamlFiles = mutableListOf<VirtualFile>()
+            for (pkg in projectSetup.packages) {
+                pkgYamlFiles.add(pkg.metaFile)
             }
-            else if (unmetCount > 0) {
-                // todo dialog
+            analyze(projectSetup.project, AnalysisScope(projectSetup.project, pkgYamlFiles))
+            if (unmet.isNotEmpty()) {
+                // TODO import dialog
             }
-
-            println("DEPENDENCIES")
         }
     }
 }
 
-class DependenciesCheck(private val projectSetup: ProjectSetup, private val isImport: Boolean = false) {
+class DependenciesCheck(private val projectSetup: ProjectSetup) {
 
-    val dependencies = Dependencies()
+    private val dependencies = Dependencies()
 
-    fun performCheck(): Int {
-        dependencies.isImport = isImport
-        val title = if (isImport) {
-            "Importing dependencies..."
+    fun performCheck(): Map<String,MdwVersion> {
+        projectSetup.console.run(dependencies, "Checking dependencies...")
+
+        val unmet = mutableListOf<String>()
+        for ((pkg, ver) in dependencies.unmetDependencies) {
+            val pkgVer = pkg + ver.label
+            if (!unmet.contains(pkgVer)) {
+                unmet.add(pkgVer)
+            }
         }
-        else {
-            "Checking dependencies..."
-        }
-        projectSetup.console.run(dependencies, title)
-        return dependencies.unmetDependencies.size
+        unmetDependencies = unmet
+        return dependencies.unmetDependencies
     }
 
     companion object {
-        val LOG = Logger.getInstance(AssetVercheck::class.java)
+        var unmetDependencies = listOf<String>()
     }
 }

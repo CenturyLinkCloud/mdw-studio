@@ -1,12 +1,9 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.discovery.GitDiscoverer
-import com.centurylink.mdw.discovery.GitHubDiscoverer
-import com.centurylink.mdw.discovery.GitLabDiscoverer
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.prefs.MdwConfig
 import com.centurylink.mdw.studio.prefs.MdwSettings
-import com.centurylink.mdw.studio.Secrets
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.ui.widgets.LinkLabel
 import com.intellij.icons.AllIcons
@@ -26,7 +23,6 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.io.IOException
-import java.net.URL
 import javax.swing.*
 import javax.swing.event.TreeExpansionEvent
 import javax.swing.event.TreeWillExpandListener
@@ -79,8 +75,6 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
     private val okButton: JButton?
         get() = getButton(okAction)
 
-    private val discoverers = mutableListOf<GitDiscoverer>()
-
     private val rootNode = DefaultMutableTreeNode("Discovery Repositories")
     private val treeModel = DefaultTreeModel(rootNode)
     private val tree: Tree
@@ -101,21 +95,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
         title = "MDW Asset Discovery"
         okButton?.isEnabled = false
 
-        MdwSettings.instance.discoveryRepoUrls.map { url ->
-            val repoUrl = URL(url)
-            val discoverer = if (repoUrl.host == "github.com") {
-                GitHubDiscoverer(repoUrl)
-            } else {
-                GitLabDiscoverer(repoUrl)
-            }
-            discoverers.add(discoverer)
-            Secrets.DISCOVERY_TOKENS[repoUrl.host]?.let { token ->
-                discoverer.setToken(token)
-            }
-            discoverer
-        }
-
-        discoverers.forEach { discoverer ->
+        MdwSettings.instance.discoverers.forEach { discoverer ->
             val discovererNode = DefaultMutableTreeNode(discoverer)
             discovererNode.add(RefsNode(discoverer, RefsNode.RefType.Tags))
             discovererNode.add(RefsNode(discoverer, RefsNode.RefType.Branches))

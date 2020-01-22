@@ -1,8 +1,13 @@
 package com.centurylink.mdw.studio.prefs
 
+import com.centurylink.mdw.discovery.GitDiscoverer
+import com.centurylink.mdw.discovery.GitHubDiscoverer
+import com.centurylink.mdw.discovery.GitLabDiscoverer
 import com.centurylink.mdw.model.project.Data
+import com.centurylink.mdw.studio.Secrets
 import com.intellij.ide.util.PropertiesComponent
 import java.io.File
+import java.net.URL
 import java.nio.file.Files
 
 class MdwSettings {
@@ -110,6 +115,25 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(DISCOVERY_MAX_BRANCHES_TAGS, value.toString())
         }
 
+    val discoverers: List<GitDiscoverer>
+        get() {
+            val discoverers = mutableListOf<GitDiscoverer>()
+            discoveryRepoUrls.map { url ->
+                val repoUrl = URL(url)
+                val discoverer = if (repoUrl.host == "github.com") {
+                    GitHubDiscoverer(repoUrl)
+                } else {
+                    GitLabDiscoverer(repoUrl)
+                }
+                discoverers.add(discoverer)
+                Secrets.DISCOVERY_TOKENS[repoUrl.host]?.let { token ->
+                    discoverer.setToken(token)
+                }
+                discoverer
+            }
+            return discoverers
+        }
+
     companion object {
         val instance = MdwSettings()
         const val ID = "com.centurylink.mdw.studio"
@@ -134,5 +158,6 @@ class MdwSettings {
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"
         private const val DISCOVERY_MAX_BRANCHES_TAGS = "$ID.discoveryMaxBranchesTags"
+        const val SUPPRESS_PROMPT_IMPORT_DEPENDENCIES = "$ID.isSuppressPromptImportDependencies"
     }
 }

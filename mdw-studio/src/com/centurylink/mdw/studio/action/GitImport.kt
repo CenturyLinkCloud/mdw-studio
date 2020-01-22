@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.vfs.VfsUtil
 import git4idea.commands.GitCommand
 import git4idea.commands.GitImpl
@@ -31,9 +32,11 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
 
     private var tempDir = Files.createTempDirectory("mdw-studio-")
     private var packages = listOf<String>()
+    private var dependenciesAction: PackageDependencies? = null
 
-    fun doImport(packages: List<String>) {
+    fun doImport(packages: List<String>, dependenciesAction: PackageDependencies? = null) {
         this.packages = packages
+        this.dependenciesAction = dependenciesAction
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(this,
                 BackgroundableProcessIndicator(this))
     }
@@ -131,7 +134,16 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         VfsUtil.markDirty(true, true, projectSetup.assetDir)
         projectSetup.assetDir.refresh(true, true) {
             projectSetup.reloadImplementors()
+            dependenciesAction?.let {
+                DumbService.getInstance(project).smartInvokeLater {
+                    val depsCheck = DependenciesCheck(projectSetup)
+                    // recheck after import
+                    depsCheck.performCheck()
+                    it.doInspect(projectSetup)
+                }
+            }
         }
+
         indicator.stop()
     }
 

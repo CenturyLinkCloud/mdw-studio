@@ -101,7 +101,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return PluginManager.getPlugin(PluginId.getId(ProjectSetup.PLUGIN_ID))?.version
     }
 
-    private val projectYaml = File(project.basePath + "/project.yaml")
+    val projectYaml = File(project.basePath + "/project.yaml")
 
     override fun getMdwVersion(): MdwVersion {
         return if (projectYaml.exists()) {
@@ -150,6 +150,15 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 true
             })
             return pkgs
+        }
+
+    val packageMetaFiles: List<VirtualFile>
+        get() {
+            val pkgYamlFiles = mutableListOf<VirtualFile>()
+            for (pkg in packages) {
+                pkgYamlFiles.add(pkg.metaFile)
+            }
+            return pkgYamlFiles
         }
 
     private val iconAssets = mutableMapOf<String,ImageIcon>()

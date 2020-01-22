@@ -35,9 +35,8 @@ class VercheckAssets : AssetToolsAction() {
                             .doNotAsk(object : DialogWrapper.DoNotAskOption.Adapter() {
                                 override fun rememberChoice(isSelected: Boolean, res: Int) {
                                     if (isSelected) {
-                                        autofix = res == Messages.YES
-                                        MdwSettings.instance.isAssetVercheckAutofix = autofix
-                                        PropertiesComponent.getInstance().setValue(setting, isSelected)
+                                        PropertiesComponent.getInstance().setValue(setting, true)
+                                        MdwSettings.instance.isAssetVercheckAutofix = res == Messages.YES
                                     }
                                 }
                             })

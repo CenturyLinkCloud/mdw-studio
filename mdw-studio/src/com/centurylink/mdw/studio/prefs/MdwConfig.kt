@@ -48,6 +48,7 @@ class MdwConfig : SearchableConfigurable {
     private val saveProcessAsJsonCheckbox = CheckBox("Save .proc files as JSON")
 
     private val vercheckAutofixCheckbox = CheckBox("Autofix asset version conflicts")
+    private val importDependenciesCheckbox = CheckBox("Import unmet package dependencies")
     private val packageIncrementCheckbox = CheckBox("Auto-increment package versions")
 
     private val discoveryRepoUrlsList = object: JBList<String>() {
@@ -204,6 +205,14 @@ class MdwConfig : SearchableConfigurable {
         }
         assetsPanel.add(vercheckAutofixCheckbox)
 
+        importDependenciesCheckbox.alignmentX = Component.LEFT_ALIGNMENT
+        importDependenciesCheckbox.border = checkboxBorder
+        importDependenciesCheckbox.isSelected = MdwSettings.instance.isImportUnmetDependencies
+        importDependenciesCheckbox.addActionListener {
+            modified = true
+        }
+        assetsPanel.add(importDependenciesCheckbox)
+
         packageIncrementCheckbox.alignmentX = Component.LEFT_ALIGNMENT
         packageIncrementCheckbox.border = checkboxBorder
         packageIncrementCheckbox.isSelected = !MdwSettings.instance.isSuppressPackageIncrement
@@ -337,6 +346,11 @@ class MdwConfig : SearchableConfigurable {
         if (!mdwSettings.isAssetVercheckAutofix) {
             // enable the prompt again
             PropertiesComponent.getInstance().setValue(MdwSettings.SUPPRESS_PROMPT_VERCHECK_AUTOFIX, false)
+        }
+        mdwSettings.isImportUnmetDependencies = importDependenciesCheckbox.isSelected
+        if (!mdwSettings.isImportUnmetDependencies) {
+            // enable the prompt again
+            PropertiesComponent.getInstance().setValue(MdwSettings.SUPPRESS_PROMPT_IMPORT_DEPENDENCIES, false)
         }
         mdwSettings.isSuppressPackageIncrement = !packageIncrementCheckbox.isSelected
 

@@ -82,6 +82,12 @@ class MdwSettings {
             PropertiesComponent.getInstance().setValue(ASSET_VERCHECK_AUTOFIX, value)
         }
 
+    var isImportUnmetDependencies: Boolean
+        get() = PropertiesComponent.getInstance().getBoolean(IMPORT_UNMET_DEPENDENCIES, false)
+        set(value) {
+            PropertiesComponent.getInstance().setValue(IMPORT_UNMET_DEPENDENCIES, value)
+        }
+
     var isSuppressPackageIncrement: Boolean
         get() = PropertiesComponent.getInstance().getBoolean(SUPPRESS_PACKAGE_INCREMENT, false)
         set(value) {
@@ -154,10 +160,11 @@ class MdwSettings {
         private const val ASSET_VERCHECK_AUTOFIX = "$ID.isAssetVercheckAutofix"
         const val SUPPRESS_PROMPT_VERCHECK_AUTOFIX = "$ID.isSuppressPromptVercheckAutofix"
         private const val SUPPRESS_PACKAGE_INCREMENT = "$ID.isSuppressPackageIncrement"
+        private const val IMPORT_UNMET_DEPENDENCIES = "$ID.isImportUnmetDependencies"
+        const val SUPPRESS_PROMPT_IMPORT_DEPENDENCIES = "$ID.isSuppressPromptImportDependencies"
 
         // discovery
         private const val DISCOVERY_REPO_URLS = "$ID.discoveryRepoUrls"
         private const val DISCOVERY_MAX_BRANCHES_TAGS = "$ID.discoveryMaxBranchesTags"
-        const val SUPPRESS_PROMPT_IMPORT_DEPENDENCIES = "$ID.isSuppressPromptImportDependencies"
     }
 }

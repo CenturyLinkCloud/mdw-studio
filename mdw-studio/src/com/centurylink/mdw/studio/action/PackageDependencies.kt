@@ -39,21 +39,23 @@ class PackageDependencies : CodeInspectionAction() {
             val depsCheck = DependenciesCheck(projectSetup)
             val unmet = depsCheck.performCheck()
             if (unmet.isNotEmpty()) {
-                var attemptImport = false
+                var attemptImport = MdwSettings.instance.isImportUnmetDependencies
                 val setting = MdwSettings.SUPPRESS_PROMPT_IMPORT_DEPENDENCIES
+                var isCancel = false
                 if (!PropertiesComponent.getInstance().getBoolean(setting, false)) {
                     val res = MessageDialogBuilder
-                            .yesNo("Unmet Dependencies", "Dependencies check failed with ${unmet.size} unmet.  Attempt import?")
+                            .yesNoCancel("Unmet Dependencies", "Dependencies check failed with ${unmet.size} unmet.  Attempt import?")
                             .doNotAsk(object : DialogWrapper.DoNotAskOption.Adapter() {
                                 override fun rememberChoice(isSelected: Boolean, res: Int) {
                                     if (isSelected) {
-                                        attemptImport = res == Messages.YES
-                                        PropertiesComponent.getInstance().setValue(setting, isSelected)
+                                        PropertiesComponent.getInstance().setValue(setting, true)
+                                        MdwSettings.instance.isImportUnmetDependencies = res == Messages.YES
                                     }
                                 }
                             })
                             .show()
                     attemptImport = res == Messages.YES
+                    isCancel = res == Messages.CANCEL
                 }
                 if (attemptImport) {
                     val found = mutableListOf<PackageDependency>()
@@ -75,7 +77,9 @@ class PackageDependencies : CodeInspectionAction() {
                     }
                 }
                 else {
-                    doInspect(projectSetup)
+                    if (!isCancel) {
+                        doInspect(projectSetup)
+                    }
                 }
             }
             else {

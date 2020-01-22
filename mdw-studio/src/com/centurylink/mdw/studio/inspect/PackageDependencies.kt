@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.inspect
 
 import com.centurylink.mdw.model.PackageDependency
+import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.action.DependenciesCheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.codeInspection.*
@@ -25,7 +26,7 @@ class DependenciesVisitor(val problemsHolder : ProblemsHolder) : PsiElementVisit
         super.visitFile(file)
         if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir) {
             // this is mainly to avoid dorky "no suspicious code found" message
-            problemsHolder.registerProblem(file, "Transitive dependencies are not checked (see docs)",
+            problemsHolder.registerProblem(file, "Transitive dependencies are not checked (see ${Data.DOCS_URL})",
                     ProblemHighlightType.WARNING, null as LocalQuickFix?)
         }
     }

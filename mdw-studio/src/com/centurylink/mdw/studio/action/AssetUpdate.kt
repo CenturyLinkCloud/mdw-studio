@@ -16,6 +16,9 @@ import com.intellij.openapi.wm.ToolWindowAnchor
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
 
+/**
+ * This is only for MDW public packages which can be downloaded from Maven Central.
+ */
 class UpdateAssets : AssetToolsAction() {
 
     override fun actionPerformed(event: AnActionEvent) {

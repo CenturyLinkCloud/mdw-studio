@@ -137,6 +137,14 @@ class MdwSettings {
                 }
                 discoverer
             }
+            // mdw discoverer comes first
+            discoverers.sortWith(Comparator { d1, d2 ->
+                when (Data.GIT_URL) {
+                    d1.repoUrl.toString() -> { -1 }
+                    d2.repoUrl.toString() -> { 1 }
+                    else -> { 0 }
+                }
+            })
             return discoverers
         }
 

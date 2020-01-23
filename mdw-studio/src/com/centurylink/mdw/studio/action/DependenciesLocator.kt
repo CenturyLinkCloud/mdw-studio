@@ -5,6 +5,7 @@ import com.centurylink.mdw.model.PackageDependency
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.util.file.Packages
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -39,7 +40,7 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
             val foundHere = mutableListOf<PackageDependency>()
 
             for (dependency in dependencies) {
-                if (!found.contains(dependency)) {
+                if (!found.contains(dependency) && isAppropriateRepo(discoverer.repoUrl.toString(), dependency.`package`)) {
                     indicator.text2 = dependency.toString()
                     finder.findRef(dependency)?.let { ref ->
                         found.add(dependency)
@@ -63,21 +64,18 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
                 break;
         }
 
-        // make sure mdw discoverer comes first so that framework pkgs will be imported by it
-        result.sortWith(Comparator { d1, d2 ->
-            when (Data.GIT_URL) {
-                d1.discoverer.repoUrl.toString() -> {
-                    -1
-                }
-                d2.discoverer.repoUrl.toString() -> {
-                    1
-                }
-                else -> {
-                    0
-                }
-            }
-        })
         return result
+    }
+
+    /**
+     * MDW packages must come from MDW GitHub repository, and non-MDW packages are not searched in MDW GitHub.
+     */
+    private fun isAppropriateRepo(url: String, pkg: String): Boolean {
+        return if (Packages.isMdwPackage(pkg)) {
+            url == Data.GIT_URL
+        } else {
+            url != Data.GIT_URL
+        }
     }
 
     companion object {

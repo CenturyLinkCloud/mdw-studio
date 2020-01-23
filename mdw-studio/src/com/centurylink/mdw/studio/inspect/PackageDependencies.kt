@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.inspect
 
 import com.centurylink.mdw.model.PackageDependency
 import com.centurylink.mdw.model.project.Data
+import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.studio.action.DependenciesCheck
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.codeInspection.*
@@ -41,9 +42,13 @@ class DependenciesVisitor(val problemsHolder : ProblemsHolder) : PsiElementVisit
                         if (ggp.elementType?.toString() == "Sequence") {
                             // TODO assumes the only sequence in package.yaml is dependencies
                             val pkgVer = element.text
-                            if (DependenciesCheck.unmetDependencies.contains(PackageDependency(pkgVer))) {
-                                problemsHolder.registerProblem(element, pkgVer,
-                                        ProblemHighlightType.ERROR, ImportPackageQuickFix(pkgVer))
+                            try {
+                                if (DependenciesCheck.unmetDependencies.contains(PackageDependency(pkgVer))) {
+                                    problemsHolder.registerProblem(element, pkgVer,
+                                            ProblemHighlightType.ERROR, ImportPackageQuickFix(pkgVer))
+                                }
+                            } catch (ex: BadVersionException) {
+                                problemsHolder.registerProblem(element, pkgVer, ProblemHighlightType.ERROR, null as LocalQuickFix?)
                             }
                         }
                     }

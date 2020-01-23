@@ -27,7 +27,11 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
         val found = mutableListOf<PackageDependency>()
 
         for (discoverer in MdwSettings.instance.discoverers) {
-            indicator.text = discoverer.repoUrl.toString()
+            var url = discoverer.repoUrl.toString()
+            if (discoverer.repoUrl.query != null) {
+                url = url.substring(0, url.length - discoverer.repoUrl.query.length - 1)
+            }
+            indicator.text = url
             val branches = discoverer.getBranches(max)
             val tags = discoverer.getTags(max)
             val finder = DiscoveryFinder(discoverer, branches, tags)
@@ -87,7 +91,7 @@ class DiscoveryFinder(private val discoverer: GitDiscoverer, private val branche
      * Snapshot versions are only searched in branches (not tags)
      */
     fun findRef(dependency: PackageDependency): String? {
-        val pkg = dependency.packageName
+        val pkg = dependency.`package`
         val ver = dependency.version.toString()
 
         // try default conventions first to minimize requests

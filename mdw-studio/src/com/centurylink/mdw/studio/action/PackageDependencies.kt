@@ -6,12 +6,12 @@ import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.analysis.AnalysisScope
 import com.intellij.codeInspection.actions.CodeInspectionAction
+import com.intellij.ide.DataManager
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
@@ -36,6 +36,7 @@ class PackageDependencies : CodeInspectionAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).projectSetup?.let { projectSetup ->
+            saveAll()
             val depsCheck = DependenciesCheck(projectSetup)
             val unmet = depsCheck.performCheck()
             if (unmet.isNotEmpty()) {
@@ -63,16 +64,18 @@ class PackageDependencies : CodeInspectionAction() {
                         for ((ref, dependencies) in discovererPackages.refDependencies) {
                             found.addAll(dependencies)
                             discovererPackages.discoverer.ref = ref
+                            val msg = "Found ${dependencies.joinToString{it.toString()}} in ${discovererPackages.discoverer} (ref=$ref)"
+                            LOG.info(msg);
+                            Notifications.Bus.notify(Notification("MDW", "Found dependencies", msg, NotificationType.INFORMATION), projectSetup.project)
                             val gitImport = GitImport(projectSetup, discovererPackages.discoverer)
-                            gitImport.doImport(dependencies.map { it.packageName }, this)
+                            gitImport.doImport(dependencies.map { it.`package` }, this)
                         }
                     }
                     for (packageDependency in unmet) {
                         if (!found.contains(packageDependency)) {
                             val msg = "Cannot find unmet dependency via discovery: $packageDependency"
                             LOG.warn(msg)
-                            Notifications.Bus.notify(Notification("MDW", "Dependency Not Found", msg,
-                                    NotificationType.ERROR), projectSetup.project)
+                            Notifications.Bus.notify(Notification("MDW", "Dependency Not Found", msg, NotificationType.ERROR), projectSetup.project)
                         }
                     }
                 }
@@ -92,6 +95,13 @@ class PackageDependencies : CodeInspectionAction() {
         val files = projectSetup.packageMetaFiles.toMutableList()
         LocalFileSystem.getInstance().findFileByIoFile(projectSetup.projectYaml)?.let { files.add(it) }
         analyze(projectSetup.project, AnalysisScope(projectSetup.project, files.toList()))
+    }
+
+    private fun saveAll() {
+        val actionEvent = AnActionEvent(null, DataManager.getInstance().getDataContext(), ActionPlaces.UNKNOWN,
+                Presentation(), ActionManager.getInstance(), 0)
+        val saveAllAction = ActionManager.getInstance().getAction("SaveAll")
+        saveAllAction.actionPerformed(actionEvent)
     }
 
     companion object {

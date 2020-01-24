@@ -7,6 +7,7 @@ import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.Secrets
 import com.intellij.ide.util.PropertiesComponent
 import java.io.File
+import java.net.MalformedURLException
 import java.net.URL
 import java.nio.file.Files
 
@@ -106,10 +107,20 @@ class MdwSettings {
             return list
         }
         set(value) {
-            PropertiesComponent.getInstance().setValue(DISCOVERY_REPO_URLS, if (value.isEmpty()) {
+            val discoveryUrls = value.toMutableList()
+            // mdw discovery comes first; mdw-ctl-internal comes second
+            val mdwCtlDiscovererIdx = discoveryUrls.indexOfFirst { URL(it).path.endsWith("mdw-ctl-internal.git") }
+            if (mdwCtlDiscovererIdx >= 0) {
+                discoveryUrls.add(0, discoveryUrls.removeAt(mdwCtlDiscovererIdx))
+            }
+            val mdwDiscovererIdx = discoveryUrls.indexOf(Data.GIT_URL)
+            if (mdwDiscovererIdx >= 0) {
+                discoveryUrls.add(0, discoveryUrls.removeAt(mdwDiscovererIdx))
+            }
+            PropertiesComponent.getInstance().setValue(DISCOVERY_REPO_URLS, if (discoveryUrls.isEmpty()) {
                 ""
             } else {
-                value.joinToString(",")
+                discoveryUrls.joinToString(",")
             })
         }
 
@@ -137,14 +148,7 @@ class MdwSettings {
                 }
                 discoverer
             }
-            // mdw discoverer comes first
-            discoverers.sortWith(Comparator { d1, d2 ->
-                when (Data.GIT_URL) {
-                    d1.repoUrl.toString() -> { -1 }
-                    d2.repoUrl.toString() -> { 1 }
-                    else -> { 0 }
-                }
-            })
+
             return discoverers
         }
 

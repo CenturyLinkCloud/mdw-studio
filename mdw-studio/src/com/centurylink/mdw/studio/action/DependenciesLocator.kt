@@ -24,25 +24,23 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
     override fun compute(indicator: ProgressIndicator): List<DiscovererPackages> {
 
         val result = mutableListOf<DiscovererPackages>()
-        val max = MdwSettings.instance.discoveryMaxBranchesTags
         val found = mutableListOf<PackageDependency>()
 
         for (discoverer in MdwSettings.instance.discoverers) {
-            var url = discoverer.repoUrl.toString()
+            var discoveryUrl = discoverer.repoUrl.toString()
             if (discoverer.repoUrl.query != null) {
-                url = url.substring(0, url.length - discoverer.repoUrl.query.length - 1)
+                discoveryUrl = discoveryUrl.substring(0, discoveryUrl.length - discoverer.repoUrl.query.length - 1)
             }
-            indicator.text = url
-            val branches = discoverer.getBranches(max)
-            val tags = discoverer.getTags(max)
-            val finder = DiscoveryFinder(discoverer, branches, tags)
+            val finder = DiscoveryFinder(discoverer)
             val refDependencies = mutableMapOf<String,MutableList<PackageDependency>>()
             val foundHere = mutableListOf<PackageDependency>()
 
             for (dependency in dependencies) {
+                if (indicator.isCanceled) { return listOf() }
                 if (!found.contains(dependency) && isAppropriateRepo(discoverer.repoUrl.toString(), dependency.`package`)) {
+                    indicator.text = discoveryUrl
                     indicator.text2 = dependency.toString()
-                    finder.findRef(dependency)?.let { ref ->
+                    finder?.findRef(dependency)?.let { ref ->
                         found.add(dependency)
                         foundHere.add(dependency)
                         var refPkgDeps: MutableList<PackageDependency>? = refDependencies[ref]
@@ -64,7 +62,7 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
                 break;
         }
 
-        return result
+        return result.toList()
     }
 
     /**
@@ -83,7 +81,16 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
     }
 }
 
-class DiscoveryFinder(private val discoverer: GitDiscoverer, private val branches: List<String>, private val tags: List<String>) {
+class DiscoveryFinder(private val discoverer: GitDiscoverer) {
+
+    private val max = MdwSettings.instance.discoveryMaxBranchesTags
+
+    private val branches: List<String> by lazy {
+        discoverer.getBranches(max)
+    }
+    private val tags: List<String> by lazy {
+        discoverer.getTags(max)
+    }
 
     /**
      * Snapshot versions are only searched in branches (not tags)

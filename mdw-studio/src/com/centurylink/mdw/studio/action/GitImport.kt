@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.discovery.GitDiscoverer
+import com.centurylink.mdw.studio.inspect.DependenciesInspector
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -32,11 +33,11 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
 
     private var tempDir = Files.createTempDirectory("mdw-studio-")
     private var packages = listOf<String>()
-    private var dependenciesAction: PackageDependencies? = null
+    private var inspector: DependenciesInspector? = null
 
-    fun doImport(packages: List<String>, dependenciesAction: PackageDependencies? = null) {
+    fun doImport(packages: List<String>, inspector: DependenciesInspector? = null) {
         this.packages = packages
-        this.dependenciesAction = dependenciesAction
+        this.inspector = inspector
         ProgressManager.getInstance().runProcessWithProgressAsynchronously(this,
                 BackgroundableProcessIndicator(this))
     }
@@ -134,12 +135,12 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
         VfsUtil.markDirty(true, true, projectSetup.assetDir)
         projectSetup.assetDir.refresh(true, true) {
             projectSetup.reloadImplementors()
-            dependenciesAction?.let {
+            inspector?.let {
                 DumbService.getInstance(project).smartInvokeLater {
                     val depsCheck = DependenciesCheck(projectSetup)
                     // recheck after import
                     depsCheck.performCheck()
-                    it.doInspect(projectSetup)
+                    it.doInspect(projectSetup, projectSetup.packageMetaFiles)
                 }
             }
         }

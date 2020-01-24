@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Dependencies
 import com.centurylink.mdw.model.PackageDependency
+import com.centurylink.mdw.studio.inspect.DependenciesInspector
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.analysis.AnalysisScope
@@ -17,8 +18,9 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
 
-class PackageDependencies : CodeInspectionAction() {
+class PackageDependencies : CodeInspectionAction(), DependenciesInspector {
 
     override fun update(event: AnActionEvent) {
         var applicable = false
@@ -66,7 +68,7 @@ class PackageDependencies : CodeInspectionAction() {
                             discovererPackages.discoverer.ref = ref
                             val msg = "Found ${dependencies.joinToString{it.toString()}} in ${discovererPackages.discoverer} (ref=$ref)"
                             LOG.info(msg);
-                            Notifications.Bus.notify(Notification("MDW", "Found dependencies", msg, NotificationType.INFORMATION), projectSetup.project)
+                            Notifications.Bus.notify(Notification("MDW", "Importing Dependency...", msg, NotificationType.INFORMATION), projectSetup.project)
                             val gitImport = GitImport(projectSetup, discovererPackages.discoverer)
                             gitImport.doImport(dependencies.map { it.`package` }, this)
                         }
@@ -81,20 +83,20 @@ class PackageDependencies : CodeInspectionAction() {
                 }
                 else {
                     if (!isCancel) {
-                        doInspect(projectSetup)
+                        doInspect(projectSetup, projectSetup.packageMetaFiles)
                     }
                 }
             }
             else {
-                doInspect(projectSetup)
+                doInspect(projectSetup, projectSetup.packageMetaFiles)
             }
         }
     }
 
-    fun doInspect(projectSetup: ProjectSetup) {
-        val files = projectSetup.packageMetaFiles.toMutableList()
-        LocalFileSystem.getInstance().findFileByIoFile(projectSetup.projectYaml)?.let { files.add(it) }
-        analyze(projectSetup.project, AnalysisScope(projectSetup.project, files.toList()))
+    override fun doInspect(projectSetup: ProjectSetup, files: List<VirtualFile>) {
+        val inspectFiles = projectSetup.packageMetaFiles.toMutableList()
+        LocalFileSystem.getInstance().findFileByIoFile(projectSetup.projectYaml)?.let { inspectFiles.add(it) }
+        analyze(projectSetup.project, AnalysisScope(projectSetup.project, inspectFiles))
     }
 
     private fun saveAll() {

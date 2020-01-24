@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.1.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.0) (2020-01-24)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.3...2.1.0)
+
+**Implemented enhancements:**
+
+- Allow -SNAPSHOT versions in package.yaml [\#114](https://github.com/CenturyLinkCloud/mdw-studio/issues/114)
+- Support package.yaml dependencies [\#113](https://github.com/CenturyLinkCloud/mdw-studio/issues/113)
+
 ## [2.0.3](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.0.3) (2020-01-17)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.2...2.0.3)
 

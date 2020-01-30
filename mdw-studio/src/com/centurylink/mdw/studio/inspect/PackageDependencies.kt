@@ -1,7 +1,6 @@
 package com.centurylink.mdw.studio.inspect
 
 import com.centurylink.mdw.model.PackageDependency
-import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.studio.action.DependenciesCheck
 import com.centurylink.mdw.studio.action.DependenciesLocator
@@ -17,10 +16,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.PsiFile
 import com.intellij.psi.util.elementType
 
-class PackageDependenciesInspection : LocalInspectionTool() {
+class PackageDependencies : LocalInspectionTool() {
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return DependenciesVisitor(holder)
@@ -30,15 +28,6 @@ class PackageDependenciesInspection : LocalInspectionTool() {
 class DependenciesVisitor(val problemsHolder : ProblemsHolder) : PsiElementVisitor() {
 
     private val projectSetup: ProjectSetup = problemsHolder.project.getComponent(ProjectSetup::class.java)
-
-    override fun visitFile(file: PsiFile) {
-        super.visitFile(file)
-        if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir) {
-            // this is mainly to avoid dorky "no suspicious code found" message
-            problemsHolder.registerProblem(file, "Transitive dependencies are not checked (see ${Data.DOCS_URL})",
-                    ProblemHighlightType.WARNING, null as LocalQuickFix?)
-        }
-    }
 
     override fun visitElement(element: PsiElement) {
         super.visitElement(element)

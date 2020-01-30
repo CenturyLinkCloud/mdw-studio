@@ -34,13 +34,14 @@ dependencies {
 
 intellij {
     version = "2019.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
-    setPlugins("java", "git4idea")  // "Kotlin"
+    setPlugins("java", "git4idea", "YAML")  // "Kotlin"
 }
 
 tasks.withType<RunIdeTask> {
     jvmArgs = listOf("-Xmx1G") //, "-XX:CICompilerCount=2")
     // available jbrs here: https://jetbrains.bintray.com/intellij-jdk/
-    // jbrVersion("11_0_2b164")
+    // temp due to this: https://youtrack.jetbrains.com/issue/JBR-1928
+    jbrVersion("11_0_5b665.1")
 }
 
 tasks.withType<PublishTask> {

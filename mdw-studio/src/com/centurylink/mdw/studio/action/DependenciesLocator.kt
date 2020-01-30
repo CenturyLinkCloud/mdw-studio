@@ -70,9 +70,9 @@ class DependenciesLocator(projectSetup: ProjectSetup, private val dependencies: 
      */
     private fun isAppropriateRepo(url: String, pkg: String): Boolean {
         return if (Packages.isMdwPackage(pkg)) {
-            url == Data.GIT_URL
+            url == Data.GIT_REPO_URL
         } else {
-            url != Data.GIT_URL
+            url != Data.GIT_REPO_URL
         }
     }
 

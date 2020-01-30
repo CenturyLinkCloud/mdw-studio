@@ -97,7 +97,7 @@ class MdwSettings {
 
     var discoveryRepoUrls: List<String>
         get() {
-            val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_URL)
+            val str = PropertiesComponent.getInstance().getValue(DISCOVERY_REPO_URLS, Data.GIT_REPO_URL)
             val list = mutableListOf<String>()
             if (!str.isBlank()) {
                 for (repoUrl in str.split(",")) {
@@ -113,7 +113,7 @@ class MdwSettings {
             if (mdwCtlDiscovererIdx >= 0) {
                 discoveryUrls.add(0, discoveryUrls.removeAt(mdwCtlDiscovererIdx))
             }
-            val mdwDiscovererIdx = discoveryUrls.indexOf(Data.GIT_URL)
+            val mdwDiscovererIdx = discoveryUrls.indexOf(Data.GIT_REPO_URL)
             if (mdwDiscovererIdx >= 0) {
                 discoveryUrls.add(0, discoveryUrls.removeAt(mdwDiscovererIdx))
             }

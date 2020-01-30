@@ -32,9 +32,12 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.roots.LibraryOrderEntry
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
@@ -459,7 +462,7 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     /**
      * Expects the directory to be already there, and creates .mdw/package.yaml metafile.
      */
-    fun createPackage(packageName: String): AssetPackage {
+    private fun createPackage(packageName: String): AssetPackage {
         val pkgDir = assetDir.findFileByRelativePath(packageName.replace('.', '/'))
         pkgDir ?: throw IOException("Package directory not found: $packageName")
         return createPackage(pkgDir)
@@ -579,6 +582,33 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 Presentation(), ActionManager.getInstance(), 0)
         markExcludeAction.actionPerformed(actionEvent)
     }
+
+    val mdwLibraryDependencies: Map<String,MdwVersion>
+        get() {
+            val libs = mutableMapOf<String,MdwVersion>()
+            for (module in ModuleManager.getInstance(project).modules) {
+                for (orderEntry in ModuleRootManager.getInstance(module).orderEntries) {
+                    if (orderEntry is LibraryOrderEntry) {
+                        val nameVer: Pair<String,MdwVersion>? = orderEntry.libraryName?.let { libName ->
+                            if (libName.startsWith("Gradle: com.centurylink.mdw:")) {
+                                val colon = libName.indexOf(":", 28)
+                                val name = libName.substring(28, colon)
+                                Pair(name, MdwVersion(libName.substring(colon + 1)))
+                            } else {
+                                null
+                            }
+                        }
+                        if (nameVer != null) {
+                            val exist = libs[nameVer.first]
+                            if (exist == null || exist.compareTo(nameVer.second) < 1) {
+                                libs.put(nameVer.first, nameVer.second)
+                            }
+                        }
+                    }
+                }
+            }
+            return libs
+        }
 
     @Volatile private var mdwConsole: MdwConsole? = null
     val console: MdwConsole

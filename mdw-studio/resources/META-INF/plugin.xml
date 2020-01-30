@@ -21,6 +21,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
 
     <project-components>
         <component>
@@ -61,9 +62,12 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <checkinHandlerFactory id="mdwCheckinHandler" implementation="com.centurylink.mdw.studio.vcs.AssetCheckinHandlerFactory" />
         <referencesSearch implementation="com.centurylink.mdw.studio.file.AttributeReferencesSearcher"/>
         <methodReferencesSearch implementation="com.centurylink.mdw.studio.file.AttributeMethodUsagesSearch"/>
-        <localInspection language="yaml" displayName="Check package dependencies" groupName="MDW"
+        <localInspection language="yaml" displayName="Package dependencies" groupName="MDW"
                          enabledByDefault="true" level="ERROR"
-                         implementationClass="com.centurylink.mdw.studio.inspect.PackageDependenciesInspection"/>
+                         implementationClass="com.centurylink.mdw.studio.inspect.PackageDependencies"/>
+        <localInspection language="yaml" displayName="Project YAML" groupName="MDW"
+                         enabledByDefault="true" level="INFO"
+                         implementationClass="com.centurylink.mdw.studio.inspect.ProjectYaml"/>
     </extensions>
 
     <!--

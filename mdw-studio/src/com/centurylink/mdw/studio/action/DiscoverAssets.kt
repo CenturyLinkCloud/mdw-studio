@@ -49,7 +49,7 @@ class DiscoverAssets : AssetToolsAction() {
                                         "Overwrite these local packages (and their subpackages) with ${discoverer.ref} from ${discoverer.repoName}?\n\n" +
                                                 "  " + '\u2022' + " " + conflicts.joinToString("\n  " + '\u2022' + " "))
                                 .show() == Messages.YES) {
-                            if (discoverer.repoUrl.toString() == Data.GIT_URL) {
+                            if (discoverer.repoUrl.toString() == Data.GIT_REPO_URL) {
                                 // import from maven central (honoring ref)
                                 AssetUpdate(projectSetup).doUpdate(packages)
                             }

@@ -583,6 +583,16 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         markExcludeAction.actionPerformed(actionEvent)
     }
 
+    val hasPackageDependencies: Boolean
+        get() {
+            for (pkg in packages) {
+                if (pkg.dependencies.isNotEmpty()) {
+                    return true
+                }
+            }
+            return false
+        }
+
     val mdwLibraryDependencies: Map<String,MdwVersion>
         get() {
             val libs = mutableMapOf<String,MdwVersion>()
@@ -590,9 +600,14 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
                 for (orderEntry in ModuleRootManager.getInstance(module).orderEntries) {
                     if (orderEntry is LibraryOrderEntry) {
                         val nameVer: Pair<String,MdwVersion>? = orderEntry.libraryName?.let { libName ->
+
                             if (libName.startsWith("Gradle: com.centurylink.mdw:")) {
                                 val colon = libName.indexOf(":", 28)
                                 val name = libName.substring(28, colon)
+                                Pair(name, MdwVersion(libName.substring(colon + 1)))
+                            } else if (libName.startsWith("Maven: com.centurylink.mdw:")) {
+                                val colon = libName.indexOf(":", 29)
+                                val name = libName.substring(29, colon)
                                 Pair(name, MdwVersion(libName.substring(colon + 1)))
                             } else {
                                 null

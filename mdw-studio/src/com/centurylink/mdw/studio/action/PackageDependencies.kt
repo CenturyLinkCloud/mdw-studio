@@ -39,6 +39,10 @@ class PackageDependencies : CodeInspectionAction(), DependenciesInspector {
     override fun actionPerformed(event: AnActionEvent) {
         Locator(event).projectSetup?.let { projectSetup ->
             saveAll()
+            if (!projectSetup.hasPackageDependencies) {
+                Notifications.Bus.notify(Notification("MDW", "Check Dependencies", "No package dependencies found", NotificationType.INFORMATION), projectSetup.project)
+                return
+            }
             val depsCheck = DependenciesCheck(projectSetup)
             val unmet = depsCheck.performCheck()
             if (unmet.isNotEmpty()) {

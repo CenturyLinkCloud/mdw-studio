@@ -4,16 +4,12 @@ import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.codeInspection.LocalQuickFix
-import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.codeInspection.*
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.PsiFile
-import com.intellij.psi.util.elementType
+import org.jetbrains.yaml.YAMLElementGenerator
 import org.jetbrains.yaml.psi.YAMLKeyValue
 
 
@@ -28,10 +24,10 @@ class ProjectYaml : LocalInspectionTool() {
              */
             override fun visitFile(file: PsiFile) {
                 super.visitFile(file)
-                if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir) {
-                    //
+                if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir
+                        && projectSetup.hasPackageDependencies) {
                     holder.registerProblem(file, "Transitive package dependencies are not checked(see ${Data.DOCS_URL}/development/package-dependencies)",
-                            ProblemHighlightType.WARNING, null as LocalQuickFix?)
+                                ProblemHighlightType.WEAK_WARNING, null as LocalQuickFix?)
                 }
             }
 
@@ -48,15 +44,16 @@ class ProjectYaml : LocalInspectionTool() {
                                     try {
                                         val version = MdwVersion(element.valueText)
                                         val mdwLibs = projectSetup.mdwLibraryDependencies
-                                        println("mdwLibs")
                                         for ((lib, ver) in mdwLibs) {
                                             if (ver != version) {
-                                                holder.registerProblem(element, "mdw.version does not match dependency version: $lib $ver", ProblemHighlightType.ERROR, null as LocalQuickFix?)
+                                                holder.registerProblem(element, "mdw.version does not match dependency version: $lib $ver",
+                                                        ProblemHighlightType.ERROR, VersionMismatchQuickFix(projectSetup, element, ver))
                                                 break
                                             }
                                         }
                                     } catch (ex: BadVersionException) {
-                                        holder.registerProblem(element, "Bad mdw.version: ${ex.message}", ProblemHighlightType.ERROR, null as LocalQuickFix?)
+                                        holder.registerProblem(element, "Bad mdw.version: ${ex.message}",
+                                                ProblemHighlightType.ERROR, null as LocalQuickFix?)
                                     }
                                 }
                             }
@@ -65,5 +62,20 @@ class ProjectYaml : LocalInspectionTool() {
                 }
             }
         }
+    }
+}
+
+class VersionMismatchQuickFix(private val projectSetup: ProjectSetup, private val versionKeyValue: YAMLKeyValue, private val mdwVersion: MdwVersion) : LocalQuickFix {
+    override fun getFamilyName(): String {
+        return name
+    }
+
+    override fun applyFix(project: Project, descriptor: ProblemDescriptor) {
+        val dummyKeyValue = YAMLElementGenerator.getInstance(projectSetup.project).createYamlKeyValue(versionKeyValue.keyText, mdwVersion.toString())
+        dummyKeyValue.value?.let { versionKeyValue.setValue(it) }
+    }
+
+    override fun getName(): String {
+        return "Set mdw.version to $mdwVersion"
     }
 }

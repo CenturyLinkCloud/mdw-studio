@@ -100,7 +100,7 @@ class ConfigPanel(val projectSetup: ProjectSetup) :
         const val TITLE = "Configurator"
         val ICON = IconLoader.getIcon("/icons/config.gif")
         val ICON_HIDE: Icon = AllIcons.General.HideToolWindow
-        val ICON_HELP: Icon = AllIcons.General.Help_small
+        val ICON_HELP: Icon = AllIcons.General.ContextHelp
         val ALL_TABS_JSON = JsonObject(Templates.get("configurator/config-tabs.json"))
     }
 }

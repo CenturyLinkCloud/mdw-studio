@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.bpmn.BpmnProcessExporter
 import com.centurylink.mdw.cli.Download
+import com.centurylink.mdw.cli.Setup
 import com.centurylink.mdw.export.ProcessExporter
 import com.centurylink.mdw.html.HtmlProcessExporter
 import com.centurylink.mdw.image.PngProcessExporter
@@ -53,12 +54,12 @@ class ExportProcess : AssetAction() {
                                     tempDir.mkdirs()
                                 val itextJar = File(tempDir.path + "/itextpdf-5.5.13.jar")
                                 if (!itextJar.isFile) {
-                                    Download(URL("http://repo.maven.apache.org/maven2/com/itextpdf/itextpdf/5.5.13/itextpdf-5.5.13.jar"),
+                                    Download(URL("${Setup.MAVEN_CENTRAL_URL}/com/itextpdf/itextpdf/5.5.13/itextpdf-5.5.13.jar"),
                                             itextJar, 2320581L).run(com.centurylink.mdw.studio.ui.ProgressMonitor(ProgressIndicatorBase()))
                                 }
                                 val xmlWorkerJar = File(tempDir.path + "/xmlworker-5.5.13.jar")
                                 if (!xmlWorkerJar.isFile) {
-                                    Download(URL("http://repo.maven.apache.org/maven2/com/itextpdf/tool/xmlworker/5.5.13/xmlworker-5.5.13.jar"),
+                                    Download(URL("${Setup.MAVEN_CENTRAL_URL}/com/itextpdf/tool/xmlworker/5.5.13/xmlworker-5.5.13.jar"),
                                             xmlWorkerJar, 2320581L).run(com.centurylink.mdw.studio.ui.ProgressMonitor(ProgressIndicatorBase()))
                                 }
                                 val classLoader = this.javaClass.classLoader as UrlClassLoader

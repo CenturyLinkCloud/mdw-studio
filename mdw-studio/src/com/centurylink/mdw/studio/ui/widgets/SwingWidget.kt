@@ -30,6 +30,9 @@ open class SwingWidget(val widget: Widget, layout: LayoutManager = DEFAULT_LAYOU
         }
     }
 
+    open fun dispose() {
+    }
+
     companion object {
         val DEFAULT_LAYOUT = FlowLayout(FlowLayout.LEFT, 5, if (ProjectSetup.isWindows) 2 else 0)
 

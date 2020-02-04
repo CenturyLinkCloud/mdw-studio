@@ -52,6 +52,9 @@ class TabPanel(val projectSetup: ProjectSetup, configTabsJson: JsonObject, val w
     override fun onTabSelect(tabName: String, tabJson: JsonElement) {
         tabComponent?.let {
             contentPane.remove(it)
+            if (it is ConfigTab) {
+                it.dispose()
+            }
             tabComponent = null
         }
         currentTab = tabName

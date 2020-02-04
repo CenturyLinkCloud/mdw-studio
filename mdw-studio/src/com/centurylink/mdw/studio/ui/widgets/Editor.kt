@@ -41,4 +41,8 @@ class Editor(widget: Pagelet.Widget) : SwingWidget(widget, BorderLayout()) {
         editor = EditorFactory.getInstance().createEditor(document, project, virtualFile, false)
         add(editor!!.component)
     }
+
+    override fun dispose() {
+        editor?.let { EditorFactory.getInstance().releaseEditor(it) }
+    }
 }

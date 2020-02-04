@@ -83,6 +83,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
             }
             containerPane.add(editor)
             add(containerPane)
+            allSwingWidgets[it.name] = editor
             return
         }
         findSoloWidget(widgets, "table")?.let {
@@ -100,6 +101,7 @@ class ConfigTab(private val tabName: String, private val template: Template, val
                 notifyUpdateListeners(obj)
             }
             add(table)
+            allSwingWidgets[it.name] = table
             return
         }
 
@@ -215,6 +217,12 @@ class ConfigTab(private val tabName: String, private val template: Template, val
 
     private fun getBackgroundColor(): Color {
         return UIManager.getColor("EditorPane.background")
+    }
+
+    fun dispose() {
+        for (swingWidget in allSwingWidgets.values) {
+            swingWidget.dispose()
+        }
     }
 
     companion object {

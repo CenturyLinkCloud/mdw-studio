@@ -11,6 +11,7 @@ import com.centurylink.mdw.dataaccess.file.VersionControlGit
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.system.MdwVersion
+import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AssetPackage
@@ -174,6 +175,13 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             }
             return _implementors as Implementors
         }
+
+    /**
+     * For Project interface.  Supply activity implementors coming from compiled code annotations.
+     */
+    override fun getActivityImplementors(): List<ActivityImplementor> {
+        return implementors.toSortedList()
+    }
 
     private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()
     fun addImplementorChangeListener(listener: ImplementorChangeListener) {

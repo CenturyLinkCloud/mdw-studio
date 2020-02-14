@@ -179,8 +179,8 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
     /**
      * For Project interface.  Supply activity implementors coming from compiled code annotations.
      */
-    override fun getActivityImplementors(): List<ActivityImplementor> {
-        return implementors.toSortedList()
+    override fun getActivityImplementors(): Map<String,ActivityImplementor> {
+        return implementors.toSortedMap()
     }
 
     private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()

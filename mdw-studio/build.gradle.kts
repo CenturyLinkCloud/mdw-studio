@@ -41,7 +41,7 @@ tasks.withType<RunIdeTask> {
     jvmArgs = listOf("-Xmx1G") //, "-XX:CICompilerCount=2")
     // available jbrs here: https://jetbrains.bintray.com/intellij-jdk/
     // temp due to this: https://youtrack.jetbrains.com/issue/JBR-1928
-    jbrVersion("11_0_5b665.1")
+    // jbrVersion("11_0_5b665.1")
 }
 
 tasks.withType<PublishTask> {

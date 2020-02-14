@@ -68,6 +68,9 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <localInspection language="yaml" displayName="Project YAML" groupName="MDW"
                          enabledByDefault="true" level="INFO"
                          implementationClass="com.centurylink.mdw.studio.inspect.ProjectYaml"/>
+        <localInspection language="JAVA" displayName="Activity Logger" groupName="MDW"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="com.centurylink.mdw.studio.inspect.ActivityLogger"/>
     </extensions>
 
     <!--

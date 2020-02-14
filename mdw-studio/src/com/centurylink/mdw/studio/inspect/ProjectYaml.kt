@@ -26,7 +26,7 @@ class ProjectYaml : LocalInspectionTool() {
                 super.visitFile(file)
                 if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir
                         && projectSetup.hasPackageDependencies) {
-                    holder.registerProblem(file, "Transitive package dependencies are not checked(see ${Data.DOCS_URL}/development/package-dependencies)",
+                    holder.registerProblem(file, "Note: Transitive package dependencies are not checked(see ${Data.DOCS_URL}/development/package-dependencies)",
                                 ProblemHighlightType.WEAK_WARNING, null as LocalQuickFix?)
                 }
             }

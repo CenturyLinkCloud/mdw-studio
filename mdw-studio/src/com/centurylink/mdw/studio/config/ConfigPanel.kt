@@ -197,12 +197,10 @@ class TitleBar(processName: String) : JPanel(BorderLayout()) {
             value?.let {
                 helpListener = object : MouseAdapter() {
                     override fun mouseReleased(e: MouseEvent) {
-                        BrowserUtil.browse(if (it.url.startsWith("help/http")) {
-                            // full-fledged url for help link
-                            it.url.substring(5) ?: Data.DOCS_URL
+                        BrowserUtil.browse(if (it.url.startsWith("http://") || it.url.startsWith("https://")) {
+                            it.url
                         }
                         else {
-                            // relative to help docs
                             Data.DOCS_URL + "/" + it.url
                         })
                     }

@@ -12,7 +12,7 @@ class ActivityHelp : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         getHelpUrl(event)?.let { url ->
-            BrowserUtil.browse("${Data.DOCS_URL}/$url")
+            BrowserUtil.browse(url)
         }
     }
 
@@ -25,7 +25,13 @@ class ActivityHelp : AnAction() {
     private fun getHelpUrl(event: AnActionEvent): String? {
         return Locator(event).implementor?.let { impl ->
             impl.pagelet?.let { p ->
-                Pagelet(impl.category, p).widgets.find { w -> w.isHelpLink }?.url
+                Pagelet(impl.category, p).widgets.find { w -> w.isHelpLink }?.url?.let { url ->
+                    if (url.startsWith("https://") || url.startsWith("http://")) {
+                        url
+                    } else {
+                        "${Data.DOCS_URL}/$url"
+                    }
+                }
             }
         }
     }

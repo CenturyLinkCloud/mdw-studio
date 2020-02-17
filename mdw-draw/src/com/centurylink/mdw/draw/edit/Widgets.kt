@@ -58,7 +58,7 @@ val Pagelet.Widget.min: Int?
 val Pagelet.Widget.max: Int?
     get() = attributes["max"]?.toInt()
 val Pagelet.Widget.isHelpLink: Boolean
-    get() = type == "link" && (url?.startsWith("help/") ?: false)
+    get() = (type == "help" && url != null) || (type == "link" && (url?.startsWith("help/") ?: false))
 
 fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapter {
 

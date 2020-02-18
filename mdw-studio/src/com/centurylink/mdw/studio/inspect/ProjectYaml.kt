@@ -24,9 +24,13 @@ class ProjectYaml : LocalInspectionTool() {
              */
             override fun visitFile(file: PsiFile) {
                 super.visitFile(file)
+                if (!projectSetup.isMdwProject) {
+                    return
+                }
+
                 if (file.name == "project.yaml" && file.containingDirectory?.virtualFile == projectSetup.baseDir
                         && projectSetup.hasPackageDependencies) {
-                    holder.registerProblem(file, "Note: Transitive package dependencies are not checked(see ${Data.DOCS_URL}/development/package-dependencies)",
+                    holder.registerProblem(file, "Note: Transitive package dependencies are not checked (see ${Data.DOCS_URL}/development/package-dependencies)",
                                 ProblemHighlightType.WEAK_WARNING, null as LocalQuickFix?)
                 }
             }
@@ -36,6 +40,10 @@ class ProjectYaml : LocalInspectionTool() {
              */
             override fun visitElement(element: PsiElement) {
                 super.visitElement(element)
+                if (!projectSetup.isMdwProject) {
+                    return
+                }
+
                 element.containingFile?.let { yamlFile ->
                     if (yamlFile.name == "project.yaml" && yamlFile.containingDirectory?.virtualFile == projectSetup.baseDir) {
                         if (element is YAMLKeyValue && element.keyText == "version") {

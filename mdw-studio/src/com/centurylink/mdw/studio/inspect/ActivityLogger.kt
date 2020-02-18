@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.inspect
 
 import com.centurylink.mdw.model.project.Data
+import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemHighlightType
@@ -17,8 +18,14 @@ class ActivityLogger : LocalInspectionTool() {
 
 class ActivityVisitor(private val problemsHolder : ProblemsHolder) : JavaElementVisitor() {
 
+    private val projectSetup: ProjectSetup = problemsHolder.project.getComponent(ProjectSetup::class.java)
+
     override fun visitField(field: PsiField) {
         super.visitField(field)
+        if (!projectSetup.isMdwProject) {
+            return
+        }
+
         if (field.parent is PsiClass && isActivityImpl(field.parent as PsiClass)) {
             if (field.type is PsiClassReferenceType) {
                 if ((field.type as PsiClassReferenceType).reference.qualifiedName == "com.centurylink.mdw.util.log.StandardLogger") {

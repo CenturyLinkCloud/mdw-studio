@@ -31,6 +31,11 @@ class DependenciesVisitor(val problemsHolder : ProblemsHolder) : PsiElementVisit
 
     override fun visitElement(element: PsiElement) {
         super.visitElement(element)
+
+        if (!projectSetup.isMdwProject) {
+            return
+        }
+
         element.containingFile?.let { yamlFile ->
             if (yamlFile.name == "package.yaml" && yamlFile.containingDirectory.name == ".mdw") {
                 // mdw package yaml

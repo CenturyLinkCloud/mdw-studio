@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.1.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.1) (2020-02-18)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.0...2.1.1)
+
+**Implemented enhancements:**
+
+- General purpose Configurator help links [\#122](https://github.com/CenturyLinkCloud/mdw-studio/issues/122)
+- Inspection to prevent activity logging bypass [\#121](https://github.com/CenturyLinkCloud/mdw-studio/issues/121)
+
+**Fixed bugs:**
+
+- Process export to PDF does not render markdown documentation content [\#120](https://github.com/CenturyLinkCloud/mdw-studio/issues/120)
+- Process export to PDF/HTML/PNG does not show icons for built-in implementors [\#119](https://github.com/CenturyLinkCloud/mdw-studio/issues/119)
+- Hardcoded Maven Central base URL uses HTTP [\#117](https://github.com/CenturyLinkCloud/mdw-studio/issues/117)
+- ObjectNotDisposedException from Editor Widget [\#115](https://github.com/CenturyLinkCloud/mdw-studio/issues/115)
+
 ## [2.1.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.0) (2020-01-24)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.0.3...2.1.0)
 

@@ -29,7 +29,7 @@ class ActivityVisitor(private val problemsHolder : ProblemsHolder) : JavaElement
         if (field.parent is PsiClass && isActivityImpl(field.parent as PsiClass)) {
             if (field.type is PsiClassReferenceType) {
                 if ((field.type as PsiClassReferenceType).reference.qualifiedName == "com.centurylink.mdw.util.log.StandardLogger") {
-                    problemsHolder.registerProblem(field.nameIdentifier, "Activity logging bypassed by local logger (see ${Data.DOCS_URL}/help/implementor.html#logging)",
+                    problemsHolder.registerProblem(field.nameIdentifier, "Activity logging bypassed by local logger.  See ${Data.DOCS_URL}/help/implementor.html#logging",
                             ProblemHighlightType.ERROR, null as LocalQuickFix?)
                 }
             }

@@ -1,8 +1,6 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.bpmn.BpmnProcessExporter
-import com.centurylink.mdw.cli.Download
-import com.centurylink.mdw.cli.Setup
 import com.centurylink.mdw.export.ProcessExporter
 import com.centurylink.mdw.html.HtmlProcessExporter
 import com.centurylink.mdw.image.PngProcessExporter
@@ -13,11 +11,7 @@ import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileChooser.FileChooserFactory
 import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.progress.util.ProgressIndicatorBase
-import com.intellij.util.lang.UrlClassLoader
-import java.io.File
 import java.io.IOException
-import java.net.URL
 
 class ExportProcess : AssetAction() {
 
@@ -49,26 +43,8 @@ class ExportProcess : AssetAction() {
                                 exp
                             }
                             "pdf" -> {
-                                val tempDir = File(projectSetup.project.basePath + "/.temp")
-                                if (!tempDir.exists())
-                                    tempDir.mkdirs()
-                                val itextJar = File(tempDir.path + "/itextpdf-5.5.13.jar")
-                                if (!itextJar.isFile) {
-                                    Download(URL("${Setup.MAVEN_CENTRAL_URL}/com/itextpdf/itextpdf/5.5.13/itextpdf-5.5.13.jar"),
-                                            itextJar, 2320581L).run(com.centurylink.mdw.studio.ui.ProgressMonitor(ProgressIndicatorBase()))
-                                }
-                                val xmlWorkerJar = File(tempDir.path + "/xmlworker-5.5.13.jar")
-                                if (!xmlWorkerJar.isFile) {
-                                    Download(URL("${Setup.MAVEN_CENTRAL_URL}/com/itextpdf/tool/xmlworker/5.5.13/xmlworker-5.5.13.jar"),
-                                            xmlWorkerJar, 2320581L).run(com.centurylink.mdw.studio.ui.ProgressMonitor(ProgressIndicatorBase()))
-                                }
-                                val classLoader = this.javaClass.classLoader as UrlClassLoader
-                                val method = UrlClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
-                                method.isAccessible = true
-                                method.invoke(classLoader, itextJar.toURI().toURL())
-                                method.invoke(classLoader, xmlWorkerJar.toURI().toURL())
                                 val exp = PdfProcessExporter(projectSetup)
-                                exp.setOutputDir(fileWrapper.file)
+                                // exp.setOutputDir(fileWrapper.file)
                                 exp
                             }
                             else -> {
@@ -78,14 +54,13 @@ class ExportProcess : AssetAction() {
 
                         WriteAction.run<IOException> {
                             fileWrapper.getVirtualFile(true)?.let {
-                                val theExporter = exporter
                                 val originalLoader = Thread.currentThread().contextClassLoader
                                 try {
-                                    if (theExporter is BpmnProcessExporter) {
+                                    if (exporter is BpmnProcessExporter) {
                                         Thread.currentThread().contextClassLoader = this.javaClass.classLoader
                                     }
-                                    it.setBinaryContent(theExporter.export(process))
-                                    FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
+                                    it.setBinaryContent(exporter.export(process))
+                                FileEditorManager.getInstance(projectSetup.project).openFile(it, true)
                                 }
                                 finally {
                                     Thread.currentThread().contextClassLoader = originalLoader

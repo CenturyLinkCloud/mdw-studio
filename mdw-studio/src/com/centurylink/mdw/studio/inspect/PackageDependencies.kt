@@ -7,6 +7,7 @@ import com.centurylink.mdw.studio.action.DependenciesLocator
 import com.centurylink.mdw.studio.action.GitImport
 import com.centurylink.mdw.studio.action.PackageDependencies
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.util.file.Packages
 import com.intellij.codeInspection.*
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -17,6 +18,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.elementType
+import org.jetbrains.yaml.psi.YAMLKeyValue
+import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl
 
 class PackageDependencies : LocalInspectionTool() {
 
@@ -41,7 +45,23 @@ class DependenciesVisitor(val problemsHolder : ProblemsHolder) : PsiElementVisit
                 // mdw package yaml
                 if (element.elementType.toString() == "text") {
                     element.parent?.parent?.parent?.let { ggp ->
-                        if (ggp.elementType?.toString() == "Sequence") {
+                        val elementType = ggp.elementType?.toString()
+                        if (elementType == "Mapping" && ggp is YAMLMapping) {
+                            val gp = element.parent.parent
+                            if (gp is YAMLKeyValue && gp.keyText == "name" && Packages.isMdwPackage(gp.valueText)) {
+                                for (keyVal in ggp.keyValues) {
+                                    if (keyVal.keyText == "version") {
+                                        val pkgVer = keyVal.valueText
+                                        val mdwVer = projectSetup.mdwVersion.toString()
+                                        if (pkgVer != mdwVer) {
+                                            problemsHolder.registerProblem(keyVal.originalElement, "Package version does not match MDW version: $mdwVer",
+                                                    ProblemHighlightType.WARNING, ImportPackageQuickFix(projectSetup, yamlFile.virtualFile, "${gp.valueText} v$mdwVer"))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (elementType == "Sequence") {
                             // TODO assumes the only sequence in package.yaml is dependencies
                             val pkgVer = element.text
                             try {

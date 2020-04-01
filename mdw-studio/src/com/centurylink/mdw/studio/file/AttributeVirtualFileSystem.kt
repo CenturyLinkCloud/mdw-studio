@@ -12,12 +12,16 @@ import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.DeprecatedVirtualFileSystem
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
+import org.yaml.snakeyaml.error.YAMLException
 
 class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFileSystem {
 
@@ -157,16 +161,26 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
     }
 
     fun loadAttributeVirtualFiles(projectSetup: ProjectSetup, processAsset: Asset) {
+        if (processAsset.file.name.startsWith("._")) {
+            return // annoying macos exFAT attribute files
+        }
         val contents = String(processAsset.contents)
         if (contents.isBlank()) {
             return  // newly created process without any content
         }
-        val process = Process.fromString(contents)
-        process.name = processAsset.rootName
-        process.packageName = processAsset.pkg.name
-        process.id = processAsset.id
-        for (activity in process.activities) {
-            scanActivity(projectSetup, process, activity)
+        try {
+            val process = Process.fromString(contents)
+            process.name = processAsset.rootName
+            process.packageName = processAsset.pkg.name
+            process.id = processAsset.id
+            for (activity in process.activities) {
+                scanActivity(projectSetup, process, activity)
+            }
+        } catch (ex: YAMLException) {
+            val e = YAMLException("Error in process file: ${processAsset.file}", ex)
+            LOG.warn(e)
+            Notifications.Bus.notify(Notification("MDW", "Invalid Process ${processAsset.name}",
+                    e.toString(), NotificationType.ERROR), projectSetup.project)
         }
     }
 

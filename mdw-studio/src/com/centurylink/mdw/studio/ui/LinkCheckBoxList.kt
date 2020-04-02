@@ -17,7 +17,7 @@ interface LinkListListener {
 class LinkCheckBoxList: CheckBoxList<String>() {
 
     private val linkCellRenderer = LinkCellRenderer(this)
-    private var checkboxWidth = 0
+    var checkboxWidth = 0
     var linkListener: LinkListListener? = null
 
     init {
@@ -53,11 +53,6 @@ class LinkCheckBoxList: CheckBoxList<String>() {
 
     public override fun isEnabled(index: Int): Boolean {
         return super.isEnabled(index)
-    }
-
-    public override fun adjustRendering(rootComponent: JComponent, checkBox: JCheckBox, index: Int, selected: Boolean, hasFocus: Boolean): JComponent {
-        this.checkboxWidth = checkBox.width
-        return super.adjustRendering(rootComponent, checkBox, index, selected, hasFocus)
     }
 
     fun getHoverItem(x: Int, y: Int): Int {
@@ -103,11 +98,14 @@ class LinkCellRenderer(private val checkboxList: LinkCheckBoxList) : ListCellRen
         checkbox.isOpaque = true
         checkbox.text = null
 
+        if (checkbox.width > 0) checkboxList.checkboxWidth = checkbox.width
+
         val linkText = checkboxList.getItemAt(index)
         var rootComponent: JComponent = if (linkText != null) {
             val panel = JPanel(BorderLayout(LinkCheckBoxList.HGAP, LinkCheckBoxList.VGAP))
             panel.add(checkbox, BorderLayout.LINE_START)
             val linkLabel = JLabel(linkText, SwingConstants.LEFT)
+            linkLabel.alignmentX = Component.LEFT_ALIGNMENT
             linkLabel.border = JBUI.Borders.emptyRight(checkbox.insets.left)
             linkLabel.font = font
             panel.add(linkLabel, BorderLayout.CENTER)
@@ -119,9 +117,6 @@ class LinkCellRenderer(private val checkboxList: LinkCheckBoxList) : ListCellRen
             checkbox
         }
         rootComponent.border = if (isSelected) selectedBorder else cellBorder
-        val isRollOver = checkbox.model.isRollover
-        rootComponent = checkboxList.adjustRendering(rootComponent, checkbox, index, isSelected, cellHasFocus)
-        checkbox.model.isRollover = isRollOver
         return rootComponent
     }
 }

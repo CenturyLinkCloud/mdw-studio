@@ -1,12 +1,16 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.discovery.GitDiscoverer
+import com.centurylink.mdw.discovery.GitHubDiscoverer
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.prefs.MdwConfig
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
+import com.centurylink.mdw.studio.ui.LinkCheckBoxList
+import com.centurylink.mdw.studio.ui.LinkListListener
 import com.centurylink.mdw.studio.ui.widgets.LinkLabel
 import com.intellij.icons.AllIcons
+import com.intellij.ide.BrowserUtil
 import com.intellij.ide.util.treeView.NodeRenderer
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
@@ -14,7 +18,6 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
-import com.intellij.ui.CheckBoxList
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.concurrency.SwingWorker
@@ -78,7 +81,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
     private val rootNode = DefaultMutableTreeNode("Discovery Repositories")
     private val treeModel = DefaultTreeModel(rootNode)
     private val tree: Tree
-    private val packageList = CheckBoxList<String>()
+    private val packageList = LinkCheckBoxList()
     private val buttonPanel = object: JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)) {
         override fun getPreferredSize(): Dimension {
             return Dimension(super.getPreferredSize().width, BTM_HT)
@@ -161,6 +164,7 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                     if (it.isLeaf) {
                         packageList.setEmptyText("Loading...")
                         packageList.setItems(listOf<String>(), null)
+                        packageList.linkListener = null
                         packageList.repaint()
                         val refsNode = it.parent as RefsNode
                         val discoverer = refsNode.discoverer
@@ -186,7 +190,29 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                 else {
                                     val packageInfo = res as Map<*,*>
                                     for (pkg in discoverer.packages) {
-                                        packageList.addItem(pkg.toString(), packageInfo.get(pkg).toString(), false)
+                                        packageList.addItem(pkg.toString(), packageInfo[pkg].toString(), false)
+                                    }
+                                    packageList.linkListener = object: LinkListListener {
+                                        override fun itemLinkClicked(index: Int) {
+                                            selectedDiscoverer?.let { discoverer ->
+                                                packageList.getItemAt(index)?.let { pkg ->
+                                                    var url = discoverer.repoUrl.toString()
+                                                    if (discoverer.repoUrl.query != null) {
+                                                        url = url.substring(0, url.length - discoverer.repoUrl.query.length - 1)
+                                                    }
+                                                    url = url.substring(0, url.length - discoverer.repoUrl.path.length)
+                                                    if (discoverer.repoPath != null) {
+                                                        url += "/${discoverer.repoPath}"
+                                                    }
+                                                    val pkgPath = pkg.replace('.', '/')
+                                                    if (discoverer is GitHubDiscoverer) {
+                                                        url += "/blob/${discoverer.ref}/${discoverer.assetPath}/$pkgPath/readme.md"
+                                                        // https://github.com/CenturyLinkCloud/mdw/blob/master/mdw-workflow/assets/com/centurylink/mdw/kotlin/readme.md
+                                                    }
+                                                    BrowserUtil.browse(url)
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 packageList.repaint()
@@ -299,4 +325,3 @@ class RefsNode(val discoverer: GitDiscoverer, val refType: RefType) : DefaultMut
         }
     }
 }
-

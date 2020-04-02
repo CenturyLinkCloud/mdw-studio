@@ -206,13 +206,8 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                                         url += "/${discoverer.repoPath}"
                                                     }
                                                     val pkgPath = pkg.replace('.', '/')
-                                                    if (discoverer is GitHubDiscoverer) {
-                                                        url += "/blob/${discoverer.ref}/${discoverer.assetPath}/$pkgPath/readme.md"
-                                                        BrowserUtil.browse(url)
-                                                    }
-                                                    else if (discoverer is GitLabDiscoverer) {
-
-                                                    }
+                                                    url += "/blob/${discoverer.ref}/${discoverer.assetPath}/$pkgPath/readme.md"
+                                                    BrowserUtil.browse(url)
                                                 }
                                             }
                                         }

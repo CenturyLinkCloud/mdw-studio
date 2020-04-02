@@ -124,7 +124,18 @@ class GitImport(private val projectSetup: ProjectSetup, private val discoverer: 
             try {
                 Files.createDirectories(dest)
                 dest.toFile().deleteRecursively()
-                Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING)
+                val assetsFileStore = Files.getFileStore(File(projectSetup.assetDir.path).toPath())
+                val tmpFileStore = Files.getFileStore(src)
+                if (tmpFileStore.name() == assetsFileStore.name()) {
+                    Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING)
+                }
+                else {
+                    // Files.move() doesn't work across file stores (https://bugs.openjdk.java.net/browse/JDK-8201407)
+                    Files.walk(src).forEach { s ->
+                        val d = dest.resolve(src.relativize(s))
+                        Files.copy(s, d, StandardCopyOption.REPLACE_EXISTING)
+                    }
+                }
             } catch (ex: IOException) {
                 LOG.warn(ex)
                 Notifications.Bus.notify(Notification("MDW", "Asset Import Error", ex.toString(),

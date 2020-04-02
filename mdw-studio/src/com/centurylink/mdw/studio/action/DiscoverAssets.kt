@@ -2,6 +2,7 @@ package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.discovery.GitDiscoverer
 import com.centurylink.mdw.discovery.GitHubDiscoverer
+import com.centurylink.mdw.discovery.GitLabDiscoverer
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.prefs.MdwConfig
 import com.centurylink.mdw.studio.prefs.MdwSettings
@@ -207,9 +208,11 @@ class DiscoveryDialog(projectSetup: ProjectSetup) : DialogWrapper(projectSetup.p
                                                     val pkgPath = pkg.replace('.', '/')
                                                     if (discoverer is GitHubDiscoverer) {
                                                         url += "/blob/${discoverer.ref}/${discoverer.assetPath}/$pkgPath/readme.md"
-                                                        // https://github.com/CenturyLinkCloud/mdw/blob/master/mdw-workflow/assets/com/centurylink/mdw/kotlin/readme.md
+                                                        BrowserUtil.browse(url)
                                                     }
-                                                    BrowserUtil.browse(url)
+                                                    else if (discoverer is GitLabDiscoverer) {
+
+                                                    }
                                                 }
                                             }
                                         }

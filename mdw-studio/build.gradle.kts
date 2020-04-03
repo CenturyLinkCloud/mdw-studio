@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.centurylink.mdw"
-version = "2.1.2-SNAPSHOT"
+version = "2.1.2"
 
 sourceSets.main {
     withConvention(KotlinSourceSet::class) {
@@ -33,7 +33,7 @@ dependencies {
 }
 
 intellij {
-    version = "2019.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
+    version = "2019.3.4" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
     setPlugins("java", "git4idea", "YAML")  // "Kotlin"
 }
 

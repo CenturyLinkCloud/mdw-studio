@@ -28,9 +28,9 @@
 5. After success:
    - Uncomment PublishTask Channels in mdw-studio/build.gradle.kts (or upload assembled zip to plugin URL above)
    - Commit/push changes.
-6. Tag Git master branch (eg: 1.2.0):
+6. Tag Git master branch (eg: 2.x.x):
     ```
-    git tag -a 1.2.0 -m "1.2.0"
+    git tag -a 2.x.x -m "2.x.x"
     git tag
     git push origin --tags
     ```   
@@ -38,7 +38,7 @@
    - Close milestone in GitHub.
    - Generate changelog for milestone.
    ```
-   github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '1.x.x' --exclude-labels duplicate,invalid,wontfix,question --output changes.md
+   github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '2.x.x' --exclude-labels duplicate,invalid,wontfix,question --output changes.md
    ```
    - Merge changes.md into top of CHANGELOG.md.
    - Commit and push.

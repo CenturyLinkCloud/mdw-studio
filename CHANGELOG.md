@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.1.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.2) (2020-04-03)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.1...2.1.2)
+
+**Implemented enhancements:**
+
+- Enhanced process export [\#127](https://github.com/CenturyLinkCloud/mdw-studio/issues/127)
+- Package readme content should be linkable in discovery [\#126](https://github.com/CenturyLinkCloud/mdw-studio/issues/126)
+- Inspection for mismatched package versions [\#125](https://github.com/CenturyLinkCloud/mdw-studio/issues/125)
+
+**Fixed bugs:**
+
+- Git package import fails if tmp filestore is different from assets filestore [\#130](https://github.com/CenturyLinkCloud/mdw-studio/issues/130)
+- Gracefully handle unparseable .proc assets [\#129](https://github.com/CenturyLinkCloud/mdw-studio/issues/129)
+- Process definition yaml Java attributes can revert to one-line [\#128](https://github.com/CenturyLinkCloud/mdw-studio/issues/128)
+
 ## [2.1.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.1) (2020-02-18)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.0...2.1.1)
 

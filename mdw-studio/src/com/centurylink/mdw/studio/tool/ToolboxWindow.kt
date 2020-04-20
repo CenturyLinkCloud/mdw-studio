@@ -66,7 +66,6 @@ class ToolboxWindowFactory : ToolWindowFactory {
             ToolboxWindowFactory()
         }
         const val ID = "Toolbox";
-        val ICON = IconLoader.getIcon("/icons/toolbox.png")
     }
 }
 

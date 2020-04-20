@@ -641,7 +641,6 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
             if (toolWindow == null) {
                 toolWindow = toolWindowManager.registerToolWindow(MdwConsole.ID, false,
                         ToolWindowAnchor.BOTTOM)
-                toolWindow.icon = MdwConsole.ICON
             }
             return mdwConsole ?: synchronized(this) {
                 mdwConsole ?: MdwConsole(this, toolWindow).also { mdwConsole = it }

@@ -88,7 +88,7 @@ class MdwConsole(private val projectSetup: ProjectSetup, toolWindow: ToolWindow)
     }
 
     fun show() {
-        ToolWindowManager.getInstance(projectSetup.project).getToolWindow(ID).show(null)
+        ToolWindowManager.getInstance(projectSetup.project).getToolWindow(ID)?.show(null)
     }
 
     private fun createToolbar(): ActionToolbar {
@@ -114,6 +114,5 @@ class MdwConsole(private val projectSetup: ProjectSetup, toolWindow: ToolWindow)
 
     companion object {
         const val ID = "MDW"
-        val ICON = IconLoader.getIcon("/icons/console.png")
     }
 }

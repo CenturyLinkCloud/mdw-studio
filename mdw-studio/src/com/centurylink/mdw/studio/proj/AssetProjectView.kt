@@ -162,7 +162,7 @@ class AssetViewTreeStructure(project: Project) :
                     if (child is PsiDirectoryNode) {
                         val rootDir = child.virtualFile
                         if (rootDir != null && projectSetup.isAssetParent(rootDir)) {
-                            children.add(child)
+                            children.add(child as AbstractTreeNode<Any>)
                         }
                     }
                 }

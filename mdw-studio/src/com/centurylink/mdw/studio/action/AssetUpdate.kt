@@ -70,7 +70,6 @@ class AssetUpdate(private val projectSetup: ProjectSetup) {
                 val toolWindowManager = ToolWindowManager.getInstance(projectSetup.project)
                 if (toolWindowManager.getToolWindow(ToolboxWindowFactory.ID) == null) {
                     val toolbox = toolWindowManager.registerToolWindow(ToolboxWindowFactory.ID, false, ToolWindowAnchor.RIGHT)
-                    toolbox.icon = ToolboxWindowFactory.ICON
                     ToolboxWindowFactory.instance.createToolWindowContent(projectSetup.project, toolbox)
                 }
             }

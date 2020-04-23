@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.2.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.2.0) (2020-04-23)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.2...2.2.0)
+
+**Implemented enhancements:**
+
+- Compatibility with IntelliJ 2020.1 [\#118](https://github.com/CenturyLinkCloud/mdw-studio/issues/118)
+
 ## [2.1.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.1.2) (2020-04-03)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.1...2.1.2)
 

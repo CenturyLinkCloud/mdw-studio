@@ -114,7 +114,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Major version should be incremented to indicate possible breaking changes."
                     class="com.centurylink.mdw.studio.action.PackageVersion">
             </action>
-            <action id="mdwRunProcess" text="Run Process" icon="AllIcons.General.Run"
+            <action id="mdwRunProcess" text="Run Process" icon="AllIcons.Actions.Run_anything"
                     description="Run process via MDWHub"
                     class="com.centurylink.mdw.studio.action.RunProcess">
             </action>
@@ -126,7 +126,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     description="Show task instances in MDWHub"
                     class="com.centurylink.mdw.studio.action.TaskInstances">
             </action>
-            <action id="mdwRunAutotest" text="Run Test" icon="AllIcons.General.Run"
+            <action id="mdwRunAutotest" text="Run Test" icon="AllIcons.Actions.Run_anything"
                     description="Run MDW automated test case"
                     class="com.centurylink.mdw.studio.action.RunAutotest">
             </action>

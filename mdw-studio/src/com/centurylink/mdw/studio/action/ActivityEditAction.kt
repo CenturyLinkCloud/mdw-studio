@@ -25,8 +25,8 @@ import java.io.IOException
  * For activities whose main attribute can be opened in an inline editor.
  */
 class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: AttributeVirtualFile) :
-        AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).name, null,
-                FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).icon),
+        AnAction("Open " + FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).name.let { if (it == "UNKNOWN") ".${virtualFile.ext}" else it }, null,
+                FileTypeManager.getInstance().getFileTypeByExtension(virtualFile.ext).let { if (it.name == "UNKNOWN") null else it.icon } ),
         UpdateListeners by UpdateListenersDelegate() {
 
     val attributeName: String

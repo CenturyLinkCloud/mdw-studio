@@ -4,6 +4,7 @@ import com.centurylink.mdw.draw.edit.apply.WidgetApplier
 import com.centurylink.mdw.draw.edit.valueString
 import com.centurylink.mdw.draw.edit.version
 import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.asset.AssetVersion
 import com.centurylink.mdw.model.asset.AssetVersionSpec
 import com.centurylink.mdw.model.asset.Pagelet
 
@@ -30,7 +31,7 @@ class AssetAdapter(applier: WidgetApplier) : WidgetAdapter(applier) {
             }
             else {
                 widget.version?.let {
-                    AssetVersionSpec.getDefaultSmartVersionSpec(Asset.formatVersion(it))
+                    AssetVersionSpec.getDefaultSmartVersionSpec(AssetVersion.formatVersion(it))
                 }
             }
         }

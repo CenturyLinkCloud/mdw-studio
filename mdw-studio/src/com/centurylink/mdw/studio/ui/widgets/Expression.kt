@@ -27,6 +27,7 @@ class Expression(widget: Pagelet.Widget) : SwingWidget(widget) {
                 "Kotlin Script" -> "kts"
                 "javax.el" -> "java"
                 "JavaScript" -> "js"
+                "Python" -> "py"
                 else -> "groovy"
             }
         }

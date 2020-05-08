@@ -150,7 +150,7 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
         val removePaths = mutableListOf<String>()
         for (path in getVirtualFiles(projectSetup.project).keys) {
             if (path.startsWith("${processAsset.pkg.name}/")) {
-                if (path.endsWith(".java") || path.endsWith(".kts") || path.endsWith(".groovy") || path.endsWith(".js")) {
+                if (path.endsWith(".java") || path.endsWith(".kts") || path.endsWith(".groovy") || path.endsWith(".js") || path.endsWith(".py")) {
                     removePaths.add(path)
                 }
             }

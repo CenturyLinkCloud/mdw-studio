@@ -1,6 +1,7 @@
 package com.centurylink.mdw.draw.ext
 
 import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.asset.AssetVersion
 import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.task.TaskTemplate
@@ -21,7 +22,7 @@ fun TaskTemplate.update(project: Project, obj: JSONObject) {
             taskCategory = obj.getString("category")
         }
     }
-    version = if (obj.has("version")) Asset.parseVersion(obj.getString("version")) else 0
+    version = if (obj.has("version")) AssetVersion.parseVersion(obj.getString("version")) else 0
     language = "TASK"
     taskTypeId = TaskType.TASK_TYPE_TEMPLATE
 

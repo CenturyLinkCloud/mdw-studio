@@ -247,6 +247,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
                 "Kotlin Script" -> "kts"
                 "Groovy" -> "groovy"
                 "JavaScript" -> "js"
+                "Python" -> "py"
                 else -> DEFAULT_SCRIPT_EXT
             }
         }

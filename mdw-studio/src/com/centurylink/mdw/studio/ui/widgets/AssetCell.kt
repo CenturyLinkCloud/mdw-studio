@@ -1,6 +1,7 @@
 package com.centurylink.mdw.studio.ui.widgets
 
 import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.asset.AssetVersion
 import com.centurylink.mdw.model.asset.AssetVersionSpec
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import java.awt.Component
@@ -112,7 +113,7 @@ class AssetCellEditor(val isReadonly: Boolean, val projectSetup: ProjectSetup, v
                 else {
                     val asset = projectSetup.getAsset(assetPath)
                     if (asset != null) {
-                        val ver = AssetVersionSpec.getDefaultSmartVersionSpec(Asset.formatVersion(asset.version))
+                        val ver = AssetVersionSpec.getDefaultSmartVersionSpec(AssetVersion.formatVersion(asset.version))
                         table.model.setValueAt(ver, row, column + 1)
                     }
                 }

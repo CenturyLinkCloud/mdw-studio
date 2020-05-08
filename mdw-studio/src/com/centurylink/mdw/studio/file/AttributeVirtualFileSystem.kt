@@ -71,7 +71,12 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
                 var name = ScriptNaming.getValidName(process.rootName + "_" + workflowObj.id)
                 qualifier?.let { name += "_$it" }
                 val filePathNoExt = "${process.packageName}/$name"
-                var ext = AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                var ext = when {
+                    implClass.startsWith("com.centurylink.mdw.kotlin.") -> "kts"
+                    implClass.startsWith("com.centurylink.mdw.python.") -> "py"
+                    else -> AttributeVirtualFile.DEFAULT_SCRIPT_EXT
+                }
+                // explicitly set in attribute
                 workflowObj.getAttribute("SCRIPT")?.let { scriptAttr ->
                     ext = AttributeVirtualFile.getScriptExt(scriptAttr)
                 }

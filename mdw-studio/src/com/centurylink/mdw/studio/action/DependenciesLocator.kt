@@ -1,8 +1,8 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.discovery.GitDiscoverer
-import com.centurylink.mdw.model.PackageDependency
 import com.centurylink.mdw.model.project.Data
+import com.centurylink.mdw.model.workflow.PackageDependency
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.util.file.Packages

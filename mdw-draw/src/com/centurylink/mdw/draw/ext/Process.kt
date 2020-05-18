@@ -7,7 +7,7 @@ import com.centurylink.mdw.constant.WorkAttributeConstant.WORK_DISPLAY_INFO
 import com.centurylink.mdw.constant.WorkTransitionAttributeConstant.TRANSITION_DISPLAY_INFO
 import com.centurylink.mdw.draw.Display
 import com.centurylink.mdw.draw.LinkDisplay
-import com.centurylink.mdw.model.attribute.Attribute
+import com.centurylink.mdw.model.Attributes
 import com.centurylink.mdw.model.event.EventType
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.*
@@ -194,12 +194,12 @@ fun Process.addTextNote(x: Int, y: Int): TextNote {
 fun Process.set(process: Process) {
     description = process.description
     val displayInfo = getAttribute(WORK_DISPLAY_INFO)
-    val processAttributes = mutableListOf<Attribute>()
-    for (attribute in process.attributes) {
-        if (attribute.name.startsWith("[activities]_")) {
+    val processAttributes = Attributes()
+    process.attributes.forEach { attributeName, attributeValue ->
+        if (attributeName.startsWith("[activities]_")) {
             // attribute is applied to all activities instead of process
-            val name = attribute.name.substring(13)
-            val value = attribute.value
+            val name = attributeName.substring(13)
+            val value = attributeValue
             val allActivities = mutableListOf<Activity>()
             allActivities.addAll(process.activities)
             process.subprocesses?.let { subprocs ->
@@ -219,22 +219,23 @@ fun Process.set(process: Process) {
                         }
                         val jsonArray = JSONArray(value)
                         monitorsAttr.setEnabled(jsonArray.getString(2), jsonArray.getString(1), jsonArray.getString(0) == "true")
-                        Attribute(WorkAttributeConstant.MONITORS, monitorsAttr.toString())
+                        Pair(WorkAttributeConstant.MONITORS, monitorsAttr.toString())
                     }
                     else -> {
-                        Attribute(name, value)
+                        Pair(name, value)
                     }
                 }
-                activity.setAttribute(activityAttribute.name, activityAttribute.value)
+                activity.setAttribute(activityAttribute.first, activityAttribute.second)
                 setActivity(activity.logicalId, activity)
             }
         }
         else {
-            processAttributes.add(attribute)
+            processAttributes[attributeName] = attributeValue
         }
     }
-    attributes = processAttributes
-    setAttribute(WORK_DISPLAY_INFO, displayInfo)
+    attributes.clear()
+    attributes.putAll(processAttributes)
+    attributes[WORK_DISPLAY_INFO] = displayInfo
     variables = process.variables
 }
 

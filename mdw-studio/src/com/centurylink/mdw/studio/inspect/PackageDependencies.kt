@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.inspect
 
-import com.centurylink.mdw.model.PackageDependency
+import com.centurylink.mdw.model.workflow.PackageDependency
 import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.studio.action.DependenciesCheck
 import com.centurylink.mdw.studio.action.DependenciesLocator

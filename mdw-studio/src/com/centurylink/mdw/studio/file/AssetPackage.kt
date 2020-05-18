@@ -1,8 +1,9 @@
 package com.centurylink.mdw.studio.file
 
-import com.centurylink.mdw.model.PackageMeta
+import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.model.system.MdwVersion
+import com.centurylink.mdw.model.workflow.PackageMeta
 import com.centurylink.mdw.util.file.MdwIgnore
 import com.centurylink.mdw.util.file.VersionProperties
 import com.intellij.openapi.vfs.VirtualFile
@@ -63,14 +64,13 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     init {
         try {
-            val pkgMeta = PackageMeta(metaFile.contentsToByteArray())
+            val pkgMeta = PackageMeta(Yamlable.fromString(String(metaFile.contentsToByteArray())))
             val parsedName = pkgMeta.name
             if (name != parsedName) {
                 throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
             }
-            val mdwVer = MdwVersion(pkgMeta.version)
-            version = mdwVer.intVersion
-            snapshot = mdwVer.isSnapshot
+            version = pkgMeta.version.intVersion
+            snapshot = pkgMeta.version.isSnapshot
             schemaVersion = pkgMeta.schemaVersion
             pkgMeta.dependencies?.let { dependencies = it }
         }

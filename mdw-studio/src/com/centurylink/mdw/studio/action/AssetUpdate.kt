@@ -4,7 +4,7 @@ import com.centurylink.mdw.cli.Update
 import com.centurylink.mdw.model.system.MdwVersion
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.centurylink.mdw.studio.tool.ToolboxWindowFactory
-import com.centurylink.mdw.util.file.Packages
+import com.centurylink.mdw.file.Packages
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType

@@ -7,7 +7,7 @@ import com.centurylink.mdw.config.PropertyException
 import com.centurylink.mdw.config.PropertyGroup
 import com.centurylink.mdw.config.YamlProperties
 import com.centurylink.mdw.constant.PropertyNames
-import com.centurylink.mdw.dataaccess.file.VersionControlGit
+import com.centurylink.mdw.git.VersionControlGit
 import com.centurylink.mdw.file.Packages
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.project.Data

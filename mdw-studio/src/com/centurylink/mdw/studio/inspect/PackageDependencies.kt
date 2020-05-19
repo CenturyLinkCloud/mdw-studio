@@ -1,13 +1,13 @@
 package com.centurylink.mdw.studio.inspect
 
-import com.centurylink.mdw.model.workflow.PackageDependency
+import com.centurylink.mdw.file.Packages
 import com.centurylink.mdw.model.system.BadVersionException
+import com.centurylink.mdw.model.workflow.PackageDependency
 import com.centurylink.mdw.studio.action.DependenciesCheck
 import com.centurylink.mdw.studio.action.DependenciesLocator
 import com.centurylink.mdw.studio.action.GitImport
 import com.centurylink.mdw.studio.action.PackageDependencies
 import com.centurylink.mdw.studio.proj.ProjectSetup
-import com.centurylink.mdw.util.file.Packages
 import com.intellij.codeInspection.*
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -20,7 +20,6 @@ import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.elementType
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
-import org.jetbrains.yaml.psi.impl.YAMLBlockMappingImpl
 
 class PackageDependencies : LocalInspectionTool() {
 

@@ -11,7 +11,6 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.IOException

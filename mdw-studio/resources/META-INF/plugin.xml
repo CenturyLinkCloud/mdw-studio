@@ -85,8 +85,6 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.NewProcess"  />
             <action id="mdwNewTask" text="MDW Task" icon="/icons/task.gif"
                     class="com.centurylink.mdw.studio.action.NewTask" />
-            <action id="mdwEventHandler" text="MDW Event Handler" icon="/icons/extevent_wiz.gif"
-                    class="com.centurylink.mdw.studio.action.NewEventHandler" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
         <group id="mdwNewActivity" text="MDW Activity" icon="/icons/impl.gif" popup="true">
@@ -103,6 +101,13 @@ that makes it easy for you to create workflow processes and other assets.<br>
                     class="com.centurylink.mdw.studio.action.NewRestApiKotlin" />
             <action id="mdwNewRestFromSwagger" text="Swagger API(s)" icon="/icons/swagger.png"
                     class="com.centurylink.mdw.studio.action.NewSwaggerApi"  />
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
+        </group>
+        <group id="mdwNewHandler" text="MDW Handler" icon="/icons/handler.gif" popup="true">
+            <action id="mdwNewHandlerJava" text="Java Request Handler" icon="AllIcons.FileTypes.Java"
+                    class="com.centurylink.mdw.studio.action.NewHandlerJava"  />
+            <action id="mdwNewHandlerKotlin" text="Kotlin Request Handler" icon="/icons/kotlin_file.png"
+                    class="com.centurylink.mdw.studio.action.NewHandlerKotlin" />
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile" />
         </group>
         <group id="mdwAssetActions" text="MDW">

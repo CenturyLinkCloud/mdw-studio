@@ -22,7 +22,11 @@ abstract class NewHandler(title: String, icon: Icon) : NewAssetAction(title, DES
 
         val values = mutableMapOf<String,Any?>(
                 "className" to baseName,
-                "packageName" to assetPackageName
+                "packageName" to assetPackageName,
+                "path" to "/my/endpoint/path",
+                "routing" to "Path",
+                "event" to "my-unique-event-name",
+                "process" to "my.package.name/MyProcess.proc"
         )
         val content = substitute(loadTemplate(assetName, templatePath), values)
         val psiFile = createAndOpen(dir, assetName, content)

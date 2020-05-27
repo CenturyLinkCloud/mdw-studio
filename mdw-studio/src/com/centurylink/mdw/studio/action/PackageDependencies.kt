@@ -1,7 +1,7 @@
 package com.centurylink.mdw.studio.action
 
 import com.centurylink.mdw.cli.Dependencies
-import com.centurylink.mdw.model.PackageDependency
+import com.centurylink.mdw.model.workflow.PackageDependency
 import com.centurylink.mdw.studio.inspect.DependenciesInspector
 import com.centurylink.mdw.studio.prefs.MdwSettings
 import com.centurylink.mdw.studio.proj.ProjectSetup

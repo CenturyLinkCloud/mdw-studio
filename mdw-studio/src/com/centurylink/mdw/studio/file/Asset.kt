@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.file
 
-import com.centurylink.mdw.util.file.MdwIgnore
+import com.centurylink.mdw.file.MdwIgnore
 import com.intellij.openapi.vfs.VirtualFile
 import java.io.File
 import java.security.MessageDigest

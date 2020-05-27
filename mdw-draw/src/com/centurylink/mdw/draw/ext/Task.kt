@@ -1,11 +1,9 @@
 package com.centurylink.mdw.draw.ext
 
-import com.centurylink.mdw.model.asset.Asset
+import com.centurylink.mdw.model.Attributes
 import com.centurylink.mdw.model.asset.AssetVersion
-import com.centurylink.mdw.model.attribute.Attribute
 import com.centurylink.mdw.model.project.Project
 import com.centurylink.mdw.model.task.TaskTemplate
-import com.centurylink.mdw.model.task.TaskType
 import org.json.JSONObject
 
 fun TaskTemplate.update(project: Project, obj: JSONObject) {
@@ -23,25 +21,20 @@ fun TaskTemplate.update(project: Project, obj: JSONObject) {
         }
     }
     version = if (obj.has("version")) AssetVersion.parseVersion(obj.getString("version")) else 0
-    language = "TASK"
-    taskTypeId = TaskType.TASK_TYPE_TEMPLATE
 
-    var attrsJson: JSONObject? = null
-    if (obj.has("attributes")) {
-        attrsJson = obj.getJSONObject("attributes")
-    }
-    if (obj.has("description")) {
-        attrsJson?.put("TaskDescription", obj.getString("description"))
-    }
-    attributes = Attribute.getAttributes(attrsJson)
-    val vars = getAttribute("Variables")
-    if (vars != null) {
-        setVariablesFromString(vars, null )
-    }
+//    var attrsJson: JSONObject? = null
+//    if (obj.has("attributes")) {
+//        attrsJson = obj.getJSONObject("attributes")
+//    }
+//    if (obj.has("description")) {
+//        attrsJson?.put("TaskDescription", obj.getString("description"))
+//    }
+
+    setVariablesFromAttribute("Variables", null)
     val groups = getAttribute("Groups")
     if (groups != null) {
         setUserGroupsFromString(groups)
     }
-    removeAttribute("TaskSLA_UNITS");
-    removeAttribute("ALERT_INTERVAL_UNITS");
+    attributes.remove("TaskSLA_UNITS");
+    attributes.remove("ALERT_INTERVAL_UNITS");
 }

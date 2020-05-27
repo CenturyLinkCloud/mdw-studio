@@ -1,10 +1,11 @@
 package com.centurylink.mdw.studio.file
 
-import com.centurylink.mdw.model.PackageMeta
+import com.centurylink.mdw.model.Yamlable
 import com.centurylink.mdw.model.system.BadVersionException
 import com.centurylink.mdw.model.system.MdwVersion
-import com.centurylink.mdw.util.file.MdwIgnore
-import com.centurylink.mdw.util.file.VersionProperties
+import com.centurylink.mdw.model.workflow.PackageMeta
+import com.centurylink.mdw.file.MdwIgnore
+import com.centurylink.mdw.file.VersionProperties
 import com.intellij.openapi.vfs.VirtualFile
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.ByteArrayInputStream
@@ -63,21 +64,20 @@ class AssetPackage(val name: String, val dir: VirtualFile) {
 
     init {
         try {
-            val pkgMeta = PackageMeta(metaFile.contentsToByteArray())
+            val pkgMeta = PackageMeta(Yamlable.fromString(String(metaFile.contentsToByteArray())))
             val parsedName = pkgMeta.name
             if (name != parsedName) {
                 throw YAMLException("$PACKAGE_YAML: $parsedName is not $name")
             }
-            val mdwVer = MdwVersion(pkgMeta.version)
-            version = mdwVer.intVersion
-            snapshot = mdwVer.isSnapshot
+            version = pkgMeta.version.intVersion
+            snapshot = pkgMeta.version.isSnapshot
             schemaVersion = pkgMeta.schemaVersion
             pkgMeta.dependencies?.let { dependencies = it }
         }
         catch (ex: BadVersionException) {
             throw BadVersionException("Bad version in package meta: $metaFile", ex)
         }
-        catch (ex: YAMLException) {
+        catch (ex: Exception) {
             throw YAMLException("Error parsing package meta: $metaFile (${ex.message})", ex)
         }
     }

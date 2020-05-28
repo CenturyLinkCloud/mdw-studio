@@ -12,11 +12,15 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTypesUtil
+import org.json.JSONObject
 import java.util.*
 
 class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,ActivityImplementor>() {
 
     init {
+        for (implAsset in projectSetup.findAssetsOfType("impl")) {
+            add(ActivityImplementor(JSONObject(String(implAsset.contents))))
+        }
         val javaPsiFacade = JavaPsiFacade.getInstance(projectSetup.project)
         val annotationPsi = javaPsiFacade.findClass(Activity::class.java.name, GlobalSearchScope.allScope(projectSetup.project))
         if (annotationPsi != null) {

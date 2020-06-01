@@ -8,40 +8,30 @@
 2. Settings/Preferences > Plugins > Install Plugin from Disk
 3. Browse to mdw-studio/build/distributions/mdw-studio-X.X.X.zip
 4. Restart IntellJ when prompted
+5. Test features/functionality.
 
-## Beta Channel
-  - http://www.jetbrains.org/intellij/sdk/docs/plugin_repository/custom_channels.html
- 
-## Plugin URL
-  - https://plugins.jetbrains.com/plugin/11095-mdw-studio
-  
 ## Publish
-0. (One-time step) Add valid credentials in ~/.gradle/gradle.properties (in your HOME directory):
-   ```
-   intellijPublishUsername=myusername
-   intellijPublishPassword=mypassword
-   ```
-1. Update version in build.gradle.kts (x2) and resources/META-INF/plugin.xml.
-2. Remove previous snapshot from beta channel if present.
-3. (Release build only) - Comment out the PublishTask Channels entry in mdw-studio/build.gradle.kts (but do not commit)
-4. Run Gradle task intellij/publishPlugin.
-5. After success:
-   - Uncomment PublishTask Channels in mdw-studio/build.gradle.kts (or upload assembled zip to plugin URL above)
-   - Commit/push changes.
-6. Tag Git master branch (eg: 2.x.x):
+1. Log in to JetBrains plugin site:
+   https://plugins.jetbrains.com/plugin/11095-mdw-studio
+2. Click "Upload Update" and browse to mdw-studio/build/distributions/mdw-studio-X.X.X.zip
+3. Upload to Stable channel
+4. Commit/push changes.
+5. Tag Git master branch (eg: 2.x.x):
     ```
     git tag -a 2.x.x -m "2.x.x"
     git tag
     git push origin --tags
     ```   
-7. Changelog (in top-level mdw-studio):
+6. Changelog (in top-level mdw-studio):
    - Close milestone in GitHub.
    - Generate changelog for milestone.
    ```
    github_changelog_generator --no-pull-request  --filter-by-milestone --future-release '2.x.x' --exclude-labels duplicate,invalid,wontfix,question --output changes.md
    ```
-   - Merge changes.md into top of CHANGELOG.md.
+   - Merge generated changes.md into top of CHANGELOG.md.
    - Commit and push.
-9. Next snapshot
+7. Next snapshot
    - Set next SNAPSHOT in build.gradle.kts x2 + plugin.xml
    - Commit and push snapshot versions.
+8. Studio upgrade will be available once new version is accepted by JetBrains.   
+

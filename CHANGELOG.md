@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.2.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.2.1) (2020-06-01)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.2.0x...2.2.1)
+
+**Implemented enhancements:**
+
+- Support annotation-driven customization [\#132](https://github.com/CenturyLinkCloud/mdw-studio/issues/132)
+- Python script activity editing [\#131](https://github.com/CenturyLinkCloud/mdw-studio/issues/131)
+
+**Fixed bugs:**
+
+- Obsolete icons referenced in plugin definition file [\#134](https://github.com/CenturyLinkCloud/mdw-studio/issues/134)
+
 ## [2.2.0](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.2.0) (2020-04-23)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.1.2...2.2.0)
 

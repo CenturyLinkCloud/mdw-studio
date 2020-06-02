@@ -12,6 +12,7 @@ import com.centurylink.mdw.file.Packages
 import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.system.MdwVersion
+import com.centurylink.mdw.model.variable.VariableType
 import com.centurylink.mdw.model.workflow.ActivityImplementor
 import com.centurylink.mdw.studio.console.MdwConsole
 import com.centurylink.mdw.studio.file.Asset
@@ -181,6 +182,22 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
      */
     override fun getActivityImplementors(): Map<String,ActivityImplementor> {
         return implementors.toSortedMap()
+    }
+
+    private var _varTypes: VariableTypes? = null
+    val varTypes: VariableTypes
+        get() {
+            if (_varTypes == null) {
+                _varTypes = VariableTypes(this)
+            }
+            return _varTypes as VariableTypes
+        }
+
+    /**
+     * For Project interface.  Supply variable types coming from compiled code annotations.
+     */
+    override fun getVariableTypes(): MutableMap<String, VariableType> {
+        return varTypes
     }
 
     private var implementorChangeListeners = mutableListOf<ImplementorChangeListener>()

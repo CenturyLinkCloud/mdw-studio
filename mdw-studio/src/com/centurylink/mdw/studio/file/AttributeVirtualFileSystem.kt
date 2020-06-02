@@ -1,16 +1,15 @@
 package com.centurylink.mdw.studio.file
 
 import com.centurylink.mdw.activity.types.AdapterActivity
-import com.centurylink.mdw.activity.types.GeneralActivity
+import com.centurylink.mdw.activity.types.JavaActivity
 import com.centurylink.mdw.activity.types.ScriptActivity
-import com.centurylink.mdw.draw.ext.rootName
 import com.centurylink.mdw.draw.model.WorkflowObj
 import com.centurylink.mdw.draw.model.WorkflowType
 import com.centurylink.mdw.java.JavaNaming
-import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.model.workflow.Activity
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -47,8 +46,8 @@ class AttributeVirtualFileSystem : DeprecatedVirtualFileSystem(), NonPhysicalFil
         val process = workflowObj.asset as Process
         val implClass = workflowObj.obj.getString("implementor")
         projectSetup.implementors[implClass]?.let { implementor ->
-            if (implementor.category == GeneralActivity::class.qualifiedName &&
-                    (implClass == Data.Implementors.DYNAMIC_JAVA || workflowObj.getAttribute("Java") != null)) {
+            if (implementor.category == JavaActivity::class.qualifiedName ||
+                    implClass == Implementors.DYNAMIC_JAVA || workflowObj.getAttribute("Java") != null) {
                 var name = workflowObj.getAttribute("ClassName")
                 if (name == null) {
                     name = JavaNaming.getValidClassName(process.rootName + "_" + workflowObj.id)

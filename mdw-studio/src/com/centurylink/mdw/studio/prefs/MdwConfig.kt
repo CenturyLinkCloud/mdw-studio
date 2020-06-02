@@ -33,7 +33,7 @@ class MdwConfig : SearchableConfigurable {
         }
     }
 
-    private val serverPollingCheckbox = CheckBox("Poll to detect running server (requires restart)")
+    private val serverPollingCheckbox = CheckBox("Ping to detect running server (requires restart)")
 
     private val gridLinesCheckbox = CheckBox("Show grid lines when editable")
     private val snapToGridCheckbox = CheckBox("Snap to grid when dragging")

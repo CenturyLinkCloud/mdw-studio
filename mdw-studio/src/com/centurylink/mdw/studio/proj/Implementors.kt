@@ -71,6 +71,8 @@ class Implementors(val projectSetup : ProjectSetup) : LinkedHashMap<String,Activ
 
         val LOG = Logger.getInstance(Implementors::class.java)
 
+        const val DYNAMIC_JAVA = "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity"
+
         const val ACTIVITY_IMPLEMENTOR = "mdwActivityImplementor"
         val IMPLEMENTOR_DATA_KEY = DataKey.create<ActivityImplementor>(ACTIVITY_IMPLEMENTOR)
 

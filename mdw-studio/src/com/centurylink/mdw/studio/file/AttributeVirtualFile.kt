@@ -7,6 +7,7 @@ import com.centurylink.mdw.java.JavaNaming
 import com.centurylink.mdw.model.workflow.Process
 import com.centurylink.mdw.script.ScriptNaming
 import com.centurylink.mdw.studio.prefs.MdwSettings
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.lang.Language
@@ -48,7 +49,7 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
             }
 
             if (workflowObj.getAttribute("Java") != null || (workflowObj.obj.has("implementor") &&
-                            workflowObj.obj.get("implementor") == "com.centurylink.mdw.workflow.activity.java.DynamicJavaActivity")) {
+                            workflowObj.obj.get("implementor") == Implementors.DYNAMIC_JAVA)) {
                 return "java"
             }
             for (langAttr in attrEditsJson.get("languageAttributes").asJsonArray) {

@@ -40,7 +40,7 @@ class SelectionBuilder(private val diagram: Diagram) {
                 val implementor = diagram.implementors[activity.implementor] ?: ActivityImplementor(activity.implementor)
                 activity.id = activityId
                 activity.setAttribute(WorkAttributeConstant.LOGICAL_ID, "A$activityId")
-                if (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA) {
+                if (implementor.isJava) {
                     val name = activity.getAttribute("ClassName")
                     if (name != null) {
                         activity.setAttribute("ClassName", name.substring(0,name.indexOf("_")) + "_A$activityId")

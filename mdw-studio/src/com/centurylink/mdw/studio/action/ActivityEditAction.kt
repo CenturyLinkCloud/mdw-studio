@@ -3,8 +3,8 @@ package com.centurylink.mdw.studio.action
 import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.draw.model.WorkflowObj
-import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -32,7 +32,7 @@ class ActivityEditAction(var workflowObj: WorkflowObj, var virtualFile: Attribut
     val attributeName: String
         get() {
             val isJava = workflowObj.getAttribute("Java") != null ||
-                    workflowObj.obj.optString("implementor") == Data.Implementors.DYNAMIC_JAVA
+                    workflowObj.obj.optString("implementor") == Implementors.DYNAMIC_JAVA
             return if (isJava) {
                 "Java"
             }

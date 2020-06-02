@@ -74,9 +74,8 @@ fun Pagelet.Widget.init(category: String, workflowObj: WorkflowObj): WidgetAdapt
             options = (workflowObj.asset as Process).variables.map { it.name }
         }
         "DocumentVariables" -> {
-            val docTypes = workflowObj.project.data.documentTypes.keys
             options = (workflowObj.asset as Process).variables.filter {
-                docTypes.contains(it.type)
+                workflowObj.project.variableTypes[it.type]?.isDocument ?: false
             }.map { it.name }
         }
         "UserGroup" -> {

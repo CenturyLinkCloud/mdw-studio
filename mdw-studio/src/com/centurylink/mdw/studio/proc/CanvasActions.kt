@@ -1,6 +1,6 @@
 package com.centurylink.mdw.studio.proc
 
-import com.centurylink.mdw.activity.types.GeneralActivity
+import com.centurylink.mdw.activity.types.JavaActivity
 import com.centurylink.mdw.activity.types.ScriptActivity
 import com.centurylink.mdw.activity.types.TaskActivity
 import com.centurylink.mdw.constant.WorkAttributeConstant
@@ -11,10 +11,10 @@ import com.centurylink.mdw.draw.edit.UpdateListeners
 import com.centurylink.mdw.draw.edit.UpdateListenersDelegate
 import com.centurylink.mdw.drawio.MxGraphParser
 import com.centurylink.mdw.model.asset.Pagelet
-import com.centurylink.mdw.model.project.Data
 import com.centurylink.mdw.studio.file.Asset
 import com.centurylink.mdw.studio.file.AttributeVirtualFile
 import com.centurylink.mdw.studio.file.AttributeVirtualFileSystem
+import com.centurylink.mdw.studio.proj.Implementors
 import com.centurylink.mdw.studio.proj.ProjectSetup
 import com.intellij.ide.CopyProvider
 import com.intellij.ide.CutProvider
@@ -198,8 +198,8 @@ val Step.associatedEdit: AttributeVirtualFile?
     get() {
 
         val isScript = implementor.category == ScriptActivity::class.qualifiedName
-        val isJava = implementor.category == GeneralActivity::class.qualifiedName &&
-                (implementor.implementorClass == Data.Implementors.DYNAMIC_JAVA || activity.getAttribute("Java") != null)
+        val isJava = implementor.category == JavaActivity::class.qualifiedName ||
+                implementor.implementorClass == Implementors.DYNAMIC_JAVA || activity.getAttribute("Java") != null
 
         return if (isScript || isJava) {
             val content = if (isJava) activity.getAttribute("Java") else activity.getAttribute("Rule")

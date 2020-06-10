@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.2.2](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.2.2) (2020-06-10)
+[Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.2.1...2.2.2)
+
+**Implemented enhancements:**
+
+- Support custom variable types [\#135](https://github.com/CenturyLinkCloud/mdw-studio/issues/135)
+
 ## [2.2.1](https://github.com/CenturyLinkCloud/mdw-studio/tree/2.2.1) (2020-06-01)
 [Full Changelog](https://github.com/CenturyLinkCloud/mdw-studio/compare/2.2.0x...2.2.1)
 

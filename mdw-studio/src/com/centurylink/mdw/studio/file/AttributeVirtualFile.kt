@@ -160,8 +160,8 @@ class AttributeVirtualFile(var workflowObj: WorkflowObj, val attributeName: Stri
                                                     }
                                                 }
                                             })
-                                            .show()
-                                    sync = res == Messages.YES
+                                            .ask(project)
+                                    sync = res
                                 }
                                 return if (sync) {
                                     val fixedClass = PsiElementFactory.SERVICE.getInstance(project).createClass(dynamicJavaClassName)

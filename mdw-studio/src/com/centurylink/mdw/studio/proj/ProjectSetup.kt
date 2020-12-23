@@ -82,13 +82,6 @@ class ProjectSetup(val project: Project) : ProjectComponent, com.centurylink.mdw
         return File(assetDir.path)
     }
 
-    fun getMdwCentralUrl(): String {
-        val url = getMdwProp(PropertyNames.MDW_CENTRAL_URL)
-        if (url != null)
-            return url
-        return "https://mdw-central.com"
-    }
-
     val milestoneGroups: PropertyGroup? by lazy {
         setup?.mdwConfig?.let {
             val mdwYaml = YamlProperties("mdw", File("${setup?.configRoot ?: ""}/$it"))

@@ -44,7 +44,7 @@ class AssetCheckinHandler(private val project: Project, private val checkinPanel
                             "Vercheck failed with $errorCount errors")
                             .yesText("Auto Fix Versions")
                             .noText("Commit Anyway")
-                            .show()
+                            .show(project)
 
                     when (res) {
                         Messages.YES -> {

@@ -40,7 +40,7 @@ class VercheckAssets : AssetToolsAction() {
                                     }
                                 }
                             })
-                            .show()
+                            .show(projectSetup.project)
                     autofix = res == Messages.YES
                 }
 

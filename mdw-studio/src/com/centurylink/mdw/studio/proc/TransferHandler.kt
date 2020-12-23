@@ -99,8 +99,8 @@ class TransferHandler(private val canvas: ProcessCanvas) : javax.swing.TransferH
                                                 }
                                             }
                                         })
-                                        .show()
-                                create = res == Messages.YES
+                                        .ask(projectSetup.project)
+                                create = res
                             }
                             if (create) {
                                 var customTemplate: String? = null

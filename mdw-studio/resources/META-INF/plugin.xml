@@ -31,7 +31,6 @@ that makes it easy for you to create workflow processes and other assets.<br>
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <errorHandler implementation="com.centurylink.mdw.studio.MdwErrorReporter"/>
         <projectViewPane implementation="com.centurylink.mdw.studio.proj.AssetProjectView"/>
         <fileTypeFactory implementation="com.centurylink.mdw.studio.file.FileTypeFactory"/>
         <fileEditorProvider implementation="com.centurylink.mdw.studio.proc.ProcessEditorProvider"/>
@@ -71,6 +70,7 @@ that makes it easy for you to create workflow processes and other assets.<br>
         <localInspection language="JAVA" displayName="Activity Logger" groupName="MDW"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="com.centurylink.mdw.studio.inspect.ActivityLogger"/>
+        <notificationGroup id="MDW" displayType="BALLOON" />
     </extensions>
 
     <!--

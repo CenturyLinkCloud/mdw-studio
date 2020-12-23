@@ -60,7 +60,7 @@ class PackageDependencies : CodeInspectionAction(), DependenciesInspector {
                                     }
                                 }
                             })
-                            .show()
+                            .show(projectSetup.project)
                     attemptImport = res == Messages.YES
                     isCancel = res == Messages.CANCEL
                 }

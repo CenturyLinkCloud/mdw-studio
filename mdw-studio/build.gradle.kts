@@ -33,7 +33,7 @@ dependencies {
 }
 
 intellij {
-    version = "2020.2" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
+    version = "2020.3" // or like "192.5728-EAP-CANDIDATE-SNAPSHOT"
     setPlugins("java", "git4idea", "YAML")  // "Kotlin"
 }
 

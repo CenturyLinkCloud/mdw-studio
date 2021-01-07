@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.centurylink.mdw.studio</id>
     <name>MDW Studio</name>
-    <version>2.2.4-SNAPSHOT</version>
+    <version>2.2.4</version>
     <vendor email="mdwdev@centurylink.com" url="https://centurylinkcloud.github.io/mdw/">MDW</vendor>
 
     <description><![CDATA[
@@ -9,7 +9,7 @@ MDW Studio is the official design tool built on the IntelliJ platform
 that makes it easy for you to create workflow processes and other assets.<br>
 <a href="https://centurylinkcloud.github.io/mdw/">MDW Site</a><br>
 <a href="https://centurylinkcloud.github.io/mdw/docs/getting-started/">Getting Started</a><br>
-<a href="http://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio Guide</a><br>
+<a href="https://centurylinkcloud.github.io/mdw/docs/guides/mdw-studio/">MDW Studio Guide</a><br>
 ]]></description>
 
     <change-notes><![CDATA[
